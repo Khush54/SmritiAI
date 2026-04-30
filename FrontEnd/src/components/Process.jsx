@@ -7,7 +7,7 @@ function Process() {
         { n: '03', title: 'Get Your Report', desc: 'Receive a clear, colour-coded risk report with specific recommendations and doctor referral if needed.', color: 'var(--green)' },
     ];
     return (
-        <div className="section">
+        <div className="section" id='process'>
             <div className="section-label">Process</div>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px', marginBottom: '36px' }}>Three Steps to Clarity</h2>
             <div className="grid-3">

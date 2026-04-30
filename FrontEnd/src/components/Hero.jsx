@@ -2,7 +2,7 @@ import React from 'react';
 
 function Hero({ setPage }) {
     return (
-        <div className="hero-section">
+        <div className="hero-section" id='hero'>
             <div className="hero-content">
                 <div className="hero-badge">
                     🏥 Trusted by 50+ Neurology Centers Across India

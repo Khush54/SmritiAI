@@ -9,7 +9,7 @@ function Feature() {
   ];
 
   return (
-    <div className="section">
+    <div className="section" id='feature'>
       <div className="section-label">What We Test</div>
       
       <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px', marginBottom: '8px' }}>

@@ -24,6 +24,7 @@ function Auth({ setPage }) {
                 padding: '7px',
                 textAlign: 'center',
                 fontSize: '13px',
+                color: authTab === t ? 'var(--text-primary)' : 'var(--text-secondary)',
                 background: authTab === t ? 'var(--surface)' : 'transparent',
                 boxShadow: authTab === t ? 'var(--shadow-sm)' : 'none',
                 borderRadius: 'var(--radius-sm)',
@@ -59,10 +60,10 @@ function Auth({ setPage }) {
         )}
 
         {!isLogin && (
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <input type="text" className="form-input" placeholder={isLogin ? 'Enter Full Name' : 'Khushpreet Kaur'} />
-            </div>
+          <div className="form-group">
+            <label className="form-label">Full Name</label>
+            <input type="text" className="form-input" placeholder={isLogin ? 'Enter Full Name' : 'Khushpreet Kaur'} />
+          </div>
         )}
 
         <div className="form-group">
@@ -118,6 +119,12 @@ function Auth({ setPage }) {
               </span>
             </>
           )}
+        </p>
+
+        <p style={{ textAlign: 'center', fontSize: '12px', marginTop: '10px' }}>
+          <span style={{ color: 'var(--blue)', cursor: 'pointer' }} onClick={() => setPage('landing')}>
+             Back to Home
+          </span>
         </p>
       </div>
     </div>

@@ -22,6 +22,11 @@ function Navbar({ setPage }) {
 
         <div className={`nav-right ${menuOpen ? 'open' : ''}`}>
 
+          <ul className='nav-links'>
+            <li className='nav-link'><a href='#hero'>Home</a></li>
+            <li className='nav-link'><a href='#feature'>Features</a></li>
+            <li className='nav-link'><a href='#process'>Process</a></li>
+          </ul>
           <button className="btn btn-secondary btn-md" onClick={() => setPage('auth')}>
             Sign In
           </button>
