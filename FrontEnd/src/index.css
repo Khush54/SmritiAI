@@ -78,7 +78,8 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   font-size: 15px;
-  transition: background var(--transition), color var(--transition)
+  transition: background var(--transition), color var(--transition);
+  top: 0px !important;
 }
 
 img {
