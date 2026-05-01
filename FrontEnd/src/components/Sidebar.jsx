@@ -6,13 +6,17 @@ const Sidebar = ({ currentPage, setPage }) => {
     { key: 'dashboard', label: 'Overview', icon: '📊' }, 
     { key: 'test', label: 'Start Test', icon: '📝' },
     { key: 'reports', label: 'My Reports', icon: '📁' },
-    { key: 'doctor', label: 'Doctor Recommendation', icon: '👨‍⚕️' },
+    { key: 'recommendation', label: 'Recommendation', icon: '👨‍⚕️' },
     { key: 'settings', label: 'Settings', icon: '⚙️' },
   ];
+  const handleLogout = () => {
+  localStorage.removeItem('userToken'); 
+  setPage('landing'); 
+  window.location.reload(); 
+};
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-section">Navigation</div>
       
       {items.map((item) => (
         <div
@@ -30,7 +34,7 @@ const Sidebar = ({ currentPage, setPage }) => {
       ))}
 
       <div className="sidebar-section">Account</div>
-      <div className="sidebar-item" onClick={() => setPage('landing')}>
+      <div className="sidebar-item" onClick={handleLogout}>
         <span className="sidebar-icon">🚪</span>
         <span>Logout</span>
       </div>
