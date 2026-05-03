@@ -1,10 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Auth({ setPage }) {
   const [authTab, setAuthTab] = useState('login');
   const [selectedRole, setSelectedRole] = useState('patient');
+  
+  // Form States
+  const [formData, setFormData] = useState({
+    fullName: '',
+    contact: '', 
+    password: ''
+  });
 
+  // Error States for Validation
+  const [errors, setErrors] = useState({});
   const isLogin = authTab === 'login';
+
+  // Validation Logic
+  const validate = () => {
+    let newErrors = {};
+    
+    // 1. Name Validation (Sirf Signup ke liye)
+    if (!isLogin) {
+      const nameRegex = /^[a-zA-Z\s]*$/;
+      if (!formData.fullName.trim()) {
+        newErrors.fullName = "Name is required";
+      } else if (!nameRegex.test(formData.fullName)) {
+        newErrors.fullName = "Only alphabets are allowed";
+      } else if (formData.fullName.trim().length < 3) {
+        newErrors.fullName = "Minimum 3 characters required";
+      }
+    }
+
+    // 2. Contact Validation (10-digit Phone ya Email)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9]{10}$/;
+    
+    if (!formData.contact) {
+      newErrors.contact = "Email or Phone is required";
+    } else {
+      const isEmail = emailRegex.test(formData.contact);
+      const isPhone = phoneRegex.test(formData.contact);
+      if (!isEmail && !isPhone) {
+        newErrors.contact = "Enter a valid email or 10-digit phone number";
+      }
+    }
+
+    // 3. Password Validation
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Minimum 8 characters required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Run validation whenever input changes
+  useEffect(() => {
+    validate();
+  }, [formData, authTab]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const isFormValid = Object.keys(errors).length === 0;
+
+  // Error Text Style
+  const errorStyle = { 
+    color: '#ff4d4d', 
+    fontSize: '11px', 
+    marginTop: '4px', 
+    display: 'block',
+    fontWeight: '500'
+  };
 
   return (
     <div className="auth-page">
@@ -14,69 +85,91 @@ function Auth({ setPage }) {
           Smriti AI
         </div>
 
+        {/* Tab Switcher */}
         <div style={{ display: 'flex', gap: '4px', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', padding: '4px', marginBottom: '24px' }}>
           {['login', 'signup'].map((t) => (
             <button
               key={t}
               className="btn"
               style={{
-                flex: 1,
-                padding: '7px',
-                textAlign: 'center',
-                fontSize: '13px',
+                flex: 1, padding: '7px', textAlign: 'center', fontSize: '13px',
                 color: authTab === t ? 'var(--text-primary)' : 'var(--text-secondary)',
                 background: authTab === t ? 'var(--surface)' : 'transparent',
                 boxShadow: authTab === t ? 'var(--shadow-sm)' : 'none',
-                borderRadius: 'var(--radius-sm)',
-                border: 'none',
-                cursor: 'pointer'
+                borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer'
               }}
-              onClick={() => setAuthTab(t)}
+              onClick={() => {
+                setAuthTab(t);
+                setFormData({ fullName: '', contact: '', password: '' });
+              }}
             >
               {t === 'login' ? 'Sign In' : 'Create Account'}
             </button>
           ))}
         </div>
 
+        {/* Signup-only Fields: Roles and Name */}
         {!isLogin && (
-          <div style={{ marginBottom: '20px' }}>
-            <div className="role-grid">
-              {[
-                { r: 'patient', i: '👴', n: 'Patient' },
-                { r: 'caregiver', i: '👪', n: 'Caregiver' },
-                { r: 'doctor', i: '👩‍⚕️', n: 'Doctor' }
-              ].map((role) => (
-                <div
-                  key={role.r}
-                  className={`role-card ${selectedRole === role.r ? 'selected' : ''}`}
-                  onClick={() => setSelectedRole(role.r)}
-                >
-                  <div className="role-icon">{role.i}</div>
-                  <div className="role-name">{role.n}</div>
-                </div>
-              ))}
+          <>
+            <div style={{ marginBottom: '20px' }}>
+              <div className="role-grid">
+                {[
+                  { r: 'patient', i: '👴', n: 'Patient' },
+                  { r: 'caregiver', i: '👪', n: 'Caregiver' },
+                  { r: 'doctor', i: '👩‍⚕️', n: 'Doctor' }
+                ].map((role) => (
+                  <div
+                    key={role.r}
+                    className={`role-card ${selectedRole === role.r ? 'selected' : ''}`}
+                    onClick={() => setSelectedRole(role.r)}
+                  >
+                    <div className="role-icon">{role.i}</div>
+                    <div className="role-name">{role.n}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+
+            <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input 
+                type="text" 
+                name="fullName"
+                className="form-input" 
+                placeholder="Khushpreet Kaur"
+                value={formData.fullName}
+                onChange={handleChange}
+              />
+              {errors.fullName && <span style={errorStyle}>{errors.fullName}</span>}
+            </div>
+          </>
         )}
 
-        {!isLogin && (
-          <div className="form-group">
-            <label className="form-label">Full Name</label>
-            <input type="text" className="form-input" placeholder={isLogin ? 'Enter Full Name' : 'Khushpreet Kaur'} />
-          </div>
-        )}
-
+        {/* Common Fields */}
         <div className="form-group">
           <label className="form-label">Phone / Email</label>
           <input
             type="text"
+            name="contact"
             className="form-input"
             placeholder={isLogin ? 'Enter phone or email' : 'khush@example.com'}
+            value={formData.contact}
+            onChange={handleChange}
           />
+          {errors.contact && <span style={errorStyle}>{errors.contact}</span>}
         </div>
+
         <div className="form-group">
           <label className="form-label">Password</label>
-          <input type="password" className="form-input" placeholder="••••••••" />
+          <input 
+            type="password" 
+            name="password"
+            className="form-input" 
+            placeholder="••••••••" 
+            value={formData.password}
+            onChange={handleChange}
+          />
+          {errors.password && <span style={errorStyle}>{errors.password}</span>}
         </div>
 
         {isLogin && (
@@ -87,8 +180,14 @@ function Auth({ setPage }) {
 
         <button
           className="btn btn-primary"
-          style={{ width: '100%', padding: '12px', fontSize: '14px', marginBottom: '14px' }}
-          onClick={() => setPage('dashboard')}
+          style={{ 
+            width: '100%', padding: '12px', fontSize: '14px', marginBottom: '14px',
+            opacity: isFormValid ? 1 : 0.5,
+            cursor: isFormValid ? 'pointer' : 'not-allowed',
+            backgroundColor: isFormValid ? 'var(--blue)' : '#ccc'
+          }}
+          disabled={!isFormValid}
+          onClick={() => setPage('patient')}
         >
           {isLogin ? 'Sign In' : 'Create Account'}
         </button>
@@ -123,7 +222,7 @@ function Auth({ setPage }) {
 
         <p style={{ textAlign: 'center', fontSize: '12px', marginTop: '10px' }}>
           <span style={{ color: 'var(--blue)', cursor: 'pointer' }} onClick={() => setPage('landing')}>
-             Back to Home
+              Back to Home
           </span>
         </p>
       </div>
