@@ -21,16 +21,9 @@ function Hero({ setPage }) {
                 <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
                     <button
                         className="btn btn-primary btn-lg"
-                        onClick={() => setPage('test')}
+                        onClick={() => setPage('auth')}
                     >
                         🧠 Start Free Screening
-                    </button>
-
-                    <button
-                        className="btn btn-secondary btn-lg"
-                        onClick={() => setPage('dashboard')}
-                    >
-                        📊 View Demo Dashboard
                     </button>
                 </div>
 

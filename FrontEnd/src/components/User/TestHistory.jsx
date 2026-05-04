@@ -8,7 +8,6 @@ const TestHistory = ({ scoreHistory = [] }) => {
     return 'var(--red)';
   };
 
-  // Helper to render the badge based on risk level
   const renderRiskBadge = (risk) => {
     const riskClass = {
       'Low': 'b-green',

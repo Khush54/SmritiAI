@@ -4,22 +4,18 @@ function Auth({ setPage }) {
   const [authTab, setAuthTab] = useState('login');
   const [selectedRole, setSelectedRole] = useState('patient');
   
-  // Form States
   const [formData, setFormData] = useState({
     fullName: '',
     contact: '', 
     password: ''
   });
 
-  // Error States for Validation
   const [errors, setErrors] = useState({});
   const isLogin = authTab === 'login';
 
-  // Validation Logic
   const validate = () => {
     let newErrors = {};
     
-    // 1. Name Validation (Sirf Signup ke liye)
     if (!isLogin) {
       const nameRegex = /^[a-zA-Z\s]*$/;
       if (!formData.fullName.trim()) {
@@ -31,7 +27,6 @@ function Auth({ setPage }) {
       }
     }
 
-    // 2. Contact Validation (10-digit Phone ya Email)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[0-9]{10}$/;
     
@@ -45,7 +40,6 @@ function Auth({ setPage }) {
       }
     }
 
-    // 3. Password Validation
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
@@ -56,7 +50,6 @@ function Auth({ setPage }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Run validation whenever input changes
   useEffect(() => {
     validate();
   }, [formData, authTab]);
@@ -68,7 +61,6 @@ function Auth({ setPage }) {
 
   const isFormValid = Object.keys(errors).length === 0;
 
-  // Error Text Style
   const errorStyle = { 
     color: '#ff4d4d', 
     fontSize: '11px', 
@@ -85,8 +77,7 @@ function Auth({ setPage }) {
           Smriti AI
         </div>
 
-        {/* Tab Switcher */}
-        <div style={{ display: 'flex', gap: '4px', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', padding: '4px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '4px', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', padding: '4px', marginBottom: '14px' }}>
           {['login', 'signup'].map((t) => (
             <button
               key={t}
@@ -108,14 +99,12 @@ function Auth({ setPage }) {
           ))}
         </div>
 
-        {/* Signup-only Fields: Roles and Name */}
         {!isLogin && (
           <>
-            <div style={{ marginBottom: '20px' }}>
+            <div >
               <div className="role-grid">
                 {[
-                  { r: 'patient', i: '👴', n: 'Patient' },
-                  { r: 'caregiver', i: '👪', n: 'Caregiver' },
+                  { r: 'user', i: '👪', n: 'User' },
                   { r: 'doctor', i: '👩‍⚕️', n: 'Doctor' }
                 ].map((role) => (
                   <div
@@ -145,7 +134,6 @@ function Auth({ setPage }) {
           </>
         )}
 
-        {/* Common Fields */}
         <div className="form-group">
           <label className="form-label">Phone / Email</label>
           <input
