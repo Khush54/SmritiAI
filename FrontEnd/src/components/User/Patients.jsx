@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './User.css'
 
 function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) {
     const [isAdding, setIsAdding] = useState(false);

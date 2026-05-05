@@ -4,7 +4,7 @@ import './App.css';
 import LandingPage from './pages/LandingPage';
 import Auth from './pages/Auth';
 import User from './pages/User';
-
+import Doctor from './pages/Doctor';
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [page, setPage] = useState('landing');
@@ -23,9 +23,13 @@ function App() {
 
   return (
     <>
-      {page === 'landing' && <LandingPage setPage={setPage} page={page} darkMode={darkMode} toggleDark={toggleDark} />}
-      {page === 'auth' && <Auth setPage={setPage} />}
+      {/* {page === 'landing' && <LandingPage setPage={setPage} page={page} darkMode={darkMode} toggleDark={toggleDark} />}
+      {page === 'auth' && <Auth setPage={setPage} />} */}
       {/* <User page={page} setPage={setPage}/> */}
+      <Doctor 
+        page={page} 
+        setPage={setPage} 
+      />
       <button className="theme-toggle-fixed" onClick={toggleDark}>
         {darkMode ? '☀️' : '🌙'}
       </button>

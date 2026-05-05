@@ -1,4 +1,5 @@
 import React from 'react';
+import './User.css'
 
 const DoctorContact = ({ patient, setPage }) => {
     

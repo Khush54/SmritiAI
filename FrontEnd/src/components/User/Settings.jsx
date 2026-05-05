@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './User.css'
 
 function Settings({ patient, onUpdatePatient }) {
     const [activeTab, setActiveTab] = useState('profile');

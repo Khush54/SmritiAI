@@ -10,6 +10,7 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
+import './User.css'
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 

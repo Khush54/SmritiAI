@@ -1,5 +1,5 @@
 import React from 'react'
-import './Caregiver.css'
+import './User.css'
 
 function Navbar({ setPage, caregiverName = "Anita Singh", alertCount = 0 }) {
     return (
@@ -9,7 +9,7 @@ function Navbar({ setPage, caregiverName = "Anita Singh", alertCount = 0 }) {
                 <span className="brand-txt">Smriti AI</span>
             </div>
 
-            <span className="nav-role">Caregiver Portal</span>
+            <span className="nav-role">User Portal</span>
 
             <div className="nav-r">
                 <div className="notif-btn" onClick={() => setPage('alerts')} style={{ position: 'relative' }}>
@@ -36,7 +36,7 @@ function Navbar({ setPage, caregiverName = "Anita Singh", alertCount = 0 }) {
                 </div>
 
                 <div className="nav-pill" onClick={() => setPage('settings')}>
-                    <div className="avi" style={{ background: 'var(--c1)', color: 'white' }}>
+                    <div className="avi" style={{ background: 'var(--c1)', color: 'var(--c8)' }}>
                         {caregiverName.split(' ').map(n => n[0]).join('')}
                     </div>
                     <span>{caregiverName}</span>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import './User.css'
 
 function StartTest({ setPage, completeTest, patient }) {
   const [currentStep, setCurrentStep] = useState(0);

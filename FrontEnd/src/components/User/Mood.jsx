@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './User.css'
 
 const Mood = ({ patient }) => {
   if (!patient) {

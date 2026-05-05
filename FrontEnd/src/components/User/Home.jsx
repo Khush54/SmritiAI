@@ -1,4 +1,5 @@
 import React from 'react';
+import './User.css'
 
 function Home({ patients = [], setPage, setSelectedPatient }) {
   const today = new Date().toLocaleDateString('en-IN', {

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import './User.css'
 const Alerts = ({ alertsData = [], setPage, setSelectedPatient, patients = [] }) => {
   
   const getAlertStyle = (type) => {
