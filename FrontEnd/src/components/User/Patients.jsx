@@ -27,8 +27,8 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
         e.preventDefault();
         onAddPatient?.({
             ...formData,
-         id: crypto.randomUUID(), 
-            score: 100, 
+            id: crypto.randomUUID(),
+            score: 100,
             risk: 'Low',
             trend: 'stable',
             mood: 'Neutral',
@@ -41,7 +41,7 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
 
     const handleAction = (targetPage, patient) => {
         setSelectedPatient?.(patient);
-        setPage(targetPage);           
+        setPage(targetPage);
     };
 
     if (isAdding) {
@@ -59,22 +59,22 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
 
                 <div className="card" style={{ padding: '24px', border: '1px solid var(--c8)' }}>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        
+
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             <div className="input-group">
                                 <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>FULL NAME</label>
-                                <input 
+                                <input
                                     style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--c7)', background: 'var(--bg)', color: 'var(--c1)' }}
                                     type="text" placeholder="John Doe" required value={formData.name}
-                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 />
                             </div>
                             <div className="input-group">
                                 <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>RELATION</label>
-                                <select 
+                                <select
                                     style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--c7)', background: 'var(--bg)', color: 'var(--c1)' }}
                                     required value={formData.relation}
-                                    onChange={(e) => setFormData({...formData, relation: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, relation: e.target.value })}
                                 >
                                     <option value="">Select...</option>
                                     <option value="Self">Self</option>
@@ -90,38 +90,38 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             <div className="input-group">
                                 <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>AGE</label>
-                                <input 
+                                <input
                                     style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--c7)', background: 'var(--bg)', color: 'var(--c1)' }}
                                     type="number" placeholder="65" required value={formData.age}
-                                    onChange={(e) => setFormData({...formData, age: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                                 />
                             </div>
                             <div className="input-group">
                                 <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>LOCATION</label>
-                                <input 
+                                <input
                                     style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--c7)', background: 'var(--bg)', color: 'var(--c1)' }}
                                     type="text" placeholder="City" value={formData.location}
-                                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                 />
                             </div>
                         </div>
 
                         <div className="input-group">
                             <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>PRIMARY DOCTOR</label>
-                            <input 
+                            <input
                                 style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--c7)', background: 'var(--bg)', color: 'var(--c1)' }}
                                 type="text" placeholder="Dr. Name" value={formData.doctor}
-                                onChange={(e) => setFormData({...formData, doctor: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
                             />
                         </div>
 
                         <div className="input-group">
                             <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>INITIAL NOTES</label>
-                            <textarea 
+                            <textarea
                                 style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--c7)', background: 'var(--bg)', color: 'var(--c1)', minHeight: '80px', resize: 'none' }}
                                 placeholder="Medical history or concerns..."
                                 value={formData.notes}
-                                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                             />
                         </div>
 
@@ -209,12 +209,12 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                             <button className="btn btn-s btn-sm" onClick={() => handleAction('reports', p)}>
-                                    📊 Reports
-                                </button>
-                                <button className="btn btn-s btn-sm" onClick={() => handleAction('mood', p)}>
-                                    📝 New Log
-                                </button>
+                            <button className="btn btn-s btn-sm" onClick={() => handleAction('reports', p)}>
+                                📊 Reports
+                            </button>
+                            <button className="btn btn-s btn-sm" onClick={() => handleAction('mood', p)}>
+                                📝 New Log
+                            </button>
                             {p.risk === 'High' && (
                                 <button className="btn btn-r btn-sm">📞 Call Doctor</button>
                             )}

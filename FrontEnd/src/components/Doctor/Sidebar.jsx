@@ -5,7 +5,7 @@ const Sidebar = ({ currentPage, setPage }) => {
         <aside className="sidebar">
             <div className="sb-sec">Clinical</div>
             <div className={`sb-it ${currentPage === "home" ? "on" : ""}`} onClick={() => setPage("home")}><div className="ico">⚡</div> Command Centre</div>
-            <div className={`sb-it ${currentPage === "patients" ? "on" : ""}`} onClick={() => setPage("patients")}><div className="ico">👥</div> Patient Registry </div>
+            <div className={`sb-it ${currentPage === "patients" ? "on" : ""}`} onClick={() => setPage("patients")}><div className="ico">👥</div> Patient Directory </div>
             <div className={`sb-it ${currentPage === "alerts" ? "on" : ""}`} onClick={() => setPage("alerts")}> <div className="ico">🔔</div> Alerts </div>
             <div className={`sb-it ${currentPage === "reports" ? "on" : ""}`} onClick={() => setPage("reports")}> <div className="ico">📋</div> Reports Queue </div>
             <div className={`sb-it ${currentPage === "analytics" ? "on" : ""}`} onClick={() => setPage("analytics")}> <div className="ico">📊</div> Analytics </div>
