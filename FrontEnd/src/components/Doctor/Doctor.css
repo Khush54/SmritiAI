@@ -8,7 +8,7 @@
 
 
 
-:root {
+.doctor-scope {
     --navy: #F8FAFC;
     /* background */
     --navy-2: #EEF2F7;
@@ -65,7 +65,7 @@
     --side: 250px;
 }
 
-[data-dark="true"] {
+[data-dark="true"]:has(.doctor-scope), [data-dark="true"] .doctor-scope {
     --navy: #0F1729;
     --navy-2: #151E35;
     --navy-3: #1A2540;
@@ -96,15 +96,15 @@
      --surface: #151E35;
     --surface-2: #1A2540;
 }
-[data-dark="true"] .sidebar {
+[data-dark="true"] .doctor-scope .sidebar {
     background: var(--navy-3);
 }
 
-[data-dark="true"] .sb-it:hover {
+[data-dark="true"] .doctor-scope .sb-it:hover {
     background: var(--navy-4);
 }
 
-body {
+.doctor-scope {
     font-family: var(--font);
     background: var(--navy);
     color: var(--b1);
@@ -112,7 +112,7 @@ body {
     line-height: 1.6
 }
 
-button {
+:where(.doctor-scope) button {
     font-family: inherit;
     cursor: pointer;
     border: none;
@@ -120,33 +120,31 @@ button {
     color: inherit
 }
 
-input,
-select,
-textarea {
+.doctor-scope input, .doctor-scope select, .doctor-scope textarea {
     font-family: inherit;
     color: var(--b1)
 }
 
-::selection {
+.doctor-scope ::selection {
     background: rgba(6, 182, 212, .25)
 }
 
-::-webkit-scrollbar {
+.doctor-scope ::-webkit-scrollbar {
     width: 4px;
     height: 4px
 }
 
-::-webkit-scrollbar-track {
+.doctor-scope ::-webkit-scrollbar-track {
     background: var(--navy-3)
 }
 
-::-webkit-scrollbar-thumb {
+.doctor-scope ::-webkit-scrollbar-thumb {
     background: var(--b4);
     border-radius: 2px
 }
 
 /* NAVBAR CONTAINER */
-.nav {
+.doctor-scope .nav {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -166,13 +164,13 @@ textarea {
 }
 
 /* LEFT */
-.nav-left {
+.doctor-scope .nav-left {
     display: flex;
     align-items: center;
     gap: 18px;
 }
 
-.nav-brand {
+.doctor-scope .nav-brand {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -180,15 +178,15 @@ textarea {
     transition: transform 0.2s ease;
 }
 
-.nav-brand:hover {
+.doctor-scope .nav-brand:hover {
     transform: scale(1.03);
 }
 
-.brand-mark {
+.doctor-scope .brand-mark {
     font-size: 20px;
 }
 
-.brand-name {
+.doctor-scope .brand-name {
     font-size: 16px;
     font-weight: 600;
     color: var(--b1);
@@ -196,7 +194,7 @@ textarea {
 }
 
 /* BADGE */
-.nav-badge {
+.doctor-scope .nav-badge {
     font-size: 11px;
     font-weight: 500;
 
@@ -210,7 +208,7 @@ textarea {
 }
 
 /* SEARCH */
-.nav-search-box {
+.doctor-scope .nav-search-box {
     flex: 1;
     max-width: 420px;
 
@@ -227,17 +225,17 @@ textarea {
     transition: all 0.25s ease;
 }
 
-.nav-search-box:hover {
+.doctor-scope .nav-search-box:hover {
     border: 1px solid var(--border);
     box-shadow: var(--sh1);
 }
 
-.nav-search-box:focus-within {
+.doctor-scope .nav-search-box:focus-within {
     border: 1px solid var(--cyan);
     box-shadow: 0 0 0 3px var(--cyan-l);
 }
 
-.nav-search-box input {
+.doctor-scope .nav-search-box input {
     border: none;
     outline: none;
     width: 100%;
@@ -247,12 +245,12 @@ textarea {
     background: transparent;
 }
 
-.nav-search-box input::placeholder {
+.doctor-scope .nav-search-box input::placeholder {
     color: var(--b3);
 }
 
 /* ICON */
-.search-icon {
+.doctor-scope .search-icon {
     width: 16px;
     height: 16px;
     stroke: var(--b3);
@@ -261,14 +259,14 @@ textarea {
 }
 
 /* RIGHT */
-.nav-right {
+.doctor-scope .nav-right {
     display: flex;
     align-items: center;
     gap: 20px;
 }
 
 /* ICON BUTTON */
-.nav-icon {
+.doctor-scope .nav-icon {
     width: 36px;
     height: 36px;
 
@@ -283,11 +281,11 @@ textarea {
     position: relative;
 }
 
-.nav-icon:hover {
+.doctor-scope .nav-icon:hover {
     background: var(--navy-2);
 }
 
-.nav-icon svg {
+.doctor-scope .nav-icon svg {
     width: 18px;
     height: 18px;
     stroke: var(--b2);
@@ -297,12 +295,12 @@ textarea {
     transition: 0.2s;
 }
 
-.nav-icon:hover svg {
+.doctor-scope .nav-icon:hover svg {
     stroke: var(--cyan);
 }
 
 /* NOTIFICATION DOT */
-.dot {
+.doctor-scope .dot {
     position: absolute;
     top: 6px;
     right: 6px;
@@ -317,7 +315,7 @@ textarea {
 }
 
 /* USER */
-.nav-user {
+.doctor-scope .nav-user {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -329,12 +327,12 @@ textarea {
     transition: all 0.2s ease;
 }
 
-.nav-user:hover {
+.doctor-scope .nav-user:hover {
     background: var(--navy-2);
 }
 
 /* AVATAR */
-.nav-avi, .avatar-placeholder, .avatar-small {
+.doctor-scope .nav-avi, .doctor-scope .avatar-placeholder, .doctor-scope .avatar-small {
     width: 36px;
     height: 36px;
 
@@ -352,25 +350,25 @@ textarea {
 }
 
 /* USER TEXT */
-.nav-uname {
+.doctor-scope .nav-uname {
     font-size: 14px;
     font-weight: 500;
     color: var(--b1);
 }
 
-.nav-urole {
+.doctor-scope .nav-urole {
     font-size: 12px;
     color: var(--b3);
 }
 
 /* ── LAYOUT ── */
-.shell {
+.doctor-scope .shell {
     display: flex;
     height: calc(100vh - var(--nav))
 }
 
 /* SIDEBAR - LIGHT THEME IMPROVED */
-.sidebar {
+.doctor-scope .sidebar {
     width: var(--side);
     background: var(--surface);   /* clean white */
     border-right: 1px solid var(--border);
@@ -387,7 +385,7 @@ textarea {
 }
 
 /* SECTION TITLE */
-.sb-sec {
+.doctor-scope .sb-sec {
     font-size: 10px;
     font-family: var(--mono);
     letter-spacing: .08em;
@@ -398,7 +396,7 @@ textarea {
 }
 
 /* ITEM */
-.sb-it {
+.doctor-scope .sb-it {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -413,17 +411,17 @@ textarea {
     transition: all 0.2s ease;
 }
 
-.sb-it:hover {
+.doctor-scope .sb-it:hover {
     background: var(--navy-2);   /* soft hover */
     color: var(--b1);
 }
 
-.sb-it.on {
+.doctor-scope .sb-it.on {
     background: var(--cyan-l);
     color: var(--cyan);
 }
 
-.sb-it .ico {
+.doctor-scope .sb-it .ico {
     width: 28px;
     height: 28px;
 
@@ -440,13 +438,13 @@ textarea {
 }
 
 /* ACTIVE ICON */
-.sb-it.on .ico {
+.doctor-scope .sb-it.on .ico {
     background: var(--cyan);
     color: white;
 }
 
 /* COUNT BADGE */
-.sb-ct {
+.doctor-scope .sb-ct {
     margin-left: auto;
     font-family: var(--mono);
     font-size: 10px;
@@ -459,7 +457,7 @@ textarea {
 }
 
 /* STATS BOX */
-.sb-stat {
+.doctor-scope .sb-stat {
     background: var(--navy-2);  /* softer */
     border-radius: var(--r12);
     padding: 14px;
@@ -468,7 +466,7 @@ textarea {
 }
 
 /* STAT ROW */
-.sb-stat-row {
+.doctor-scope .sb-stat-row {
     display: flex;
     justify-content: space-between;
     padding: 6px 0;
@@ -477,27 +475,27 @@ textarea {
     border-bottom: 1px solid var(--border);
 }
 
-.sb-stat-row:last-child {
+.doctor-scope .sb-stat-row:last-child {
     border-bottom: none;
 }
 
-.sb-stat-val {
+.doctor-scope .sb-stat-val {
     font-family: var(--mono);
     font-weight: 500;
 }
 /* ── MAIN ── */
-.main {
+.doctor-scope .main {
     flex: 1;
     overflow-y: auto;
     padding: 26px
 }
 
 /* ── HEADERS ── */
-.ph {
+.doctor-scope .ph {
     margin-bottom: 24px
 }
 
-.ph-row {
+.doctor-scope .ph-row {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -505,7 +503,7 @@ textarea {
     flex-wrap: wrap
 }
 
-.ph h1 {
+.doctor-scope .ph h1 {
     font-size: 22px;
     font-weight: 600;
     color: var(--b1);
@@ -513,13 +511,13 @@ textarea {
     margin-bottom: 3px
 }
 
-.ph p {
+.doctor-scope .ph p {
     font-size: 12.5px;
     color: var(--b3);
     font-family: var(--mono)
 }
 
-.ph-act {
+.doctor-scope .ph-act {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
@@ -527,7 +525,7 @@ textarea {
 }
 
 /* ── BUTTONS ── */
-.btn {
+.doctor-scope .btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -542,60 +540,60 @@ textarea {
     white-space: nowrap
 }
 
-.btn-c {
+.doctor-scope .btn-c {
     background: var(--cyan);
     color: #fff;
     font-weight: 600
 }
 
-.btn-c:hover {
+.doctor-scope .btn-c:hover {
     background: var(--cyan-d);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(6, 182, 212, .3)
 }
 
-.btn-v {
+.doctor-scope .btn-v {
     background: var(--violet-l);
     color: var(--violet);
     border: 1px solid rgba(139, 92, 246, .2)
 }
 
-.btn-v:hover {
+.doctor-scope .btn-v:hover {
     background: rgba(139, 92, 246, .2)
 }
 
-.btn-e {
+.doctor-scope .btn-e {
     background: var(--emerald-l);
     color: var(--emerald);
     border: 1px solid rgba(16, 185, 129, .2)
 }
 
-.btn-e:hover {
+.doctor-scope .btn-e:hover {
     background: rgba(16, 185, 129, .2)
 }
 
-.btn-r {
+.doctor-scope .btn-r {
     background: var(--rose-l);
     color: var(--rose);
     border: 1px solid rgba(244, 63, 94, .2)
 }
 
-.btn-r:hover {
+.doctor-scope .btn-r:hover {
     background: rgba(244, 63, 94, .2)
 }
 
-.btn-g {
+.doctor-scope .btn-g {
     background: var(--cyan);
     color: #fff;
     border: 1px solid var(--border);
 }
 
-.btn-g:hover {
+.doctor-scope .btn-g:hover {
     background: var(--cyan-d);
     border-color: var(--b4)
 }
 
-.btn-sm {
+.doctor-scope .btn-sm {
     padding: 5px 12px;
     font-size: 12px;
     font-weight: 600;
@@ -603,7 +601,7 @@ textarea {
 }
 
 /* ── CARD ── */
-.card {
+.doctor-scope .card {
     background: var(--navy-2);
     border: 1px solid var(--border);
     border-radius: var(--r16);
@@ -611,31 +609,31 @@ textarea {
     box-shadow: var(--sh1)
 }
 
-.card-sm {
+.doctor-scope .card-sm {
     padding: 14px
 }
 
 /* ── GRID ── */
-.g2 {
+.doctor-scope .g2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px
 }
 
-.g3 {
+.doctor-scope .g3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 14px
 }
 
-.g4 {
+.doctor-scope .g4 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px
 }
 
 /* ── BADGE ── */
-.badge {
+.doctor-scope .badge {
     display: inline-flex;
     align-items: center;
     gap: 3px;
@@ -646,54 +644,54 @@ textarea {
     font-family: var(--mono)
 }
 
-.bg {
+.doctor-scope .bg {
     background: var(--emerald-l);
     color: var(--emerald);
     border: 1px solid rgba(16, 185, 129, .2)
 }
 
-.ba {
+.doctor-scope .ba {
     background: var(--amber-l);
     color: var(--amber);
     border: 1px solid rgba(245, 158, 11, .2)
 }
 
-.br {
+.doctor-scope .br {
     background: var(--rose-l);
     color: var(--rose);
     border: 1px solid rgba(244, 63, 94, .2)
 }
 
-.bc {
+.doctor-scope .bc {
     background: var(--cyan-l);
     color: var(--cyan);
     border: 1px solid rgba(6, 182, 212, .2)
 }
 
-.bv {
+.doctor-scope .bv {
     background: var(--violet-l);
     color: var(--violet);
     border: 1px solid rgba(139, 92, 246, .2)
 }
 
-.b2 {
+.doctor-scope .b2 {
     background: var(--navy-4);
     color: var(--b2);
     border: 1px solid var(--border)
 }
 
 /* ── TABLE ── */
-.tbl-wrap {
+.doctor-scope .tbl-wrap {
     overflow-x: auto
 }
 
-.tbl {
+.doctor-scope .tbl {
     width: 100%;
     border-collapse: collapse;
     font-size: 12.5px
 }
 
-.tbl th {
+.doctor-scope .tbl th {
     text-align: left;
     padding: 9px 14px;
     font-size: 10px;
@@ -705,35 +703,35 @@ textarea {
     white-space: nowrap
 }
 
-.tbl td {
+.doctor-scope .tbl td {
     padding: 12px 14px;
     border-bottom: 1px solid rgba(255, 255, 255, .04);
     color: var(--b1)
 }
 
-.tbl tr:last-child td {
+.doctor-scope .tbl tr:last-child td {
     border-bottom: none
 }
 
-.tbl tr:hover td {
+.doctor-scope .tbl tr:hover td {
     background: var(--navy-4)
 }
 
-.tbl-sortable th {
+.doctor-scope .tbl-sortable th {
     cursor: pointer
 }
 
-.tbl-sortable th:hover {
+.doctor-scope .tbl-sortable th:hover {
     color: var(--cyan)
 }
 
 /* ── STAT CARD ── */
-.kpi {
+.doctor-scope .kpi {
     position: relative;
     overflow: hidden
 }
 
-.kpi-val {
+.doctor-scope .kpi-val {
     font-family: var(--mono);
     font-size: 32px;
     font-weight: 500;
@@ -741,7 +739,7 @@ textarea {
     line-height: 1
 }
 
-.kpi-label {
+.doctor-scope .kpi-label {
     font-size: 11px;
     color: var(--b2);
     text-transform: uppercase;
@@ -750,13 +748,13 @@ textarea {
     font-family: var(--mono)
 }
 
-.kpi-sub {
+.doctor-scope .kpi-sub {
     font-size: 11px;
     color: var(--b3);
     margin-top: 4px
 }
 
-.kpi-accent {
+.doctor-scope .kpi-accent {
       position: absolute;
     top: -5px;
     right: -1px;
@@ -766,21 +764,21 @@ textarea {
 
 
 /* ── PROGRESS ── */
-.prog-t {
+.doctor-scope .prog-t {
     height: 5px;
     background: var(--navy-5);
     border-radius: var(--rf);
     overflow: hidden
 }
 
-.prog-f {
+.doctor-scope .prog-f {
     height: 100%;
     border-radius: var(--rf);
     transition: width .4s ease
 }
 
 /* ── SEC HEADER ── */
-.sh {
+.doctor-scope .sh {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -789,20 +787,20 @@ textarea {
     gap: 8px
 }
 
-.sh-title {
+.doctor-scope .sh-title {
     font-size: 13px;
     font-weight: 600;
     color: var(--cyan)
 }
 
-.sh-sub {
+.doctor-scope .sh-sub {
     font-size: 11px;
     color: var(--b3);
     font-family: var(--mono)
 }
 
 /* ── PATIENT ROW ── */
-.pat-row {
+.doctor-scope .pat-row {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -813,12 +811,12 @@ textarea {
     border: 1px solid transparent
 }
 
-.pat-row:hover {
+.doctor-scope .pat-row:hover {
     background: var(--navy-4);
     border-color: var(--border)
 }
 
-.pat-avi {
+.doctor-scope .pat-avi {
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -832,7 +830,7 @@ textarea {
 }
 
 /* ── MODAL ── */
-.overlay {
+.doctor-scope .overlay {
     position: fixed;
     inset: 0;
     background: rgba(9, 11, 21, .75);
@@ -844,7 +842,7 @@ textarea {
     padding: 20px
 }
 
-.modal {
+.doctor-scope .modal {
     background: var(--navy-3);
     border: 1px solid rgba(255, 255, 255, .1);
     border-radius: var(--r20);
@@ -869,20 +867,20 @@ textarea {
     }
 }
 
-.mhdr {
+.doctor-scope .mhdr {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 18px
 }
 
-.mhdr h3 {
+.doctor-scope .mhdr h3 {
     font-size: 16px;
     font-weight: 600;
     color: #fff
 }
 
-.mclose {
+.doctor-scope .mclose {
     width: 28px;
     height: 28px;
     border-radius: var(--r4);
@@ -895,20 +893,20 @@ textarea {
     font-size: 14px
 }
 
-.mclose:hover {
+.doctor-scope .mclose:hover {
     background: var(--navy-4);
     color: var(--b1)
 }
 
 /* ── FORM ── */
-.field {
+.doctor-scope .field {
     display: flex;
     flex-direction: column;
     gap: 5px;
     margin-bottom: 14px
 }
 
-.flabel {
+.doctor-scope .flabel {
     font-size: 11px;
     font-family: var(--mono);
     color: var(--b3);
@@ -916,7 +914,7 @@ textarea {
     letter-spacing: .05em
 }
 
-.finput {
+.doctor-scope .finput {
     padding: 9px 12px;
     border: 1px solid var(--border);
     border-radius: var(--r8);
@@ -927,17 +925,17 @@ textarea {
     transition: .18s
 }
 
-.finput:focus {
+.doctor-scope .finput:focus {
     border-color: var(--cyan);
     box-shadow: 0 0 0 3px rgba(6, 182, 212, .1)
 }
 
-.finput::placeholder {
+.doctor-scope .finput::placeholder {
     color: var(--b4)
 }
 
 /* ── NOTE BOX ── */
-.note-box {
+.doctor-scope .note-box {
     background: var(--navy-4);
     border: 1px solid var(--border);
     border-radius: var(--r8);
@@ -945,14 +943,14 @@ textarea {
     margin-bottom: 10px
 }
 
-.note-box .note-date {
+.doctor-scope .note-box .note-date {
     font-size: 10px;
     font-family: var(--mono);
     color: var(--b3);
     margin-bottom: 6px
 }
 
-.note-box .note-text {
+.doctor-scope .note-box .note-text {
     font-size: 12.5px;
     color: var(--b1);
     line-height: 1.6;
@@ -960,7 +958,7 @@ textarea {
 }
 
 /* ── CHIP ── */
-.chip {
+.doctor-scope .chip {
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -975,15 +973,14 @@ textarea {
     white-space: nowrap
 }
 
-.chip:hover,
-.chip.on {
+.doctor-scope .chip:hover, .doctor-scope .chip.on {
     background: var(--cyan-l);
     border-color: rgba(6, 182, 212, .3);
     color: var(--cyan)
 }
 
 /* ── NOTIF ── */
-.notif-it {
+.doctor-scope .notif-it {
     display: flex;
     gap: 12px;
     padding: 12px;
@@ -993,7 +990,7 @@ textarea {
     margin-bottom: 8px
 }
 
-.notif-ico {
+.doctor-scope .notif-ico {
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -1005,7 +1002,7 @@ textarea {
 }
 
 /* ── PAGE ANIM ── */
-.page {
+.doctor-scope .page {
     animation: fadeSlide .2s ease
 }
 
@@ -1046,7 +1043,7 @@ textarea {
 }
 
 /* ── RISK METER ── */
-.risk-meter {
+.doctor-scope .risk-meter {
     height: 6px;
     border-radius: var(--rf);
     background: linear-gradient(90deg, var(--emerald), var(--amber), var(--rose));
@@ -1054,7 +1051,7 @@ textarea {
     margin: 6px 0
 }
 
-.risk-ptr {
+.doctor-scope .risk-ptr {
     position: absolute;
     top: -4px;
     width: 14px;
@@ -1068,24 +1065,22 @@ textarea {
 
 /* RESPONSIVE */
 @media(max-width:1024px) {
-    .sidebar {
+    .doctor-scope .sidebar {
         display: none
     }
 
-    .g4 {
+    .doctor-scope .g4 {
         grid-template-columns: 1fr 1fr
     }
 }
 
 @media(max-width:640px) {
 
-    .g4,
-    .g2,
-    .g3 {
+    .doctor-scope .g4, .doctor-scope .g2, .doctor-scope .g3 {
         grid-template-columns: 1fr
     }
 
-    .main {
+    .doctor-scope .main {
         padding: 14px
     }
 }

@@ -48,7 +48,7 @@ function User({ page, setPage }) {
   };
 
   return (
-    <>
+    <div className="user-scope">
       <Navbar
         setPage={setPage}
         caregiverName="Anita Singh"
@@ -107,7 +107,7 @@ function User({ page, setPage }) {
           )}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

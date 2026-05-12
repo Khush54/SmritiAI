@@ -23,13 +23,13 @@ function App() {
 
   return (
     <>
-      {/* {page === 'landing' && <LandingPage setPage={setPage} page={page} darkMode={darkMode} toggleDark={toggleDark} />}
-      {page === 'auth' && <Auth setPage={setPage} />} */}
-      {/* <User page={page} setPage={setPage}/> */}
-      <Doctor 
-        page={page} 
-        setPage={setPage} 
-      />
+      {page === 'landing' && <LandingPage setPage={setPage} page={page} darkMode={darkMode} toggleDark={toggleDark} />}
+      {page === 'auth' && <Auth setPage={setPage} />}
+      {/* <User page={page} setPage={setPage} />
+      <Doctor
+        page={page}
+        setPage={setPage}
+      /> */}
       <button className="theme-toggle-fixed" onClick={toggleDark}>
         {darkMode ? '☀️' : '🌙'}
       </button>

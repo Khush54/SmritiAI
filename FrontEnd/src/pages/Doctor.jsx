@@ -45,7 +45,7 @@ function Doctor({ page, setPage }) {
     };
 
     return (
-        <div className="portal-container">
+        <div className="portal-container doctor-scope">
             <Navbar
                 user={userData}
                 setPage={setPage}
