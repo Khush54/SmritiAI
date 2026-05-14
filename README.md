@@ -1,41 +1,183 @@
-# 🧠 Smriti AI – Frontend 
 
-🚧 **Status: Functional Prototype**
+# 🧠 Smriti AI – AI-Powered Dementia Care Platform
 
-Smriti AI is an AI-powered vernacular platform focused on early-stage dementia detection and user support. This repository contains the React-based frontend, featuring a comprehensive dashboard for multi-patient monitoring.
-
----
-
-## 🚀 Current Progress (Completed Features)
-
-- **Multi-Patient Architecture:** Integrated logic to manage and switch between 2-3 family members seamlessly.
-- **Smart Dashboard:** Unified view for cognitive health overview, including risk levels and recent activities.
-- **Cognitive Test History:** Detailed logs of previous test scores with color-coded risk indicators.
-- **Daily Mood & Behavioral Log:** A dedicated tracker for mood, sleep quality, and appetite changes.
-- **Vernacular Support:** Integrated multi-language support (Hindi, Punjabi, etc.) using Google Translate API.
-- **Patient Management:** Profile creation and settings customization for individual family members.
-- **Responsive UI:** Clean, impactful, and mobile-friendly design using modern CSS variables.
+> A vernacular AI healthcare platform focused on early-stage dementia detection, cognitive monitoring, patient management, and caregiver support.
 
 ---
 
-## 🔜 Upcoming Features (Next Steps)
+# 🌟 Overview
 
-- **Multi-modal Test Engine:** Interactive Voice, Drawing, and Memory tests for cognitive assessment.
-- **AI Analytics Engine:** Advanced Chart.js integration for longitudinal cognitive health tracking.
-- **Authentication System:** Secure Login/Signup for Caregivers and Doctors.
-- **Backend Integration:** Connecting Node.js/Express API with MongoDB for persistent data.
-- **Real-time Alerts:** Automated push notifications for significant behavioral changes.
+Smriti AI is a healthcare-focused platform designed to help caregivers, families, and doctors monitor cognitive health and behavioral changes in elderly patients using AI-assisted tools and smart dashboards.
+
+The platform supports:
+- Multi-patient management
+- Role-based dashboards
+- AI-assisted healthcare workflows
+- Vernacular accessibility
+- Cognitive health tracking
+
+This repository currently contains the **React.js frontend** along with integrated authentication and backend connectivity.
+
+---
+
+# 🚀 Current Features
+
+## 🔐 Authentication System
+
+Implemented authentication using:
+- Firebase Authentication
+- Email & Password Login
+- Google Authentication
+- Phone OTP Authentication (Structure Ready)
+- JWT-based backend authentication
+- MongoDB user storage
+
+### Role-Based Authentication
+Users must select a role before authentication:
+- User / Caregiver
+- Doctor
+
+Authentication flow supports:
+- Signup
+- Login
+- Google Sign-In
+- Secure token storage
 
 ---
 
-## 🛠️ Tech Stack
+# 👨‍👩‍👧 User Dashboard
 
-- **Frontend:** React.js
-- **Styling:** Custom CSS3 (with CSS Variables) & Tailwind CSS
-- **Icons/UI:** SVG-based iconography and Lora Serif for medical readability
-- **Visualization:** Chart.js (Planned)
+The User Dashboard is designed for caregivers and family members.
+
+## Features
+
+### ✅ Multi-Patient Architecture
+Users can:
+- Add multiple patients
+- Manage family members from one account
+- Switch between patients seamlessly
+- Maintain separate records for each patient
+
+### ✅ Patient Profiles
+- Add/Edit patient details
+- Patient-specific monitoring
+- Personalized cognitive records
+
+### ✅ Cognitive Health Monitoring
+- Risk indicators
+- Health summaries
+- Cognitive activity tracking
+
+### ✅ Mood & Behavioral Logs
+Track:
+- Mood changes
+- Sleep quality
+- Appetite
+- Daily behavior patterns
 
 ---
+
+# 🏥 Doctor Dashboard
+
+Dedicated dashboard for healthcare professionals.
+
+## Features
+
+- View patient information
+- Monitor cognitive history
+- Analyze patient progress
+- Access behavioral insights
+- Review cognitive test data
+
+---
+
+# 🌍 Vernacular Language Support
+
+Designed for accessibility across regional users.
+
+Supported/Planned Languages:
+- English
+- Hindi
+- Punjabi
+
+Goal:
+- Make dementia care technology more accessible to non-English users.
+
+---
+
+# 📱 Responsive UI
+
+Fully responsive interface optimized for:
+- Mobile devices
+- Tablets
+- Desktop screens
+
+Design goals:
+- Clean medical UI
+- Accessibility
+- Simple navigation
+- Modern responsive layout
+
+---
+
+# 🔜 Upcoming Features
+
+## 🧠 AI Cognitive Test Engine
+
+Planned modules:
+- Voice-based tests
+- Drawing analysis
+- Memory assessment
+- Speech analysis
+- Cognitive pattern detection
+
+---
+
+## 📈 AI Analytics Dashboard
+
+Planned features:
+- Longitudinal patient tracking
+- Behavioral analytics
+- Cognitive decline visualization
+- Chart.js integration
+
+---
+
+## 🔔 Smart Notifications
+
+Planned alerts:
+- Behavioral anomalies
+- Cognitive decline warnings
+- Medication reminders
+- Emergency notifications
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+- React.js
+- JavaScript (ES6+)
+
+## Styling
+- Custom CSS3
+- CSS Variables
+- Tailwind CSS
+
+## Backend
+- Node.js
+- Express.js
+
+## Database
+- MongoDB Atlas
+
+## Authentication
+- Firebase Authentication
+- JWT Authentication
+
+## Visualization
+- Chart.js (Planned)
+
 
 ## 📌 Note
 
