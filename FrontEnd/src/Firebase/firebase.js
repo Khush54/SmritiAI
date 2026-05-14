@@ -8,13 +8,13 @@ import {
 } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBivqbmiCictaHguobCqDX5E8YhtkCVLQE",
-  authDomain: "smriti-ai-3e19f.firebaseapp.com",
-  projectId: "smriti-ai-3e19f",
-  storageBucket: "smriti-ai-3e19f.firebasestorage.app",
-  messagingSenderId: "132076676053",
-  appId: "1:132076676053:web:a5599fff9287c3bbe9135c",
-  measurementId: "G-HGL1E5VT27"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 
