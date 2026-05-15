@@ -19,24 +19,17 @@ import React, { useState } from 'react';
 function Auth({ setPage }) {
   const [authTab, setAuthTab] = useState('signup');
   const [selectedRole, setSelectedRole] = useState('');
-  const [formData, setFormData] = useState({
-    fullName: '',
-    contact: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ fullName: '', contact: '', password: '' });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
-  const [modal, setModal] = useState({
-    show: false,
-    message: ""
-  });
-
+  const [modal, setModal] = useState({ show: false, message: "" });
   const isLogin = authTab === 'login';
+
   const showModal = (message) => {
     setModal({ show: true, message });
     setTimeout(() => {
-      setModal({ show: false, message: ""});
+      setModal({ show: false, message: "" });
     }, 2500);
   };
 
@@ -58,29 +51,26 @@ function Auth({ setPage }) {
       else if (!nameRegex.test(formData.fullName)) {
         newErrors.fullName = 'Only alphabets are allowed';
       }
-      else if ( formData.fullName.trim().length < 3) {
+      else if (formData.fullName.trim().length < 3) {
         newErrors.fullName = 'Minimum 3 characters required';
       }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^[0-9]{10}$/;
-
     if (!formData.contact.trim()) {
-      newErrors.contact = 'Email or Phone is required';
+      newErrors.contact = 'Email is required';
     }
     else {
       const isEmail = emailRegex.test(formData.contact);
-      const isPhone = phoneRegex.test(formData.contact);
-      if (!isEmail && !isPhone) {
-        newErrors.contact = 'Enter valid email or 10-digit phone number';
+      if (!isEmail) {
+        newErrors.contact = 'Enter valid email';
       }
     }
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
-    else if ( formData.password.length < 8) {
+    else if (formData.password.length < 8) {
       newErrors.password = 'Minimum 8 characters required';
     }
     return newErrors;
@@ -88,8 +78,8 @@ function Auth({ setPage }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({...prev,[name]: value}));
-    setTouched((prev) => ({...prev,[name]: true}));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
     const validationErrors = validate();
     setErrors(validationErrors);
   };
@@ -125,7 +115,7 @@ function Auth({ setPage }) {
     const validationErrors = validate();
     setErrors(validationErrors);
 
-    if ( Object.keys(validationErrors).length > 0) {
+    if (Object.keys(validationErrors).length > 0) {
       return;
     }
     try {
@@ -149,7 +139,21 @@ function Auth({ setPage }) {
           JSON.stringify(data.user)
         );
 
-        if ( data.user.role === "doctor") {
+        if (selectedRole !== data.user.role) {
+
+          showModal(
+            `This account is registered as ${data.user.role}`
+          );
+
+          await auth.signOut();
+
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+
+          return;
+        }
+
+        if (data.user.role === "doctor") {
           setPage("doctor");
         } else {
           setPage("user");
@@ -158,10 +162,10 @@ function Auth({ setPage }) {
 
       else {
         const firebaseUser = await createUserWithEmailAndPassword(
-            auth,
-            formData.contact,
-            formData.password
-          );
+          auth,
+          formData.contact,
+          formData.password
+        );
 
         const user = firebaseUser.user;
         await saveUserToDB({
@@ -189,7 +193,7 @@ function Auth({ setPage }) {
         showModal("Email already exists");
       }
       else if (error.code === "auth/invalid-credential") {
-        showModal( "Invalid email or password");
+        showModal("Invalid email or password");
       }
       else if (error.code === "auth/user-not-found") {
         showModal("User not found");
@@ -200,8 +204,22 @@ function Auth({ setPage }) {
       else if (error.code === "auth/weak-password") {
         showModal("Password should be at least 6 characters");
       }
+      else if (
+        error.code === "auth/cancelled-popup-request"
+      ) {
+
+        showModal(
+          "Authentication popup already open"
+        );
+
+      }
+
       else {
-        showModal(error.message);
+
+        showModal(
+          error.message
+        );
+
       }
     } finally {
       setLoading(false);
@@ -209,25 +227,46 @@ function Auth({ setPage }) {
   };
 
   const handleGoogleAuth = async () => {
+
+    if (loading) return;
+
     if (!selectedRole) {
       showModal("Please select a role");
       return;
     }
+
     try {
+
       setLoading(true);
+
       const result = await signInWithPopup(
-          auth,
-          googleProvider
-        );
+        auth,
+        googleProvider
+      );
 
       const user = result.user;
+
       const data = await saveUserToDB({
-          firebaseUID: user.uid,
-          fullName: user.displayName,
-          email:user.email,
-          role: selectedRole,
-          authProvider: "google"
-        });
+        firebaseUID: user.uid,
+        fullName: user.displayName,
+        email: user.email,
+        role: selectedRole,
+        authProvider: "google"
+      });
+
+      if (selectedRole !== data.user.role) {
+
+        showModal(
+          `This account is registered as ${data.user.role}`
+        );
+
+        await auth.signOut();
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        return;
+      }
 
       localStorage.setItem(
         "token",
@@ -244,9 +283,23 @@ function Auth({ setPage }) {
       } else {
         setPage("user");
       }
+
     } catch (error) {
+
       console.log(error);
-      showModal(error.message);
+
+      if (
+        error.code === "auth/cancelled-popup-request"
+      ) {
+        showModal(
+          "Authentication popup already open"
+        );
+      }
+
+      else {
+        showModal(error.message);
+      }
+
     } finally {
       setLoading(false);
     }
@@ -259,7 +312,7 @@ function Auth({ setPage }) {
     }
 
     try {
-      console.log("OTP LOGIN",selectedRole);
+      console.log("OTP LOGIN", selectedRole);
       showModal("OTP Authentication Coming Soon");
     } catch (error) {
       console.log(error);
@@ -294,8 +347,8 @@ function Auth({ setPage }) {
           style={{
             display: 'flex',
             gap: '4px',
-            background:'var(--gray-100)',
-            borderRadius:'var(--radius-md)',
+            background: 'var(--gray-100)',
+            borderRadius: 'var(--radius-md)',
             padding: '4px',
             marginBottom: '14px'
           }}
@@ -310,10 +363,10 @@ function Auth({ setPage }) {
                   padding: '7px',
                   textAlign: 'center',
                   fontSize: '13px',
-                  color: authTab === t ? 'var(--text-primary)': 'var(--text-secondary)',
-                  background: authTab === t ? 'var(--surface)': 'transparent',
-                  boxShadow: authTab === t ? 'var(--shadow-sm)': 'none',
-                  borderRadius:'var(--radius-sm)',
+                  color: authTab === t ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  background: authTab === t ? 'var(--surface)' : 'transparent',
+                  boxShadow: authTab === t ? 'var(--shadow-sm)' : 'none',
+                  borderRadius: 'var(--radius-sm)',
                   border: 'none',
                   cursor: 'pointer'
                 }}
@@ -326,7 +379,12 @@ function Auth({ setPage }) {
             ))}
         </div>
 
-        <div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
           <div className="role-grid">
             {[
               {
@@ -343,7 +401,7 @@ function Auth({ setPage }) {
               <div
                 key={role.r}
                 className={`role-card ${selectedRole === role.r ? 'selected' : ''}`}
-                onClick={() =>setSelectedRole(role.r)}
+                onClick={() => setSelectedRole(role.r)}
               >
                 <div className="role-icon">
                   {role.i}
@@ -354,99 +412,100 @@ function Auth({ setPage }) {
               </div>
             ))}
           </div>
-        </div>
 
 
-        {!isLogin && (
-          <div className="form-group">
-            <label className="form-label">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              className="form-input"
-              placeholder="Khushpreet Kaur"
-              value={formData.fullName}
-              onChange={handleChange}
-            />
-            {touched.fullName && errors.fullName && (
+
+          {!isLogin && (
+            <div className="form-group">
+              <label className="form-label">
+                Full Name
+              </label>
+              <input
+                type="text"
+                name="fullName"
+                className="form-input"
+                placeholder="Khushpreet Kaur"
+                value={formData.fullName}
+                onChange={handleChange}
+              />
+              {touched.fullName && errors.fullName && (
                 <span style={errorStyle}>
                   {errors.fullName}
                 </span>
               )}
-          </div>
-        )}
+            </div>
+          )}
 
-        <div className="form-group">
-          <label className="form-label">
-            Phone / Email
-          </label>
-          <input
-            type="text"
-            name="contact"
-            className="form-input"
-            placeholder={ isLogin ? 'Enter phone or email' : 'khush@example.com' }
-            value={formData.contact}
-            onChange={handleChange}
-          />
-          {touched.contact && errors.contact && (
+          <div className="form-group">
+            <label className="form-label">
+              Email
+            </label>
+            <input
+              type="text"
+              name="contact"
+              className="form-input"
+              placeholder={isLogin ? 'Enter email' : 'khush@example.com'}
+              value={formData.contact}
+              onChange={handleChange}
+            />
+            {touched.contact && errors.contact && (
               <span style={errorStyle}>
                 {errors.contact}
               </span>
             )}
-        </div>
+          </div>
 
-        <div className="form-group">
-          <label className="form-label">
-            Password
-          </label>
-          <input
-            type="password"
-            name="password"
-            className="form-input"
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          {touched.password && errors.password && (
+          <div className="form-group">
+            <label className="form-label">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              className="form-input"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+            />
+            {touched.password && errors.password && (
               <span style={errorStyle}>
                 {errors.password}
               </span>
             )}
-        </div>
-
-        {isLogin && (
-          <div
-            style={{
-              textAlign: 'right',
-              fontSize: '12px',
-              color: 'var(--blue)',
-              marginBottom: '16px',
-              cursor: 'pointer'
-            }}
-          >
-            Forgot Password?
           </div>
-        )}
 
-        <button
-          className="btn btn-primary"
-          style={{
-            width: '100%',
-            padding: '12px',
-            fontSize: '14px',
-            marginBottom: '14px',
-            opacity: isFormValid() && isRoleSelected() ? 1 : 0.5,
-            cursor: isFormValid() && isRoleSelected() ? 'pointer' : 'not-allowed',
-            backgroundColor: isFormValid() && isRoleSelected() ? 'var(--blue)' : '#ccc'
-          }}
-          disabled={ !isFormValid() || !isRoleSelected() || loading }
-          onClick={handleSubmit}
-        >
-          {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
-        </button>
+          {isLogin && (
+            <div
+              style={{
+                textAlign: 'right',
+                fontSize: '12px',
+                color: 'var(--blue)',
+                marginBottom: '16px',
+                cursor: 'pointer'
+              }}
+            >
+              Forgot Password?
+            </div>
+          )}
 
+          <button
+            className="btn btn-primary"
+            style={{
+              width: '100%',
+              padding: '12px',
+              fontSize: '14px',
+              marginBottom: '14px',
+              opacity: isFormValid() && isRoleSelected() ? 1 : 0.5,
+              cursor: isFormValid() && isRoleSelected() ? 'pointer' : 'not-allowed',
+              backgroundColor: isFormValid() && isRoleSelected() ? 'var(--blue)' : '#ccc'
+            }}
+            disabled={!isFormValid() || !isRoleSelected() || loading}
+            onClick={handleSubmit}
+          >
+            {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+          </button>
+
+        </form>
         <div className="divider-text">
           or continue with
         </div>
@@ -466,7 +525,7 @@ function Auth({ setPage }) {
               opacity: isRoleSelected() ? 1 : 0.5,
               cursor: isRoleSelected() ? 'pointer' : 'not-allowed'
             }}
-            disabled={ !isRoleSelected()}
+            disabled={!isRoleSelected()}
             onClick={handleGoogleAuth}
           >
             📱 Google
@@ -481,7 +540,7 @@ function Auth({ setPage }) {
               opacity: isRoleSelected() ? 1 : 0.5,
               cursor: isRoleSelected() ? 'pointer' : 'not-allowed'
             }}
-            disabled={ !isRoleSelected()}
+            disabled={!isRoleSelected()}
             onClick={handleOTPAuth}
           >
             📞 OTP
@@ -514,7 +573,7 @@ function Auth({ setPage }) {
               Already have an account?{' '}
               <span
                 style={{
-                  color:'var(--blue)',
+                  color: 'var(--blue)',
                   cursor: 'pointer'
                 }}
                 onClick={() => handleTabChange('login')}
@@ -544,49 +603,51 @@ function Auth({ setPage }) {
         </p>
       </div>
 
-      {modal.show && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 9999,
-            animation: 'slideIn 0.3s ease'
-          }}
-        >
+      {
+        modal.show && (
           <div
             style={{
-              background:'var(--surface)',
-              color:'var(--text-primary)',
-              padding: '14px 18px',
-              borderRadius: '14px',
-              minWidth: '260px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              fontSize: '13px',
-              fontWeight: '500',
-              backdropFilter:'blur(12px)'
+              position: 'fixed',
+              top: '20px',
+              right: '20px',
+              zIndex: 9999,
+              animation: 'slideIn 0.3s ease'
             }}
           >
             <div
               style={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                background: '#4ade80',
-                flexShrink: 0
+                background: 'var(--surface)',
+                color: 'var(--text-primary)',
+                padding: '14px 18px',
+                borderRadius: '14px',
+                minWidth: '260px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                fontSize: '13px',
+                fontWeight: '500',
+                backdropFilter: 'blur(12px)'
               }}
-            />
-            <span>
-              {modal.message}
-            </span>
+            >
+              <div
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  background: '#4ade80',
+                  flexShrink: 0
+                }}
+              />
+              <span>
+                {modal.message}
+              </span>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 

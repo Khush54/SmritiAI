@@ -10,7 +10,8 @@ import Analytics from '../components/Doctor/Analytics';
 import Notes from '../components/Doctor/Notes';
 import FollowUps from '../components/Doctor/FollowUps';
 
-function Doctor({ page, setPage }) {
+function Doctor() {
+    const [doctorPage, setdoctorPage] = useState("home");
     const [searchQuery, setSearchQuery] = useState("");
 
     // 2. Lifted User Data state so Settings can modify it
@@ -48,22 +49,22 @@ function Doctor({ page, setPage }) {
         <div className="portal-container doctor-scope">
             <Navbar
                 user={userData}
-                setPage={setPage}
+                setPage={setdoctorPage}
                 onSearch={handleSearch}
             />
 
             <div className="dash-layout">
-                <Sidebar currentPage={page} setPage={setPage} />
+                <Sidebar currentPage={doctorPage} setPage={setdoctorPage} />
 
                 <div className="main-content">
-                    {page === 'home' && <Home setPage={setPage}/>}
-                    {page === 'patients' && <Patients/>}
-                    {page === 'reports' && <Reports/>}
-                    {page === 'analytics' && <Analytics/>}
-                    {page === 'followups' && <FollowUps/>}
-                    {page === 'notes' && <Notes/>}
-                    {page === 'alerts' && <Alerts />}
-                    {page === 'settings' && (
+                    {doctorPage === 'home' && <Home setdoctorPage={setdoctorPage}/>}
+                    {doctorPage === 'patients' && <Patients/>}
+                    {doctorPage === 'reports' && <Reports/>}
+                    {doctorPage === 'analytics' && <Analytics/>}
+                    {doctorPage === 'followups' && <FollowUps/>}
+                    {doctorPage === 'notes' && <Notes/>}
+                    {doctorPage === 'alerts' && <Alerts />}
+                    {doctorPage === 'settings' && (
                         <Settings 
                             doctorData={userData} 
                             onUpdateDoctor={handleUpdateDoctor} 

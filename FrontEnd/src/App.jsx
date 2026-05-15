@@ -25,11 +25,8 @@ function App() {
     <>
       {page === 'landing' && <LandingPage setPage={setPage} page={page} darkMode={darkMode} toggleDark={toggleDark} />}
       {page === 'auth' && <Auth setPage={setPage} />}
-      {page === 'user' && <User page={page} setPage={setPage} />}
-      {page === 'doctor' && <Doctor
-        page={page}
-        setPage={setPage}
-      />}
+      {page === 'user' && <User/>}
+      {page === 'doctor' && <Doctor/>}
       <button className="theme-toggle-fixed" onClick={toggleDark}>
         {darkMode ? '☀️' : '🌙'}
       </button>

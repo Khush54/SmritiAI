@@ -12,7 +12,8 @@ import Alerts from '../components/User/Alerts'
 import Mood from '../components/User/Mood'
 import DoctorContact from '../components/User/DoctorContact'
 
-function User({ page, setPage }) {
+function User() {
+  const [userPage, setuserPage] = useState("home")
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [alerts, setAlerts] = useState([]);
@@ -44,62 +45,62 @@ function User({ page, setPage }) {
   };
 
   const handleCompleteTest = () => {
-    setPage('reports');
+    setuserPage('reports');
   };
 
   return (
     <div className="user-scope">
       <Navbar
-        setPage={setPage}
+        setPage={setuserPage}
         caregiverName="Anita Singh"
         alertCount={alerts.length}
       />
 
       <div className="dash-layout">
-        <Sidebar setPage={setPage} currentPage={page} />
+        <Sidebar setPage={setuserPage} currentPage={userPage} />
 
         <div className="main-content">
-          {page === 'home' && (
+          {userPage === 'home' && (
             <Home
               patients={patients}
-              setPage={setPage}
+              setPage={setuserPage}
               setSelectedPatient={setSelectedPatient}
             />
           )}
 
-          {page === 'patients' && (
+          {userPage === 'patients' && (
             <Patients
               patients={patients}
-              setPage={setPage}
+              setPage={setuserPage}
               setSelectedPatient={setSelectedPatient}
               onAddPatient={handleAddPatient}
             />
           )}
 
-          {page === 'test' && (
+          {userPage === 'test' && (
             <StartTest
               patient={selectedPatient}
-              setPage={setPage}
+              setPage={setuserPage}
               completeTest={handleCompleteTest}
             />
           )}
 
-          {page === 'reports' && <Reports patient={selectedPatient} />}
-          {page === 'mood' && <Mood patient={selectedPatient} setPage={setPage} />}
-          {page === 'reminders' && <Reminders patient={selectedPatient} />}
+          {userPage === 'reports' && <Reports patient={selectedPatient} />}
+          {userPage === 'mood' && <Mood patient={selectedPatient} setPage={setuserPage} />}
+          {userPage === 'reminders' && <Reminders patient={selectedPatient} />}
 
-          {page === 'history' && <TestHistory patient={selectedPatient} />}
+          {userPage === 'history' && <TestHistory patient={selectedPatient} />}
 
-          {page === 'alerts' && (
+          {userPage === 'alerts' && (
             <Alerts
               alertsData={alerts}
               patients={patients}
               setSelectedPatient={setSelectedPatient}
-              setPage={setPage}
+              setPage={setuserPage}
             />
           )}
-          {page === 'doctor' && <DoctorContact patient={selectedPatient} setPage={setPage} />}
-          {page === 'settings' && (
+          {userPage === 'doctor' && <DoctorContact patient={selectedPatient} setPage={setuserPage} />}
+          {userPage === 'settings' && (
             <Settings
               patient={selectedPatient}
               onUpdatePatient={handleUpdatePatient}
