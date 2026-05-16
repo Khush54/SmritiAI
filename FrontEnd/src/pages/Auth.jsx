@@ -15,8 +15,10 @@ import {
 } from "../services/authService";
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function Auth({ setPage }) {
+function Auth() {
+  const navigate = useNavigate();
   const [authTab, setAuthTab] = useState('signup');
   const [selectedRole, setSelectedRole] = useState('');
   const [formData, setFormData] = useState({ fullName: '', contact: '', password: '' });
@@ -154,9 +156,9 @@ function Auth({ setPage }) {
         }
 
         if (data.user.role === "doctor") {
-          setPage("doctor");
+          window.location.href = "/doctor/home";
         } else {
-          setPage("user");
+          window.location.href = "/user/home";
         }
       }
 
@@ -279,9 +281,9 @@ function Auth({ setPage }) {
       );
 
       if (data.user.role === "doctor") {
-        setPage("doctor");
+        window.location.href = "/doctor/home";
       } else {
-        setPage("user");
+        window.location.href = "/user/home";
       }
 
     } catch (error) {
@@ -305,19 +307,6 @@ function Auth({ setPage }) {
     }
   };
 
-  const handleOTPAuth = async () => {
-    if (!selectedRole) {
-      showModal("Please select a role");
-      return;
-    }
-
-    try {
-      console.log("OTP LOGIN", selectedRole);
-      showModal("OTP Authentication Coming Soon");
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <div className="auth-page">
@@ -523,27 +512,16 @@ function Auth({ setPage }) {
               padding: '9px',
               fontSize: '13px',
               opacity: isRoleSelected() ? 1 : 0.5,
-              cursor: isRoleSelected() ? 'pointer' : 'not-allowed'
+              cursor: isRoleSelected() ? 'pointer' : 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
             }}
             disabled={!isRoleSelected()}
             onClick={handleGoogleAuth}
           >
-            📱 Google
-          </button>
-
-          <button
-            className="btn btn-secondary"
-            style={{
-              flex: 1,
-              padding: '9px',
-              fontSize: '13px',
-              opacity: isRoleSelected() ? 1 : 0.5,
-              cursor: isRoleSelected() ? 'pointer' : 'not-allowed'
-            }}
-            disabled={!isRoleSelected()}
-            onClick={handleOTPAuth}
-          >
-            📞 OTP
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '16px', height: '16px' }} /> Sign in with Google
           </button>
         </div>
 
@@ -596,7 +574,7 @@ function Auth({ setPage }) {
               color: 'var(--blue)',
               cursor: 'pointer'
             }}
-            onClick={() => setPage('landing')}
+            onClick={() => navigate('/')}
           >
             Back to Home
           </span>

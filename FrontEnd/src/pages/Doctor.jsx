@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Doctor/Navbar';
 import Sidebar from '../components/Doctor/Sidebar';
 import Home from '../components/Doctor/Home';
@@ -11,31 +12,53 @@ import Notes from '../components/Doctor/Notes';
 import FollowUps from '../components/Doctor/FollowUps';
 
 function Doctor() {
-    const [doctorPage, setdoctorPage] = useState("home");
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
 
-    // 2. Lifted User Data state so Settings can modify it
     const [userData, setUserData] = useState({
-        name: "Dr. Priya Sharma",
-        initials: "PS",
+        name: "Dr. Doctor",
+        initials: "DR",
         role: "NEUROLOGIST",
         portalType: "DOCTOR PORTAL",
         hasNotifications: false,
         specialization: "Cognitive Neurology",
         license: "MC-99210-A",
-        email: "priya.sharma@hospital.com",
+        email: "doctor@hospital.com",
         clinic: "City Neuro Centre",
         preferredLanguage: "en"
     });
+
+    React.useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            try {
+                const parsedUser = JSON.parse(storedUser);
+                const fullName = parsedUser.fullName || parsedUser.name || "Doctor";
+                let displayName = fullName;
+                if (!displayName.toLowerCase().startsWith("dr.") && !displayName.toLowerCase().startsWith("dr ")) {
+                    displayName = "Dr. " + displayName;
+                }
+                const names = displayName.replace(/^Dr\.\s*|^Dr\s*/i, "").trim().split(' ');
+                const initials = names.map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                
+                setUserData(prev => ({
+                    ...prev,
+                    name: displayName,
+                    initials: initials,
+                    email: parsedUser.email || prev.email,
+                }));
+            } catch (e) {
+                console.error("Error parsing user data", e);
+            }
+        }
+    }, []);
 
     const handleSearch = (query) => {
         setSearchQuery(query);
         console.log("Searching for:", query);
     };
 
-    // 3. Handler to update doctor data from the Settings component
     const handleUpdateDoctor = (newData) => {
-        // Create new initials if the name changed
         const names = newData.name.split(' ');
         const initials = names.map(n => n[0]).join('').toUpperCase();
         
@@ -49,27 +72,29 @@ function Doctor() {
         <div className="portal-container doctor-scope">
             <Navbar
                 user={userData}
-                setPage={setdoctorPage}
                 onSearch={handleSearch}
             />
 
             <div className="dash-layout">
-                <Sidebar currentPage={doctorPage} setPage={setdoctorPage} />
+                <Sidebar />
 
                 <div className="main-content">
-                    {doctorPage === 'home' && <Home setdoctorPage={setdoctorPage}/>}
-                    {doctorPage === 'patients' && <Patients/>}
-                    {doctorPage === 'reports' && <Reports/>}
-                    {doctorPage === 'analytics' && <Analytics/>}
-                    {doctorPage === 'followups' && <FollowUps/>}
-                    {doctorPage === 'notes' && <Notes/>}
-                    {doctorPage === 'alerts' && <Alerts />}
-                    {doctorPage === 'settings' && (
-                        <Settings 
-                            doctorData={userData} 
-                            onUpdateDoctor={handleUpdateDoctor} 
-                        />
-                    )}
+                    <Routes>
+                        <Route path="/" element={<Navigate to="home" replace />} />
+                        <Route path="home" element={<Home />} />
+                        <Route path="patients" element={<Patients />} />
+                        <Route path="reports" element={<Reports />} />
+                        <Route path="analytics" element={<Analytics />} />
+                        <Route path="followups" element={<FollowUps />} />
+                        <Route path="notes" element={<Notes />} />
+                        <Route path="alerts" element={<Alerts />} />
+                        <Route path="settings" element={
+                            <Settings 
+                                doctorData={userData} 
+                                onUpdateDoctor={handleUpdateDoctor} 
+                            />
+                        } />
+                    </Routes>
                 </div>
             </div>
         </div>

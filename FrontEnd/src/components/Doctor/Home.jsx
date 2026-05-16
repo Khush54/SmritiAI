@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Home = ({ setPage }) => {
+const Home = () => {
+    const navigate = useNavigate();
     // 1. Data State
     const [patients] = useState([
         { id: 1, name: "Anita Rao", age: 62, gender: "F", risk: "High", score: 42, city: "Delhi", lastTest: "12 Dec", followUp: "28 Dec", flag: true, trend: 'down' },
@@ -33,10 +35,10 @@ const Home = ({ setPage }) => {
                         </p>
                     </div>
                     <div className="ph-act" style={{ display: 'flex', gap: '12px' }}>
-                        <button className="btn btn-g btn-sm" onClick={() => setPage('alerts')}>
+                        <button className="btn btn-g btn-sm" onClick={() => navigate('/doctor/alerts')}>
                             <span>🔔</span> {highPts.length} Alerts
                         </button>
-                        <button className="btn btn-c" onClick={() => setPage('patients')}>
+                        <button className="btn btn-c" onClick={() => navigate('/doctor/patients')}>
                             View Patient
                         </button>
                     </div>
@@ -49,7 +51,7 @@ const Home = ({ setPage }) => {
                     <div 
                         key={i} 
                         className="card kpi" 
-                        onClick={() => setPage(s.target)}
+                        onClick={() => navigate(`/doctor/${s.target}`)}
                         style={{ cursor: 'pointer' }}
                     >
                         <div className="kpi-accent" style={{ background: `${s.color}15`, color: s.color }}>{s.icon}</div>
@@ -69,7 +71,7 @@ const Home = ({ setPage }) => {
                             <div className="sh-title" style={{ fontSize: '16px', fontWeight: '600' }}>Patient Surveillance</div>
                             <div className="sh-sub" style={{ fontSize: '11px', color: 'var(--b4)' }}>RECENT ACTIVITY</div>
                         </div>
-                        <button className="btn btn-g btn-sm" onClick={() => setPage('patients')}>View Full Directory</button>
+                        <button className="btn btn-g btn-sm" onClick={() => navigate('/doctor/patients')}>View Full Directory</button>
                     </div>
 
                     <div className="tbl-wrap" style={{ overflowX: 'auto' }}>

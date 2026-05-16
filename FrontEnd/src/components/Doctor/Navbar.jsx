@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Doctor.css';
 
-const Navbar = ({ user, setPage, onSearch }) => {
+const Navbar = ({ user, onSearch }) => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchChange = (e) => {
@@ -13,7 +15,7 @@ const Navbar = ({ user, setPage, onSearch }) => {
   return (
     <nav className="nav">
       <div className="nav-left">
-        <div className="nav-brand" onClick={() => setPage('home')}>
+        <div className="nav-brand" onClick={() => navigate('/doctor/home')}>
           <div className="brand-mark">🧠</div>
           <span className="brand-name">Smriti AI</span>
         </div>
@@ -36,7 +38,7 @@ const Navbar = ({ user, setPage, onSearch }) => {
       </div>
 
       <div className="nav-right">
-        <div className="nav-icon" onClick={() => setPage('alerts')}>
+        <div className="nav-icon" onClick={() => navigate('/doctor/alerts')}>
           <svg viewBox="0 0 24 24">
             <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 01-3.46 0"/>
@@ -44,7 +46,7 @@ const Navbar = ({ user, setPage, onSearch }) => {
           {user?.hasNotifications && <span className="dot"></span>}
         </div>
 
-        <div className="nav-user" onClick={() => setPage('settings')}>
+        <div className="nav-user" onClick={() => navigate('/doctor/settings')}>
           <div className="nav-avi">{user?.initials}</div>
 
           <div>

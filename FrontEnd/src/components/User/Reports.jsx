@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { jsPDF } from 'jspdf'; 
 import { Radar } from 'react-chartjs-2';
+import { getPatientAssessments } from '../../services/assessmentService';
 import {
     Chart as ChartJS,
     RadialLinearScale,
@@ -16,6 +17,62 @@ ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, 
 
 function Reports({ patient }) {
     const chartRef = useRef(null);
+    const [latestTest, setLatestTest] = useState(null);
+    const [dynamicBreakdown, setDynamicBreakdown] = useState([]);
+    const [dynamicStats, setDynamicStats] = useState([0,0,0,0,0,0]);
+    const [debugError, setDebugError] = useState("");
+
+    useEffect(() => {
+        const loadTest = async () => {
+            if (patient) {
+                try {
+                    const pId = patient.id || patient._id;
+                    const res = await getPatientAssessments(pId);
+                    if (res.success && res.data.length > 0) {
+                        const latest = res.data[0];
+                        setLatestTest(latest);
+
+                        // Generate Dynamic Metrics based on latest score & answers
+                        let memScore = latest.score;
+                        if (latest.details?.memoryAns && latest.details.memoryAns !== "30 Oct") {
+                            memScore = Math.max(30, memScore - 40);
+                        }
+                        
+                        let behScore = latest.score;
+                        let attScore = latest.score;
+                        if (latest.details?.beh1 === "Often") {
+                            behScore = Math.max(20, behScore - 50);
+                            attScore = Math.max(30, attScore - 30);
+                        } else if (latest.details?.beh1 === "Slight") {
+                            behScore = Math.max(50, behScore - 20);
+                        }
+
+                        const breakdown = [
+                            { title: 'Memory Recall', score: memScore },
+                            { title: 'Language & Speech', score: Math.min(100, latest.score + 5) },
+                            { title: 'Attention & Focus', score: attScore },
+                            { title: 'Spatial Recognition', score: latest.score },
+                            { title: 'Logic & Reasoning', score: latest.score },
+                            { title: 'Behavioral Stability', score: behScore }
+                        ];
+                        setDynamicBreakdown(breakdown);
+                        
+                        const stats = [memScore, Math.min(100, latest.score + 5), attScore, latest.score, latest.score, behScore];
+                        setDynamicStats(stats);
+                    } else {
+                        setLatestTest(null);
+                        setDynamicBreakdown([]);
+                        setDynamicStats([0,0,0,0,0,0]);
+                        setDebugError("API Success, but no data found for patient " + pId);
+                    }
+                } catch(e) {
+                    console.error("Failed to load assessments", e);
+                    setDebugError(e.message);
+                }
+            }
+        };
+        loadTest();
+    }, [patient]);
 
     if (!patient) {
         return (
@@ -50,7 +107,7 @@ function Reports({ patient }) {
         doc.text("Detailed Breakdown:", 20, 90);
         doc.setFontSize(11);
         
-        patient.breakdown?.forEach((item, index) => {
+        dynamicBreakdown.forEach((item, index) => {
             doc.text(`• ${item.title}: ${item.score}%`, 25, 100 + (index * 8));
         });
 
@@ -82,10 +139,10 @@ function Reports({ patient }) {
     };
 
     const chartData = {
-        labels: ['Memory', 'Language', 'Attention', 'Spatial', 'Logic', 'Recall'],
+        labels: ['Memory', 'Language', 'Attention', 'Spatial', 'Logic', 'Behavior'],
         datasets: [{
             label: 'Current Performance',
-            data: patient.stats || [0,0,0,0,0,0],
+            data: dynamicStats,
             backgroundColor: 'rgba(59, 130, 246, 0.2)',
             borderColor: '#3b82f6',
             borderWidth: 2,
@@ -118,6 +175,12 @@ function Reports({ patient }) {
                 <div style={{ fontSize: '16px', fontWeight: '500' }}>Overall Cognitive Score: {patient.score} / 100</div>
             </div>
 
+            {debugError && (
+                <div style={{ background: 'var(--rose)', color: 'white', padding: '10px', borderRadius: '8px', marginBottom: '20px' }}>
+                    Debug Error: {debugError}
+                </div>
+            )}
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px' }}>
                 
                 <div className="card" style={{ padding: '25px', borderRadius: 'var(--r16)', background: 'var(--surface)' }}>
@@ -129,7 +192,7 @@ function Reports({ patient }) {
 
                 <div className="card" style={{ padding: '25px', borderRadius: 'var(--r16)', background: 'var(--surface)' }}>
                     <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Metric Breakdown</h3>
-                    {patient.breakdown?.map((item, idx) => (
+                    {dynamicBreakdown.length > 0 ? dynamicBreakdown.map((item, idx) => (
                         <div key={idx} style={{ marginBottom: '18px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
                                 <span style={{ color: 'var(--c3)' }}>{item.title}</span>
@@ -142,7 +205,9 @@ function Reports({ patient }) {
                                 }} />
                             </div>
                         </div>
-                    ))}
+                    )) : (
+                        <p style={{ color: 'var(--c4)', fontSize: '13px' }}>No test data available to generate metrics.</p>
+                    )}
                 </div>
 
             </div>

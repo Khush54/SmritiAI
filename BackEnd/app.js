@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const authRoutes = require("./src/routes/authRoutes");
+const patientRoutes = require("./src/routes/patientRoutes");
+const screeningRoutes = require("./src/routes/screeningRoutes");
 
 const app = express();
 app.use(cors());
@@ -17,6 +19,16 @@ app.use(express.urlencoded({
 app.use(
   "/api/auth",
   authRoutes
+);
+
+app.use(
+  "/api/patients",
+  patientRoutes
+);
+
+app.use(
+  "/api/assessments",
+  screeningRoutes
 );
 
 app.get("/", (req, res) => {

@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Navbar from '../components/User/Navbar'
 import Sidebar from '../components/User/Sidebar'
 import Home from '../components/User/Home'
@@ -11,101 +12,74 @@ import Settings from '../components/User/Settings'
 import Alerts from '../components/User/Alerts'
 import Mood from '../components/User/Mood'
 import DoctorContact from '../components/User/DoctorContact'
+import { AppContext } from '../context/AppContext'
+import { submitAssessment } from '../services/assessmentService'
 
 function User() {
-  const [userPage, setuserPage] = useState("home")
-  const [patients, setPatients] = useState([]);
-  const [selectedPatient, setSelectedPatient] = useState(null);
-  const [alerts, setAlerts] = useState([]);
+  const navigate = useNavigate();
+  const { 
+    user, patients, selectedPatient, setSelectedPatient, 
+    alerts, addPatient, updatePatient 
+  } = useContext(AppContext);
+  
+  const userName = user?.fullName || user?.name || "User";
 
-
-  const handleAddPatient = (newPatient) => {
-    setPatients(prev => [...prev, newPatient]);
-
-    const newAlert = {
-      id: Date.now(),
-      patientId: newPatient.id,
-      patientName: newPatient.name,
-      title: 'Profile Created',
-      message: `Successfully added ${newPatient.name} to monitoring.`,
-      type: 'success',
-      time: 'Now'
-    };
-    setAlerts(prev => [newAlert, ...prev]);
-  };
-
-  const handleUpdatePatient = (updatedData) => {
-    setPatients(prev => prev.map(p =>
-      p.id === updatedData.id ? { ...p, ...updatedData } : p
-    ));
-
-    if (selectedPatient && selectedPatient.id === updatedData.id) {
-      setSelectedPatient({ ...selectedPatient, ...updatedData });
+  const handleCompleteTest = async (testData) => {
+    try {
+      if (!selectedPatient) return;
+      const res = await submitAssessment(selectedPatient.id, testData);
+      
+      if (res.success && res.data.patient) {
+        // Update context with the newly calculated scores
+        updatePatient(res.data.patient);
+      }
+      
+      navigate('/user/reports');
+    } catch(err) {
+      console.error("Failed to submit test", err);
+      // Fallback navigation
+      navigate('/user/reports');
     }
-  };
-
-  const handleCompleteTest = () => {
-    setuserPage('reports');
   };
 
   return (
     <div className="user-scope">
-      <Navbar
-        setPage={setuserPage}
-        caregiverName="Anita Singh"
-        alertCount={alerts.length}
-      />
+      <Navbar caregiverName={userName} alertCount={alerts.length} />
 
       <div className="dash-layout">
-        <Sidebar setPage={setuserPage} currentPage={userPage} />
+        <Sidebar />
 
         <div className="main-content">
-          {userPage === 'home' && (
-            <Home
-              patients={patients}
-              setPage={setuserPage}
-              setSelectedPatient={setSelectedPatient}
-            />
-          )}
-
-          {userPage === 'patients' && (
-            <Patients
-              patients={patients}
-              setPage={setuserPage}
-              setSelectedPatient={setSelectedPatient}
-              onAddPatient={handleAddPatient}
-            />
-          )}
-
-          {userPage === 'test' && (
-            <StartTest
-              patient={selectedPatient}
-              setPage={setuserPage}
-              completeTest={handleCompleteTest}
-            />
-          )}
-
-          {userPage === 'reports' && <Reports patient={selectedPatient} />}
-          {userPage === 'mood' && <Mood patient={selectedPatient} setPage={setuserPage} />}
-          {userPage === 'reminders' && <Reminders patient={selectedPatient} />}
-
-          {userPage === 'history' && <TestHistory patient={selectedPatient} />}
-
-          {userPage === 'alerts' && (
-            <Alerts
-              alertsData={alerts}
-              patients={patients}
-              setSelectedPatient={setSelectedPatient}
-              setPage={setuserPage}
-            />
-          )}
-          {userPage === 'doctor' && <DoctorContact patient={selectedPatient} setPage={setuserPage} />}
-          {userPage === 'settings' && (
-            <Settings
-              patient={selectedPatient}
-              onUpdatePatient={handleUpdatePatient}
-            />
-          )}
+          <Routes>
+            <Route path="/" element={<Navigate to="home" replace />} />
+            
+            <Route path="home" element={
+              <Home patients={patients} selectedPatient={selectedPatient} setSelectedPatient={setSelectedPatient} />
+            } />
+            
+            <Route path="patients" element={
+              <Patients patients={patients} selectedPatient={selectedPatient} setSelectedPatient={setSelectedPatient} onAddPatient={addPatient} />
+            } />
+            
+            <Route path="test" element={
+              <StartTest patient={selectedPatient} completeTest={handleCompleteTest} />
+            } />
+            
+            <Route path="reports" element={<Reports patient={selectedPatient} />} />
+            <Route path="mood" element={<Mood patient={selectedPatient} />} />
+            <Route path="reminders" element={<Reminders patient={selectedPatient} />} />
+            <Route path="history" element={<TestHistory patient={selectedPatient} />} />
+            
+            <Route path="alerts" element={
+              <Alerts alertsData={alerts} patients={patients} setSelectedPatient={setSelectedPatient} />
+            } />
+            
+            <Route path="doctor" element={<DoctorContact patient={selectedPatient} />} />
+            
+            <Route path="settings" element={
+              <Settings patient={selectedPatient} onUpdatePatient={updatePatient} />
+            } />
+          </Routes>
         </div>
       </div>
     </div>

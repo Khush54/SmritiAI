@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './User.css'
 
-function Home({ patients = [], setPage, setSelectedPatient }) {
+function Home({ patients = [], selectedPatient, setSelectedPatient }) {
+  const navigate = useNavigate();
   const today = new Date().toLocaleDateString('en-IN', {
     weekday: 'long',
     day: 'numeric',
@@ -16,7 +18,7 @@ function Home({ patients = [], setPage, setSelectedPatient }) {
 
   const handleViewProfile = (patient) => {
     setSelectedPatient(patient); // Global context set karega
-    setPage('patients');         // Page switch karega
+    navigate('/user/reports');         // Page switch karega
   };
 
   return (
@@ -29,10 +31,10 @@ function Home({ patients = [], setPage, setSelectedPatient }) {
             <p>Monitoring {patients.length} loved ones · {today}</p>
           </div>
           <div className="ph-act" style={{ display: 'flex', gap: '10px' }}>
-            <button className="btn btn-s btn-sm" onClick={() => setPage('patients')}>
+            <button className="btn btn-s btn-sm" onClick={() => navigate('/user/patients')}>
               📝 All Patients
             </button>
-            <button className="btn btn-p" onClick={() => setPage('alerts')}>
+            <button className="btn btn-p" onClick={() => navigate('/user/alerts')}>
               🔔 View Alerts
             </button>
           </div>
@@ -45,8 +47,32 @@ function Home({ patients = [], setPage, setSelectedPatient }) {
             <div 
               key={p.id} 
               className="card card-hover" 
-              style={{ transition: 'transform 0.2s', borderLeft: `4px solid ${p.risk === 'High' ? 'var(--rose)' : 'var(--sage)'}` }}
+              onClick={() => setSelectedPatient(p)}
+              style={{ 
+                transition: 'all 0.2s', 
+                borderLeft: `4px solid ${p.risk === 'High' ? 'var(--rose)' : 'var(--sage)'}`,
+                boxShadow: selectedPatient?.id === p.id ? '0 0 0 2px var(--blue), 0 4px 12px rgba(59, 130, 246, 0.2)' : 'var(--shadow)',
+                cursor: 'pointer',
+                position: 'relative'
+              }}
             >
+              {selectedPatient?.id === p.id && (
+                <div style={{
+                  position: 'absolute',
+                  top: '-10px',
+                  right: '-10px',
+                  background: 'var(--blue)',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                }}>✓</div>
+              )}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
                   width: '48px', height: '48px', borderRadius: '50%',
@@ -106,7 +132,7 @@ function Home({ patients = [], setPage, setSelectedPatient }) {
                 </button>
                 <button 
                   className="btn btn-s btn-sm" 
-                  onClick={() => { setSelectedPatient(p); setPage('mood'); }}
+                  onClick={() => { setSelectedPatient(p); navigate('/user/mood'); }}
                 >
                   📝 Log
                 </button>
@@ -118,7 +144,7 @@ function Home({ patients = [], setPage, setSelectedPatient }) {
             <div style={{ fontSize: '40px', marginBottom: '16px' }}>🏘️</div>
             <h3 style={{ color: 'var(--c1)' }}>No Loved Ones Added</h3>
             <p style={{ color: 'var(--c4)', fontSize: '14px' }}>Start by adding a family member to your profile.</p>
-            <button className="btn btn-p btn-sm" style={{ marginTop: '15px' }} onClick={() => setPage('patients')}>
+            <button className="btn btn-p btn-sm" style={{ marginTop: '15px' }} onClick={() => navigate('/user/patients')}>
                + Add Your First Patient
             </button>
           </div>

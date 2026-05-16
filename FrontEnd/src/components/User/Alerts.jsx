@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './User.css'
-const Alerts = ({ alertsData = [], setPage, setSelectedPatient, patients = [] }) => {
+const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
+  const navigate = useNavigate();
   
   const getAlertStyle = (type) => {
     switch (type?.toLowerCase()) {
@@ -15,7 +17,7 @@ const Alerts = ({ alertsData = [], setPage, setSelectedPatient, patients = [] })
     const targetPatient = patients.find(p => p.id === alert.patientId);
     if (targetPatient) {
       setSelectedPatient(targetPatient);
-      setPage(alert.type === 'critical' ? 'reports' : 'patients');
+      navigate(alert.type === 'critical' ? '/user/reports' : '/user/patients');
     }
   };
 

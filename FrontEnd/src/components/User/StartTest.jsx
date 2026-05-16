@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './User.css'
 
-function StartTest({ setPage, completeTest, patient }) {
+function StartTest({ completeTest, patient }) {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -179,7 +181,7 @@ function StartTest({ setPage, completeTest, patient }) {
         <div className="loader" style={{ margin: '0 auto' }}></div>
         <h3 style={{ marginTop: '20px' }}>{analysisDone ? "Test Complete!" : "AI is Analyzing..."}</h3>
         <p style={{ color: 'var(--c4)' }}>Generating report for {patient?.name}</p>
-        {analysisDone && <button className="btn btn-primary" style={{marginTop: '20px'}} onClick={() => setPage('reports')}>View Results</button>}
+        {analysisDone && <button className="btn btn-primary" style={{marginTop: '20px'}} onClick={() => completeTest(answers)}>View Results</button>}
       </div>
     );
   };
@@ -207,7 +209,7 @@ function StartTest({ setPage, completeTest, patient }) {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-        <button className="btn btn-s" onClick={() => setPage('home')}>Cancel</button>
+        <button className="btn btn-s" onClick={() => navigate('/user/home')}>Cancel</button>
         {currentStep < 4 && (
           <button className="btn btn-p" onClick={() => { validateStep(currentStep); setCurrentStep(currentStep + 1); }}>
             {currentStep === 3 ? 'Final Submit' : 'Next Step →'}

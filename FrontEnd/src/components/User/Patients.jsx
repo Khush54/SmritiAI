@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './User.css'
+import { addPatient } from '../../services/patientService'
 
-function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) {
+function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPatient }) {
+    const navigate = useNavigate();
     const [isAdding, setIsAdding] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         relation: '',
         age: '',
         location: '',
-        doctor: '',
         notes: ''
     });
 
@@ -23,25 +25,27 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
         return <span className={className}>{risk} Risk</span>;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onAddPatient?.({
-            ...formData,
-            id: crypto.randomUUID(),
-            score: 100,
-            risk: 'Low',
-            trend: 'stable',
-            mood: 'Neutral',
-            sleep: 'Normal',
-            appetite: 'Normal'
-        });
-        setIsAdding(false);
-        setFormData({ name: '', relation: '', age: '', location: '', doctor: '', notes: '' });
+        try {
+            const res = await addPatient(formData);
+            if (res.success) {
+                // Assuming the backend returns the newly created patient with an 'id' and defaults
+                onAddPatient?.(res.data);
+                setIsAdding(false);
+                setFormData({ name: '', relation: '', age: '', location: '', notes: '' });
+            }
+        } catch (error) {
+            console.error("Failed to add patient", error);
+            // Optionally, show an error alert/toast here
+        }
     };
 
-    const handleAction = (targetPage, patient) => {
-        setSelectedPatient?.(patient);
-        setPage(targetPage);
+    const handleAction = (action, patient) => {
+        if (setSelectedPatient) {
+            setSelectedPatient(patient);
+        }
+        navigate(`/user/${action}`);
     };
 
     if (isAdding) {
@@ -106,14 +110,6 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
                             </div>
                         </div>
 
-                        <div className="input-group">
-                            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>PRIMARY DOCTOR</label>
-                            <input
-                                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--c7)', background: 'var(--bg)', color: 'var(--c1)' }}
-                                type="text" placeholder="Dr. Name" value={formData.doctor}
-                                onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
-                            />
-                        </div>
 
                         <div className="input-group">
                             <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>INITIAL NOTES</label>
@@ -151,7 +147,36 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
 
             {patients.length > 0 ? (
                 patients.map((p) => (
-                    <div key={p.id} className="card" style={{ marginBottom: '16px' }}>
+                    <div 
+                        key={p.id} 
+                        className="card card-hover" 
+                        onClick={() => setSelectedPatient?.(p)}
+                        style={{ 
+                            marginBottom: '16px',
+                            cursor: 'pointer',
+                            position: 'relative',
+                            boxShadow: selectedPatient?.id === p.id ? '0 0 0 2px var(--blue), 0 4px 12px rgba(59, 130, 246, 0.2)' : 'var(--shadow)',
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        {selectedPatient?.id === p.id && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '-10px',
+                            right: '-10px',
+                            background: 'var(--blue)',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: '28px',
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '16px',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                            zIndex: 10
+                          }}>✓</div>
+                        )}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px', flexWrap: 'wrap' }}>
                             <div style={{
                                 width: '56px', height: '56px', borderRadius: '50%',
@@ -167,7 +192,7 @@ function Patients({ patients = [], setPage, setSelectedPatient, onAddPatient }) 
                                     {p.name} <span style={{ fontSize: '12px', color: 'var(--c4)', fontWeight: 400 }}>({p.relation})</span>
                                 </div>
                                 <div style={{ fontSize: '13px', color: 'var(--c4)' }}>
-                                    Age {p.age} · {p.doctor} · {p.location}
+                                    Age {p.age} {p.doctor ? `· ${p.doctor}` : ''} · {p.location}
                                 </div>
                             </div>
 

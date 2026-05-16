@@ -14,8 +14,7 @@ function Settings({ patient, onUpdatePatient }) {
                 age: patient.age || '',
                 gender: patient.gender || 'Male',
                 phone: patient.phone || '',
-                city: patient.city || '',
-                doctor: patient.doctor || ''
+                city: patient.city || ''
             });
             setSelectedLang(patient.language || 'en');
         }
@@ -66,7 +65,6 @@ function Settings({ patient, onUpdatePatient }) {
             gender: formData.gender,
             phone: formData.phone,
             city: formData.city,
-            doctor: formData.doctor,
             language: selectedLang
         };
         onUpdatePatient(updatedPatient);
@@ -108,10 +106,7 @@ function Settings({ patient, onUpdatePatient }) {
                         <input type="text" className="form-input" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} />
                     </div>
                 </div>
-                <div className="form-group"><label className="form-label">Doctor / Neurologist</label>
-                    <input type="text" className="form-input" value={formData.doctor} onChange={(e) => setFormData({...formData, doctor: e.target.value})} />
-                </div>
-                <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
+                <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={handleSave}>Save Changes</button>
             </div>
         );
 

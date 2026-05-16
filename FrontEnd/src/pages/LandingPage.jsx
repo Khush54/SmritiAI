@@ -8,7 +8,14 @@ import Process from '../components/Landing/Process'
 import Cta from '../components/Landing/Cta'
 import Footer from '../components/Landing/Footer'
 
-function LandingPage({setPage}) {
+import { useNavigate } from 'react-router-dom';
+
+function LandingPage({ darkMode, toggleDark }) {
+    const navigate = useNavigate();
+    const setPage = (pageStr) => {
+        if (pageStr === 'landing') navigate('/');
+        else navigate(`/${pageStr}`);
+    };
 
     return (
         <>

@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './User.css'
 
-const DoctorContact = ({ patient, setPage }) => {
+const DoctorContact = ({ patient }) => {
+    const navigate = useNavigate();
     
     const renderContent = (title, sub, emoji, doctorInfo = null) => (
         <div className="page">
@@ -21,9 +23,9 @@ const DoctorContact = ({ patient, setPage }) => {
                     {doctorInfo ? `Dr. ${doctorInfo}` : title}
                 </h3>
                 
-                <p style={{ color: 'var(--c3)', marginBottom: '24px', maxWidth: '400px', margin: '0 auto 24px' }}>
+                <p style={{ color: 'var(--c3)', marginBottom: '24px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
                     {doctorInfo 
-                        ? `You can now share reports or schedule a consultation with ${patient.name}'s assigned specialist.` 
+                        ? sub
                         : sub
                     }
                 </p>
@@ -34,7 +36,7 @@ const DoctorContact = ({ patient, setPage }) => {
                             📞 Call Doctor
                         </button>
                     )}
-                    <button className="btn btn-s" onClick={() => setPage('home')}>
+                    <button className="btn btn-s" onClick={() => navigate('/user/home')}>
                         ← Back to Overview
                     </button>
                 </div>
@@ -42,23 +44,31 @@ const DoctorContact = ({ patient, setPage }) => {
         </div>
     );
 
+    const getRecommendedDoctor = (p) => {
+        if (p.risk === 'High' || p.score < 50) return "Dr. Priya Sharma (Neurologist)";
+        if (p.risk === 'Medium' || p.score < 75) return "Dr. Anil Kumar (General Physician)";
+        return null;
+    };
+
     if (!patient) {
-        return renderContent('Doctor Contact', 'Please select a patient to view care team details.', '👩‍⚕️');
+        return renderContent('Care Team', 'Please select a patient to view recommendations.', '👩‍⚕️');
     }
 
-    if (!patient.doctor) {
+    const recommendedDoctor = getRecommendedDoctor(patient);
+
+    if (!recommendedDoctor) {
         return renderContent(
-            'No Doctor Assigned', 
-            `No specialist has been linked to ${patient.name}'s profile yet. You can add doctor details in Settings.`, 
+            'Health Status: Stable', 
+            `Based on the latest assessments, ${patient.name}'s cognitive metrics are healthy. No specialist intervention is recommended at this time.`, 
             '🏥'
         );
     }
 
     return renderContent(
-        'Doctor Contact', 
-        'Communicate with the care team', 
+        'Recommended Specialist', 
+        `Based on ${patient.name}'s current risk level and cognitive scores, we highly recommend consulting with this specialist.`, 
         '👩‍⚕️', 
-        patient.doctor
+        recommendedDoctor
     );
 };
 
