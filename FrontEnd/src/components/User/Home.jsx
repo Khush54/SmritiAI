@@ -11,14 +11,21 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
   });
 
   const getScoreColor = (score) => {
-    if (score < 50) return "var(--rose)";
-    if (score < 75) return "var(--warm)";
-    return "var(--sage)";
+    if (score < 50) return "#ef4444";
+    if (score < 75) return "#f59e0b";
+    return "#10b981";
+  };
+
+  const getRiskColor = (risk, score) => {
+    if (score === null || score === undefined) return "#a8a29e"; // Gray fallback for unassessed
+    if (risk === 'High') return "#ef4444";
+    if (risk === 'Moderate' || risk === 'Medium') return "#f59e0b";
+    return "#10b981";
   };
 
   const handleViewProfile = (patient) => {
-    setSelectedPatient(patient); // Global context set karega
-    navigate('/user/reports');         // Page switch karega
+    setSelectedPatient(patient);
+    navigate('/user/reports');
   };
 
   return (
@@ -50,7 +57,7 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
               onClick={() => setSelectedPatient(p)}
               style={{ 
                 transition: 'all 0.2s', 
-                borderLeft: `4px solid ${p.risk === 'High' ? 'var(--rose)' : 'var(--sage)'}`,
+                borderLeft: `4px solid ${getRiskColor(p.risk, p.score)}`,
                 boxShadow: selectedPatient?.id === p.id ? '0 0 0 2px var(--blue), 0 4px 12px rgba(59, 130, 246, 0.2)' : 'var(--shadow)',
                 cursor: 'pointer',
                 position: 'relative'
@@ -76,7 +83,7 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
                   width: '48px', height: '48px', borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${p.risk === 'High' ? 'var(--rose), #EF4444' : 'var(--sage), var(--sky)'})`,
+                  background: `linear-gradient(135deg, ${getRiskColor(p.risk, p.score)}, var(--c1))`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: '#fff', fontSize: '18px', fontWeight: 700, flexShrink: 0
                 }}>
@@ -90,37 +97,74 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
                     Age {p.age} · {p.location}
                   </div>
                 </div>
-                <span className={`badge ${p.risk === 'High' ? 'br' : 'bg'}`} style={{ fontSize: '10px' }}>
-                  {p.risk} Risk
+                <span className="badge" style={{ 
+                  fontSize: '10px', 
+                  background: getRiskColor(p.risk, p.score) + '22', // Add transparency
+                  color: getRiskColor(p.risk, p.score),
+                  border: `1px solid ${getRiskColor(p.risk, p.score)}33`
+                }}>
+                  {p.score === null ? 'Pending' : `${p.risk} Risk`}
                 </span>
               </div>
 
               <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-                <div style={{ flex: 1, background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: getScoreColor(p.score) }}>
-                    {p.score ?? '--'}
+                {p.score === null ? (
+                  <div style={{ flex: 1, background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '20px', textAlign: 'center', border: '1px dashed var(--c6)' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--c3)', fontWeight: 600 }}>Please take an assessment</div>
+                    <button 
+                      className="btn btn-p btn-sm" 
+                      style={{ marginTop: '10px', fontSize: '11px', padding: '6px 12px' }}
+                      onClick={() => { setSelectedPatient(p); navigate('/user/test'); }}
+                    >
+                      Start Test 🚀
+                    </button>
                   </div>
-                  <div style={{ fontSize: '10px', color: 'var(--c4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Score</div>
-                </div>
-                
-                <div style={{ flex: 1, background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '20px' }}>
-                    {p.trend?.toLowerCase() === 'declining' ? '📉' : '📈'}
-                  </div>
-                  <div style={{ fontSize: '10px', color: 'var(--c4)', textTransform: 'uppercase' }}>{p.trend || 'Stable'}</div>
-                </div>
+                ) : (
+                  <>
+                    <div style={{ flex: 1, background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '10px', textAlign: 'center' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 700, color: getScoreColor(p.score) }}>
+                        {p.score}%
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--c4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Score</div>
+                    </div>
+                    
+                    {p.trend && (
+                      <div style={{ flex: 1, background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '10px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '20px' }}>
+                          {p.trend?.toLowerCase() === 'declining' ? '📉' : '📈'}
+                        </div>
+                        <div style={{ fontSize: '10px', color: 'var(--c4)', textTransform: 'uppercase' }}>{p.trend}</div>
+                      </div>
+                    )}
 
-                <div style={{ flex: 1, background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '20px' }}>
-                    {p.mood === 'Irritable' ? '😤' : p.mood === 'Cheerful' ? '😊' : '😐'}
-                  </div>
-                  <div style={{ fontSize: '10px', color: 'var(--c4)', textTransform: 'uppercase' }}>{p.mood || 'Neutral'}</div>
-                </div>
+                    {p.mood && (
+                      <div style={{ flex: 1, background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '10px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '20px' }}>
+                          {p.mood}
+                        </div>
+                        <div style={{ fontSize: '10px', color: 'var(--c4)', textTransform: 'uppercase' }}>Mood</div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
 
-              <div style={{ fontSize: '11px', color: 'var(--c3)', marginBottom: '12px', borderTop: '1px solid var(--c8)', paddingTop: '10px' }}>
-                Last test: <b>{p.lastTest || 'Not tested'}</b> {p.doctor && `· Dr: ${p.doctor}`}
-              </div>
+              {p.lastTestDate ? (
+                <div style={{ 
+                  fontSize: '11px', 
+                  color: p.lastTestDate === new Date().toLocaleDateString('en-CA') ? 'var(--sage-d)' : 'var(--c3)', 
+                  marginBottom: '12px', 
+                  borderTop: '1px solid var(--border)', 
+                  paddingTop: '10px',
+                  fontWeight: p.lastTestDate === new Date().toLocaleDateString('en-CA') ? '700' : '400'
+                }}>
+                  {p.lastTestDate === new Date().toLocaleDateString('en-CA') ? (
+                    <span>✅ Given assessment for today. Come tomorrow!</span>
+                  ) : (
+                    <span>Last assessment: <b>{p.lastTestDate}</b></span>
+                  )}
+                </div>
+              ) : null}
 
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button 

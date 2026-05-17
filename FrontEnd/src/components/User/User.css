@@ -7,6 +7,9 @@
 }
 
 .user-scope {
+    --green: var(--sage);
+    --amber: var(--warm);
+    --red: var(--rose);
     --warm: #F59E0B;
     --warm-d: #D97706;
     --warm-l: #FEF3C7;
@@ -577,4 +580,26 @@
     .user-scope .main {
         padding: 16px
     }
+}
+
+/* ── RISK COLOR BADGES ── */
+.user-scope .b-green {
+    background: var(--sage-l) !important;
+    color: var(--sage-d) !important;
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+.user-scope .b-amber {
+    background: var(--warm-l) !important;
+    color: var(--warm-d) !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+.user-scope .b-red {
+    background: var(--rose-l) !important;
+    color: var(--rose) !important;
+    border: 1px solid rgba(244, 63, 94, 0.2) !important;
+}
+.user-scope .b-gray {
+    background: var(--c7) !important;
+    color: var(--c3) !important;
+    border: 1px solid var(--border) !important;
 }

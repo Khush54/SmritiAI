@@ -1,9 +1,30 @@
 const Assessment = require("../models/Assessment");
 const Patient = require("../models/Patient");
+const { createAlert } = require("./alertController");
 
 exports.addAssessment = async (req, res) => {
   try {
     const { patientId, answers } = req.body;
+    
+    // Check if an assessment already exists for today (Local Time)
+    const today = new Date().toLocaleDateString('en-CA'); 
+    
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existingAssessment = await Assessment.findOne({
+      patientId,
+      createdAt: { $gte: startOfDay, $lte: endOfDay }
+    });
+
+    if (existingAssessment) {
+      return res.status(400).json({
+        success: false,
+        message: "An assessment has already been completed for this patient today. Please try again tomorrow."
+      });
+    }
     
     // Naive scoring logic for demo (Will be replaced with AI later)
     let score = 100;
@@ -33,9 +54,18 @@ exports.addAssessment = async (req, res) => {
     // 2. Update Patient's current score and risk
     const updatedPatient = await Patient.findByIdAndUpdate(
       patientId, 
-      { score, risk, trend },
+      { score, risk, trend, lastTestDate: today },
       { returnDocument: 'after' }
     );
+
+    // Create persistent alert
+    await createAlert(req.user.id, {
+      patientId: patientId,
+      patientName: updatedPatient.name,
+      title: 'Assessment Completed',
+      message: `${updatedPatient.name} completed a cognitive test with a score of ${score}/100 (${risk} Risk).`,
+      type: risk === 'High' ? 'critical' : risk === 'Moderate' ? 'warning' : 'success'
+    });
 
     // Map _id to id for frontend
     const mappedPatient = updatedPatient.toObject();

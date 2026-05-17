@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
 import './User.css'
 const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
+  const { markAllAlertsAsRead } = useContext(AppContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    markAllAlertsAsRead();
+  }, []);
   
   const getAlertStyle = (type) => {
     switch (type?.toLowerCase()) {
@@ -30,7 +36,7 @@ const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
             <p>Real-time health updates for your family members.</p>
           </div>
           {alertsData.length > 0 && (
-            <button className="btn btn-s btn-sm">Mark All Read</button>
+            <button className="btn btn-s btn-sm" onClick={markAllAlertsAsRead}>Mark All Read</button>
           )}
         </div>
       </div>

@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { addMoodLog, getMoodLogs } from '../../Services/moodService';
+import { AppContext } from '../../context/AppContext';
 import './User.css'
 
-const Mood = ({ patient }) => {
+const Mood = ({ patient, onUpdatePatient }) => {
+  const { showAlert } = useContext(AppContext);
   if (!patient) {
     return (
       <div className="page" style={{ textAlign: 'center', padding: '100px 20px' }}>
@@ -14,6 +17,7 @@ const Mood = ({ patient }) => {
 
   const [entries, setEntries] = useState([]);
   const [selectedMood, setSelectedMood] = useState('😊');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     sleep: 'Good (7+ hrs)',
@@ -22,25 +26,61 @@ const Mood = ({ patient }) => {
   });
 
   useEffect(() => {
-    setEntries(patient.moodLogs || []);
+    const fetchLogs = async () => {
+      if (patient) {
+        try {
+          const pId = patient.id || patient._id;
+          const res = await getMoodLogs(pId);
+          if (res.success) {
+            setEntries(res.data);
+          }
+        } catch (error) {
+          console.error("Failed to fetch logs", error);
+        }
+      }
+    };
+    fetchLogs();
   }, [patient]);
 
   const moods = ['😄', '😊', '😐', '😔', '😤', '😰'];
 
-  const handleSave = () => {
-    if (!formData.notes.trim()) return;
+  const handleSave = async () => {
+    // We can now save even without notes since we made them optional in the backend
     
-    const newEntry = {
-      id: Date.now(),
-      mood: selectedMood,
-      date: formData.date,
-      text: formData.notes,
-      sleep: formData.sleep,
-      appetite: formData.appetite
-    };
+    try {
+      setLoading(true);
+      const pId = patient.id || patient._id;
+      
+      if (!pId) {
+        showAlert("Patient ID missing. Please select a patient again.", "error");
+        return;
+      }
 
-    setEntries([newEntry, ...entries]);
-    setFormData({ ...formData, notes: '' });
+      const res = await addMoodLog({
+        patientId: pId,
+        mood: selectedMood,
+        date: formData.date,
+        notes: formData.notes,
+        sleep: formData.sleep,
+        appetite: formData.appetite
+      });
+
+      if (res.success) {
+        setEntries([res.data, ...entries]);
+        if (res.patient) {
+          onUpdatePatient?.(res.patient);
+        }
+        setFormData({ ...formData, notes: '' });
+        showAlert("Log saved successfully!", "success");
+      } else {
+        showAlert(res.message || "Failed to save log", "error");
+      }
+    } catch (error) {
+      console.error("Failed to save log", error);
+      showAlert(error.response?.data?.message || "Failed to save log. Please check your connection.", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -118,9 +158,19 @@ const Mood = ({ patient }) => {
           ></textarea>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn btn-p" onClick={handleSave}>Save Log</button>
-        </div>
+        {patient.lastLogDate === new Date().toLocaleDateString('en-CA') ? (
+          <div className="alert-card-blue" style={{ textAlign: 'center', padding: '20px' }}>
+            <div style={{ fontSize: '24px', marginBottom: '8px' }}>✅</div>
+            <div style={{ fontWeight: 700, color: 'var(--blue)' }}>Daily Log Completed</div>
+            <p style={{ fontSize: '13px', margin: '4px 0 0' }}>You have already saved a log for {patient.name} today. Please come back tomorrow!</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn btn-p" onClick={handleSave} disabled={loading}>
+              {loading ? 'Saving...' : 'Save Log'}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="card">
@@ -131,11 +181,11 @@ const Mood = ({ patient }) => {
           </div>
         ) : (
           entries.map((l) => (
-            <div className="act-it" key={l.id} style={{ display: 'flex', gap: '15px', padding: '15px', borderBottom: '1px solid var(--border)' }}>
+            <div className="act-it" key={l._id || l.id} style={{ display: 'flex', gap: '15px', padding: '15px', borderBottom: '1px solid var(--border)' }}>
               <div style={{ fontSize: '32px' }}>{l.mood}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: '700', fontSize: '14px' }}>{l.date}</div>
-                <div style={{ fontSize: '13.5px', margin: '4px 0' }}>{l.text}</div>
+                <div style={{ fontSize: '13.5px', margin: '4px 0' }}>{l.notes}</div>
                 <div style={{ fontSize: '11px', color: 'var(--c4)' }}>
                   Sleep: {l.sleep} • Appetite: {l.appetite}
                 </div>

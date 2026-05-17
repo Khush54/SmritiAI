@@ -4,6 +4,7 @@ import './User.css'
 
 const TestHistory = ({ patient }) => {
   const [history, setHistory] = useState([]);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -95,7 +96,7 @@ const TestHistory = ({ patient }) => {
                   ~10 min
                 </td>
                 <td style={{ padding: '12px 14px' }}>
-                  <button className="btn btn-s btn-sm">View</button>
+                  <button className="btn btn-s btn-sm" onClick={() => setSelectedRecord(record)}>View</button>
                 </td>
               </tr>
             )) : (
@@ -108,6 +109,50 @@ const TestHistory = ({ patient }) => {
           </tbody>
         </table>
       </div>
+
+      {selectedRecord && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '20px'
+        }}>
+          <div className="card" style={{ width: '100%', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto', position: 'relative' }}>
+            <button 
+              onClick={() => setSelectedRecord(null)}
+              style={{ 
+                position: 'absolute', right: '20px', top: '20px', border: 'none', 
+                background: 'none', fontSize: '20px', cursor: 'pointer',
+                color: 'var(--c1)' 
+              }}
+            >✕</button>
+            <h2 style={{ marginBottom: '20px' }}>Assessment Report</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ fontSize: '12px', color: 'var(--c4)' }}>Date</label>
+                <div style={{ fontWeight: '600' }}>{new Date(selectedRecord.createdAt).toLocaleDateString()}</div>
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', color: 'var(--c4)' }}>Overall Score</label>
+                <div style={{ fontWeight: '700', color: getScoreColor(selectedRecord.score) }}>{selectedRecord.score}/100</div>
+              </div>
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ fontSize: '12px', color: 'var(--c4)' }}>Risk Assessment</label>
+              <div style={{ marginTop: '5px' }}>{renderRiskBadge(selectedRecord.riskLevel)}</div>
+            </div>
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
+              <h4 style={{ marginBottom: '10px' }}>Patient Responses</h4>
+              <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {selectedRecord.details && Object.entries(selectedRecord.details).map(([key, val]) => (
+                  <div key={key} style={{ background: 'var(--gray-100)', padding: '10px', borderRadius: '8px' }}>
+                    <span style={{ fontWeight: '600', color: 'var(--c2)' }}>{key}:</span> {val}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

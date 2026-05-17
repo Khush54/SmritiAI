@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './User.css'
-import { addPatient } from '../../services/patientService'
+import { addPatient } from '../../Services/patientService'
+import { getAlerts } from '../../Services/alertService'
+import { AppContext } from '../../context/AppContext'
+import { useContext } from 'react'
 
 function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPatient }) {
+    const { setAlerts } = useContext(AppContext);
     const navigate = useNavigate();
     const [isAdding, setIsAdding] = useState(false);
     const [formData, setFormData] = useState({
@@ -15,14 +19,29 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
     });
 
     const getScoreColor = (score) => {
-        if (score < 50) return "var(--rose)";
-        if (score < 75) return "var(--warm)";
-        return "var(--sage)";
+        if (score < 50) return "#ef4444";
+        if (score < 75) return "#f59e0b";
+        return "#10b981";
+    };
+
+    const getRiskColor = (risk) => {
+        if (risk === 'High') return "#ef4444";
+        if (risk === 'Moderate') return "#f59e0b";
+        return "#10b981";
     };
 
     const RiskBadge = ({ risk }) => {
-        const className = risk === 'High' ? 'badge br' : 'badge bg';
-        return <span className={className}>{risk} Risk</span>;
+        const color = getRiskColor(risk);
+        return (
+            <span className="badge" style={{
+                background: color + '22',
+                color: color,
+                border: `1px solid ${color}33`,
+                fontSize: '11px'
+            }}>
+                {risk} Risk
+            </span>
+        );
     };
 
     const handleSubmit = async (e) => {
@@ -32,6 +51,8 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
             if (res.success) {
                 // Assuming the backend returns the newly created patient with an 'id' and defaults
                 onAddPatient?.(res.data);
+                const alertsRes = await getAlerts();
+                if (alertsRes.success) setAlerts(alertsRes.data);
                 setIsAdding(false);
                 setFormData({ name: '', relation: '', age: '', location: '', notes: '' });
             }
@@ -147,11 +168,11 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
 
             {patients.length > 0 ? (
                 patients.map((p) => (
-                    <div 
-                        key={p.id} 
-                        className="card card-hover" 
+                    <div
+                        key={p.id}
+                        className="card card-hover"
                         onClick={() => setSelectedPatient?.(p)}
-                        style={{ 
+                        style={{
                             marginBottom: '16px',
                             cursor: 'pointer',
                             position: 'relative',
@@ -160,27 +181,27 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
                         }}
                     >
                         {selectedPatient?.id === p.id && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '-10px',
-                            right: '-10px',
-                            background: 'var(--blue)',
-                            color: 'white',
-                            borderRadius: '50%',
-                            width: '28px',
-                            height: '28px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '16px',
-                            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                            zIndex: 10
-                          }}>✓</div>
+                            <div style={{
+                                position: 'absolute',
+                                top: '-10px',
+                                right: '-10px',
+                                background: 'var(--blue)',
+                                color: 'white',
+                                borderRadius: '50%',
+                                width: '28px',
+                                height: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '16px',
+                                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                                zIndex: 10
+                            }}>✓</div>
                         )}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px', flexWrap: 'wrap' }}>
                             <div style={{
                                 width: '56px', height: '56px', borderRadius: '50%',
-                                background: `linear-gradient(135deg, ${p.risk === 'High' ? '#F43F5E, #EF4444' : '#10B981, #0EA5E9'})`,
+                                background: `linear-gradient(135deg, ${getRiskColor(p.risk)}, var(--c1))`,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 color: '#fff', fontSize: '22px', fontWeight: 700, flexShrink: 0
                             }}>
@@ -199,34 +220,64 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
                             <RiskBadge risk={p.risk} />
 
                             <div style={{ fontSize: '28px', fontWeight: 700, fontFamily: 'var(--font-display)', color: getScoreColor(p.score) }}>
-                                {p.score}<span style={{ fontSize: '14px', color: 'var(--c4)', fontWeight: 400 }}>/100</span>
+                                {p.score === null ? (
+                                    <span style={{ fontSize: '12px', color: 'var(--c4)', fontWeight: 400 }}>No test yet</span>
+                                ) : (
+                                    <>
+                                        {p.score}<span style={{ fontSize: '14px', color: 'var(--c4)', fontWeight: 400 }}>/100</span>
+                                    </>
+                                )}
                             </div>
                         </div>
 
-                        <div className="g4" style={{ gap: '12px', marginBottom: '16px' }}>
-                            {[
-                                { label: 'Mood', value: p.mood },
-                                { label: 'Sleep', value: p.sleep },
-                                { label: 'Appetite', value: p.appetite },
-                                { label: 'Trend', value: p.trend === 'declining' ? '📉 Declining' : '📊 Stable' }
-                            ].map((stat, idx) => (
-                                <div key={idx} style={{ background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '12px', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '11px', color: 'var(--c4)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '.04em' }}>
-                                        {stat.label}
+                        {p.score !== null || p.mood !== null || p.sleep !== null || p.appetite !== null ? (
+                            <div className="g4" style={{ gap: '12px', marginBottom: '16px' }}>
+                                {[
+                                    { label: 'Mood', value: p.mood },
+                                    { label: 'Sleep', value: p.sleep },
+                                    { label: 'Appetite', value: p.appetite },
+                                    { label: 'Trend', value: p.trend }
+                                ].filter(s => s.value !== null).map((stat, idx) => (
+                                    <div key={idx} style={{ background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '12px', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--c4)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+                                            {stat.label}
+                                        </div>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--c1)' }}>
+                                            {stat.label === 'Trend' 
+                                                ? (stat.value === 'declining' ? '📉 Declining' : '📊 Stable')
+                                                : stat.value
+                                            }
+                                        </div>
                                     </div>
-                                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--c1)' }}>
-                                        {stat.value || '--'}
+                                ))}
+                                {p.score !== null && (
+                                    <div style={{ background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '12px', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--c4)', marginBottom: '4px', textTransform: 'uppercase' }}>Cognitive</div>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, color: getScoreColor(p.score) }}>{p.score}%</div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div style={{ 
+                                background: 'var(--c8)', 
+                                borderRadius: 'var(--r10)', 
+                                padding: '16px', 
+                                textAlign: 'center', 
+                                marginBottom: '16px',
+                                border: '1px dashed var(--c7)'
+                            }}>
+                                <p style={{ fontSize: '13px', color: 'var(--c4)' }}>
+                                    No health data logged yet. Take a test or log daily observations.
+                                </p>
+                            </div>
+                        )}
 
                         <div style={{
                             background: 'var(--c8)',
                             borderRadius: 'var(--r10)',
                             padding: '13px',
                             marginBottom: '14px',
-                            borderLeft: `3px solid ${p.risk === 'High' ? '#F43F5E' : '#10B981'}`
+                            borderLeft: `3px solid ${getRiskColor(p.risk)}`
                         }}>
                             <p style={{ fontSize: '13px', color: 'var(--c2)', lineHeight: 1.6, fontStyle: 'italic' }}>
                                 "{p.notes || 'No recent notes available.'}"
@@ -237,12 +288,22 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
                             <button className="btn btn-s btn-sm" onClick={() => handleAction('reports', p)}>
                                 📊 Reports
                             </button>
-                            <button className="btn btn-s btn-sm" onClick={() => handleAction('mood', p)}>
-                                📝 New Log
+                            <button 
+                                className="btn btn-s btn-sm" 
+                                style={{ opacity: p.lastLogDate === new Date().toLocaleDateString('en-CA') ? 0.6 : 1 }}
+                                disabled={p.lastLogDate === new Date().toLocaleDateString('en-CA')}
+                                onClick={() => handleAction('mood', p)}
+                            >
+                                {p.lastLogDate === new Date().toLocaleDateString('en-CA') ? '✅ Logged' : '📝 New Log'}
                             </button>
-                            {p.risk === 'High' && (
-                                <button className="btn btn-r btn-sm">📞 Call Doctor</button>
-                            )}
+                            <button 
+                                className="btn btn-p btn-sm" 
+                                style={{ opacity: p.lastTestDate === new Date().toLocaleDateString('en-CA') ? 0.6 : 1 }}
+                                disabled={p.lastTestDate === new Date().toLocaleDateString('en-CA')}
+                                onClick={() => handleAction('test', p)}
+                            >
+                                {p.lastTestDate === new Date().toLocaleDateString('en-CA') ? '✅ Tested' : '🧠 Take Test'}
+                            </button>
                         </div>
                     </div>
                 ))

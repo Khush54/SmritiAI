@@ -7,13 +7,16 @@ const cors = require("cors");
 const authRoutes = require("./src/routes/authRoutes");
 const patientRoutes = require("./src/routes/patientRoutes");
 const screeningRoutes = require("./src/routes/screeningRoutes");
+const moodRoutes = require("./src/routes/moodRoutes");
+const alertRoutes = require("./src/routes/alertRoutes");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Increase limit for profile photos
 
 app.use(express.urlencoded({
-  extended: true
+  extended: true,
+  limit: '10mb'
 }));
 
 app.use(
@@ -29,6 +32,16 @@ app.use(
 app.use(
   "/api/assessments",
   screeningRoutes
+);
+
+app.use(
+  "/api/mood-logs",
+  moodRoutes
+);
+
+app.use(
+  "/api/alerts",
+  alertRoutes
 );
 
 app.get("/", (req, res) => {

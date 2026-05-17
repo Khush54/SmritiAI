@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { getPatients } from '../services/patientService';
+import { getPatients } from '../Services/patientService';
+import { getAlerts, markAlertsRead } from '../Services/alertService';
+import AlertModal from '../components/User/AlertModal';
 
 export const AppContext = createContext();
 
@@ -8,6 +10,15 @@ export const AppProvider = ({ children }) => {
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [alerts, setAlerts] = useState([]);
+  const [customAlert, setCustomAlert] = useState({ isOpen: false, message: '', type: 'info' });
+
+  const showAlert = (message, type = 'info') => {
+    setCustomAlert({ isOpen: true, message, type });
+  };
+
+  const closeAlert = () => {
+    setCustomAlert(prev => ({ ...prev, isOpen: false }));
+  };
 
   useEffect(() => {
     // 1. Load User from localStorage
@@ -20,22 +31,34 @@ export const AppProvider = ({ children }) => {
       }
     }
 
-    // 2. Load Patients from backend
-    const fetchPatients = async () => {
+    // 2. Load Patients & Alerts from backend
+    const fetchData = async () => {
       try {
-        const res = await getPatients();
-        if (res.success) {
-          setPatients(res.data);
-        }
+        const [patientsRes, alertsRes] = await Promise.all([
+          getPatients(),
+          getAlerts()
+        ]);
+        
+        if (patientsRes.success) setPatients(patientsRes.data);
+        if (alertsRes.success) setAlerts(alertsRes.data);
       } catch (error) {
-        console.error("Failed to fetch patients", error);
+        console.error("Failed to fetch data", error);
       }
     };
     
     if (localStorage.getItem("token")) {
-      fetchPatients();
+      fetchData();
     }
   }, []);
+
+  const markAllAlertsAsRead = async () => {
+    try {
+      await markAlertsRead();
+      setAlerts(prev => prev.map(a => ({ ...a, read: true })));
+    } catch (error) {
+      console.error("Failed to mark alerts as read", error);
+    }
+  };
 
   const addPatient = (newPatient) => {
     setPatients(prev => [newPatient, ...prev]);
@@ -47,7 +70,8 @@ export const AppProvider = ({ children }) => {
       title: 'Profile Created',
       message: `Successfully added ${newPatient.name} to monitoring.`,
       type: 'success',
-      time: 'Now'
+      time: 'Now',
+      read: false
     };
     setAlerts(prev => [newAlert, ...prev]);
   };
@@ -78,9 +102,17 @@ export const AppProvider = ({ children }) => {
       patients, setPatients, addPatient, updatePatient,
       selectedPatient, setSelectedPatient,
       alerts, setAlerts,
-      logout
+      logout,
+      showAlert,
+      markAllAlertsAsRead
     }}>
       {children}
+      <AlertModal 
+        isOpen={customAlert.isOpen} 
+        message={customAlert.message} 
+        type={customAlert.type} 
+        onClose={closeAlert} 
+      />
     </AppContext.Provider>
   );
 };

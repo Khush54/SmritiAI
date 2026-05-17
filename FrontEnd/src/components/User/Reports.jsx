@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import { jsPDF } from 'jspdf'; 
 import { Radar } from 'react-chartjs-2';
 import { getPatientAssessments } from '../../services/assessmentService';
+import { AppContext } from '../../context/AppContext';
 import {
     Chart as ChartJS,
     RadialLinearScale,
@@ -16,6 +17,7 @@ import './User.css'
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 function Reports({ patient }) {
+    const { showAlert } = useContext(AppContext);
     const chartRef = useRef(null);
     const [latestTest, setLatestTest] = useState(null);
     const [dynamicBreakdown, setDynamicBreakdown] = useState([]);
@@ -133,8 +135,47 @@ function Reports({ patient }) {
                 console.error("Error sharing:", err);
             }
         } else {
-            alert("Sharing not supported on this browser. Copying to clipboard...");
+            showAlert("Sharing not supported on this browser. Copying to clipboard...", "info");
             navigator.clipboard.writeText(shareText);
+        }
+    };
+
+    const [isDarkMode, setIsDarkMode] = useState(document.documentElement.getAttribute('data-dark') === 'true');
+
+    useEffect(() => {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-dark') {
+                    setIsDarkMode(document.documentElement.getAttribute('data-dark') === 'true');
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, { attributes: true });
+        return () => observer.disconnect();
+    }, []);
+
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.1)';
+    const labelColor = isDarkMode ? '#E7E5E4' : '#44403C';
+
+    const chartOptions = {
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                grid: { color: gridColor },
+                angleLines: { color: gridColor, lineWidth: 1.5 },
+                pointLabels: { 
+                    color: labelColor, 
+                    font: { size: 12, weight: '700' },
+                    padding: 10
+                },
+                ticks: { display: false },
+                suggestedMin: 0,
+                suggestedMax: 100
+            }
+        },
+        plugins: {
+            legend: { display: false }
         }
     };
 
@@ -143,14 +184,14 @@ function Reports({ patient }) {
         datasets: [{
             label: 'Current Performance',
             data: dynamicStats,
-            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)',
             borderColor: '#3b82f6',
             borderWidth: 2,
             pointBackgroundColor: '#3b82f6',
         }]
     };
 
-    const riskColor = patient.risk === 'High' ? 'var(--rose)' : patient.risk === 'Medium' ? 'var(--warm)' : 'var(--sage)';
+    const riskColor = patient.risk === 'High' ? '#ef4444' : (patient.risk === 'Moderate' || patient.risk === 'Medium') ? '#f59e0b' : '#10b981';
 
     return (
         <div className="page" style={{ padding: '20px' }}>
@@ -166,33 +207,41 @@ function Reports({ patient }) {
             </div>
 
             <div style={{ 
-                background: `linear-gradient(135deg, ${riskColor}, var(--c1))`,
-                padding: '30px', borderRadius: 'var(--r16)', color: 'white', marginBottom: '25px',
+                background: patient.score === null ? 'var(--c7)' : `linear-gradient(135deg, ${riskColor}, var(--c1))`,
+                padding: '30px', borderRadius: 'var(--r16)', color: patient.score === null ? 'var(--c3)' : 'white', marginBottom: '25px',
                 boxShadow: '0 10px 20px -5px rgba(0,0,0,0.1)'
             }}>
                 <span style={{ fontSize: '12px', textTransform: 'uppercase', opacity: 0.8 }}>Current Risk Status</span>
-                <h2 style={{ fontSize: '36px', fontWeight: '800', margin: '5px 0' }}>{patient.risk} Risk</h2>
-                <div style={{ fontSize: '16px', fontWeight: '500' }}>Overall Cognitive Score: {patient.score} / 100</div>
-            </div>
-
-            {debugError && (
-                <div style={{ background: 'var(--rose)', color: 'white', padding: '10px', borderRadius: '8px', marginBottom: '20px' }}>
-                    Debug Error: {debugError}
+                <h2 style={{ fontSize: '36px', fontWeight: '800', margin: '5px 0' }}>
+                    {patient.score === null ? 'Pending Assessment' : `${patient.risk} Risk`}
+                </h2>
+                <div style={{ fontSize: '16px', fontWeight: '500' }}>
+                    {patient.score === null ? 'Please complete the cognitive test to generate score.' : `Overall Cognitive Score: ${patient.score} / 100`}
                 </div>
-            )}
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px' }}>
                 
-                <div className="card" style={{ padding: '25px', borderRadius: 'var(--r16)', background: 'var(--surface)' }}>
+                <div className="card" style={{ padding: '25px', borderRadius: 'var(--r16)', background: 'var(--surface)', opacity: patient.score === null ? 0.5 : 1 }}>
                     <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Cognitive Skill Map</h3>
                     <div style={{ height: '320px' }}>
-                        <Radar ref={chartRef} data={chartData} options={{ maintainAspectRatio: false }} />
+                        {patient.score === null ? (
+                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c4)' }}>
+                                Map will appear after test
+                            </div>
+                        ) : (
+                            <Radar ref={chartRef} data={chartData} options={chartOptions} />
+                        )}
                     </div>
                 </div>
 
-                <div className="card" style={{ padding: '25px', borderRadius: 'var(--r16)', background: 'var(--surface)' }}>
+                <div className="card" style={{ padding: '25px', borderRadius: 'var(--r16)', background: 'var(--surface)', opacity: patient.score === null ? 0.5 : 1 }}>
                     <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Metric Breakdown</h3>
-                    {dynamicBreakdown.length > 0 ? dynamicBreakdown.map((item, idx) => (
+                    {patient.score === null ? (
+                         <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--c4)' }}>
+                            No analysis data available.
+                        </div>
+                    ) : dynamicBreakdown.length > 0 ? dynamicBreakdown.map((item, idx) => (
                         <div key={idx} style={{ marginBottom: '18px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
                                 <span style={{ color: 'var(--c3)' }}>{item.title}</span>

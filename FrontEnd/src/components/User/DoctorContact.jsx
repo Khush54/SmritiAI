@@ -45,8 +45,9 @@ const DoctorContact = ({ patient }) => {
     );
 
     const getRecommendedDoctor = (p) => {
+        if (p.score === null) return null; // No assessment done yet
         if (p.risk === 'High' || p.score < 50) return "Dr. Priya Sharma (Neurologist)";
-        if (p.risk === 'Medium' || p.score < 75) return "Dr. Anil Kumar (General Physician)";
+        if (p.risk === 'Moderate' || p.score < 75) return "Dr. Anil Kumar (General Physician)";
         return null;
     };
 
@@ -55,6 +56,14 @@ const DoctorContact = ({ patient }) => {
     }
 
     const recommendedDoctor = getRecommendedDoctor(patient);
+    
+    if (patient.score === null) {
+        return renderContent(
+            'Assessment Required', 
+            `We haven't analyzed ${patient.name}'s cognitive health yet. Please take a test first to see if a specialist recommendation is needed.`, 
+            '📝'
+        );
+    }
 
     if (!recommendedDoctor) {
         return renderContent(

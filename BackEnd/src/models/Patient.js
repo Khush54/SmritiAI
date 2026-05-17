@@ -21,11 +21,15 @@ const patientSchema = new mongoose.Schema({
   location: String,
   doctor: String,
   notes: String,
+  profilePhoto: String,
+  gender: String,
+  phone: String,
+  city: String,
   
   // Health Metrics Default Values
   score: {
     type: Number,
-    default: 100
+    default: null
   },
   risk: {
     type: String,
@@ -34,19 +38,27 @@ const patientSchema = new mongoose.Schema({
   },
   trend: {
     type: String,
-    default: "stable"
+    default: null
   },
   mood: {
     type: String,
-    default: "Neutral"
+    default: null
   },
   sleep: {
     type: String,
-    default: "Normal"
+    default: null
   },
   appetite: {
     type: String,
-    default: "Normal"
+    default: null
+  },
+  lastTestDate: {
+    type: String, // YYYY-MM-DD
+    default: null
+  },
+  lastLogDate: {
+    type: String, // YYYY-MM-DD
+    default: null
   }
 }, { timestamps: true });
 

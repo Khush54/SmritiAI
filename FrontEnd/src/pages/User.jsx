@@ -13,6 +13,7 @@ import Alerts from '../components/User/Alerts'
 import Mood from '../components/User/Mood'
 import DoctorContact from '../components/User/DoctorContact'
 import { AppContext } from '../context/AppContext'
+import { getAlerts } from '../Services/alertService'
 import { submitAssessment } from '../services/assessmentService'
 
 function User() {
@@ -32,6 +33,8 @@ function User() {
       if (res.success && res.data.patient) {
         // Update context with the newly calculated scores
         updatePatient(res.data.patient);
+        const alertsRes = await getAlerts();
+        if (alertsRes.success) setAlerts(alertsRes.data);
       }
       
       navigate('/user/reports');
@@ -42,9 +45,11 @@ function User() {
     }
   };
 
+  const unreadCount = alerts.filter(a => !a.read).length;
+
   return (
     <div className="user-scope">
-      <Navbar caregiverName={userName} alertCount={alerts.length} />
+      <Navbar caregiverName={userName} alertCount={unreadCount} />
 
       <div className="dash-layout">
         <Sidebar />
@@ -66,7 +71,7 @@ function User() {
             } />
             
             <Route path="reports" element={<Reports patient={selectedPatient} />} />
-            <Route path="mood" element={<Mood patient={selectedPatient} />} />
+            <Route path="mood" element={<Mood patient={selectedPatient} onUpdatePatient={updatePatient} />} />
             <Route path="reminders" element={<Reminders patient={selectedPatient} />} />
             <Route path="history" element={<TestHistory patient={selectedPatient} />} />
             

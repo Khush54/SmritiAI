@@ -1,9 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
 import './User.css'
 
 function StartTest({ completeTest, patient }) {
+  const { showAlert } = useContext(AppContext);
   const navigate = useNavigate();
+
+  if (!patient) {
+    return (
+      <div className="page" style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <div style={{ fontSize: '50px', marginBottom: '20px' }}>🧠</div>
+        <h2>No Patient Selected</h2>
+        <p style={{ color: 'var(--c4)', marginBottom: '20px' }}>Please select a family member from the dashboard to start a test.</p>
+        <button className="btn btn-p" onClick={() => navigate('/user/home')}>Go to Dashboard</button>
+      </div>
+    );
+  }
   const [currentStep, setCurrentStep] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -71,7 +84,7 @@ function StartTest({ completeTest, patient }) {
       };
       mediaRecorderRef.current.start();
       setIsRecording(true);
-    } catch (err) { alert("Mic access denied!"); }
+    } catch (err) { showAlert("Mic access denied! Please enable microphone permissions.", "error"); }
   };
 
   const stopRecording = () => {
@@ -185,6 +198,23 @@ function StartTest({ completeTest, patient }) {
       </div>
     );
   };
+
+  if (patient?.lastTestDate === new Date().toLocaleDateString('en-CA')) {
+    return (
+      <div className="page" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '60px 20px' }}>
+        <div style={{ fontSize: '80px', marginBottom: '20px' }}>✅</div>
+        <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '10px' }}>Daily Limit Reached</h2>
+        <p style={{ color: 'var(--c3)', marginBottom: '30px', lineHeight: '1.6' }}>
+          An assessment has already been completed for <strong>{patient.name}</strong> today. 
+          To ensure clinical accuracy, we only allow one comprehensive test every 24 hours.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+          <button className="btn btn-p" onClick={() => navigate('/user/reports')}>View Today's Report</button>
+          <button className="btn btn-s" onClick={() => navigate('/user/home')}>Back Home</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page" style={{ maxWidth: '600px', margin: '0 auto' }}>

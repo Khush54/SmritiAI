@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { updatePatient } from '../../Services/patientService';
+import { AppContext } from '../../context/AppContext';
 import './User.css'
 
 function Settings({ patient, onUpdatePatient }) {
+    const { showAlert } = useContext(AppContext);
     const [activeTab, setActiveTab] = useState('profile');
     const [selectedLang, setSelectedLang] = useState('en');
     const [formData, setFormData] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [profilePhoto, setProfilePhoto] = useState(null);
 
     useEffect(() => {
         if (patient) {
@@ -17,6 +22,7 @@ function Settings({ patient, onUpdatePatient }) {
                 city: patient.city || ''
             });
             setSelectedLang(patient.language || 'en');
+            setProfilePhoto(patient.profilePhoto || null);
         }
     }, [patient]);
 
@@ -29,6 +35,44 @@ function Settings({ patient, onUpdatePatient }) {
         );
     }
 
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePhoto(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSave = async () => {
+        try {
+            setLoading(true);
+            const pId = patient.id || patient._id;
+            const updatedData = {
+                name: `${formData.firstName} ${formData.lastName}`.trim(),
+                age: formData.age,
+                gender: formData.gender,
+                phone: formData.phone,
+                city: formData.city,
+                language: selectedLang,
+                profilePhoto: profilePhoto
+            };
+
+            const res = await updatePatient(pId, updatedData);
+            if (res.success) {
+                onUpdatePatient(res.data);
+                showAlert(`Settings updated for ${res.data.name}`, "success");
+            }
+        } catch (error) {
+            console.error("Failed to update settings", error);
+            showAlert("Failed to update settings", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const languages = [
         { name: 'English', code: 'en' },
         { name: 'Hindi (हिंदी)', code: 'hi' },
@@ -38,7 +82,7 @@ function Settings({ patient, onUpdatePatient }) {
         { name: 'Telugu (తెలుగు)', code: 'te' },
         { name: 'Marathi (मराठी)', code: 'mr' },
         { name: 'Gujarati (ગુજરાતી)', code: 'gu' },
-        { name: 'Kannada (ಕನ್ನಡ)', code: 'kn' },
+        { name: 'Kannada (ਕನ್ನಡ)', code: 'kn' },
         { name: 'Malayalam (മലയാളം)', code: 'ml' }
     ];
 
@@ -57,31 +101,25 @@ function Settings({ patient, onUpdatePatient }) {
         }
     };
 
-    const handleSave = () => {
-        const updatedPatient = {
-            ...patient,
-            name: `${formData.firstName} ${formData.lastName}`,
-            age: formData.age,
-            gender: formData.gender,
-            phone: formData.phone,
-            city: formData.city,
-            language: selectedLang
-        };
-        onUpdatePatient(updatedPatient);
-        alert(`Settings updated for ${updatedPatient.name}`);
-    };
-
     const renderSettingsContent = () => {
         if (activeTab === 'profile') return (
             <div className="settings-section">
                 <div className="settings-section-title" style={{ marginBottom: '20px', fontWeight: '700' }}>Personal Information</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '22px', fontWeight: '600' }}>
-                        {formData.firstName?.charAt(0)}{formData.lastName?.charAt(0)}
+                    <div style={{ 
+                        width: '64px', height: '64px', borderRadius: '50%', 
+                        background: profilePhoto ? `url(${profilePhoto}) center/cover` : 'linear-gradient(135deg,var(--blue),var(--teal))', 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', 
+                        fontSize: '22px', fontWeight: '600', overflow: 'hidden', border: '2px solid var(--border)' 
+                    }}>
+                        {!profilePhoto && (formData.firstName?.charAt(0) || '') + (formData.lastName?.charAt(0) || '')}
                     </div>
                     <div>
                         <div style={{ fontWeight: '600', marginBottom: '4px' }}>{formData.firstName} {formData.lastName}</div>
-                        <button className="btn btn-secondary btn-sm">Change Photo</button>
+                        <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                            Change Photo
+                            <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
+                        </label>
                     </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -106,7 +144,9 @@ function Settings({ patient, onUpdatePatient }) {
                         <input type="text" className="form-input" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} />
                     </div>
                 </div>
-                <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={handleSave}>Save Changes</button>
+                <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={handleSave} disabled={loading}>
+                    {loading ? 'Saving...' : 'Save Changes'}
+                </button>
             </div>
         );
 

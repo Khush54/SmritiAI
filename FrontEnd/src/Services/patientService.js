@@ -21,3 +21,8 @@ export const addPatient = async (patientData) => {
   const response = await API.post("/", patientData);
   return response.data;
 };
+
+export const updatePatient = async (id, patientData) => {
+  const response = await API.put(`/${id}`, patientData);
+  return response.data;
+};
