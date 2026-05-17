@@ -3,15 +3,13 @@ import React, { useState, useEffect } from 'react';
 const FollowUps = () => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(null); // 'view', 'schedule', or null
+    const [showModal, setShowModal] = useState(null); 
     const [selectedPatient, setSelectedPatient] = useState(null);
     
-    // New Appointment Form State
     const [newAppt, setNewAppt] = useState({ name: '', date: '', type: 'Neurology' });
 
     useEffect(() => {
         const fetchFollowUps = async () => {
-            // Simulated fetch - replace with your DB call
             const mockData = [
                 { id: 1, name: "Anita Rao", risk: "High", followUp: "2026-05-28", type: "Neurology", status: 'OVERDUE', notes: "Requires cognitive assessment." },
                 { id: 2, name: "Suresh Gupta", risk: "High", followUp: "2026-05-30", type: "Video Consult", status: 'UPCOMING', notes: "Medication adjustment review." },
@@ -23,7 +21,6 @@ const FollowUps = () => {
         fetchFollowUps();
     }, []);
 
-    // --- Button Actions ---
 
     const handleView = (patient) => {
         setSelectedPatient(patient);
@@ -87,13 +84,11 @@ const FollowUps = () => {
                 </table>
             </div>
 
-            {/* --- MODALS --- */}
             
             {showModal && (
                 <div className="modal-overlay" style={overlayStyle}>
                     <div className="card" style={modalStyle}>
                         
-                        {/* VIEW MODAL content */}
                         {showModal === 'view' && selectedPatient && (
                             <>
                                 <div className="sh-title">Patient Appointment Detail</div>
@@ -107,7 +102,6 @@ const FollowUps = () => {
                             </>
                         )}
 
-                        {/* SCHEDULE MODAL content */}
                         {showModal === 'schedule' && (
                             <>
                                 <div className="sh-title">Schedule New Appointment</div>
@@ -134,7 +128,6 @@ const FollowUps = () => {
     );
 };
 
-// Simple inline styles for the Modal Logic
 const overlayStyle = {
     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', 
     background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000

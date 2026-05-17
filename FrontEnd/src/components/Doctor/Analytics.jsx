@@ -7,7 +7,6 @@ function Analytics(){
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     
-    // Chart Refs
     const barChartRef = useRef(null);
     const doughnutChartRef = useRef(null);
     const charts = useRef({ bar: null, doughnut: null });
@@ -15,10 +14,7 @@ function Analytics(){
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                // In production: const res = await fetch('/api/analytics');
-                // const dbData = await res.json();
                 
-                // Mock Database Response
                 const mockDbData = {
                     kpis: [
                         { l: 'Avg. Score', v: '61.4', sub: 'Across 24 patients', c: 'var(--cyan)' },
@@ -53,11 +49,9 @@ function Analytics(){
     useEffect(() => {
         if (!data || !barChartRef.current || !doughnutChartRef.current) return;
 
-        // Cleanup existing charts
         if (charts.current.bar) charts.current.bar.destroy();
         if (charts.current.doughnut) charts.current.doughnut.destroy();
 
-        // 1. Bar Chart (Risk Cohort Trend)
         charts.current.bar = new Chart(barChartRef.current.getContext('2d'), {
             type: 'bar',
             data: {
@@ -79,7 +73,6 @@ function Analytics(){
             }
         });
 
-        // 2. Doughnut Chart (Score Distribution)
         charts.current.doughnut = new Chart(doughnutChartRef.current.getContext('2d'), {
             type: 'doughnut',
             data: {
@@ -105,7 +98,6 @@ function Analytics(){
 
     return (
         <div className="page">
-            {/* Header */}
             <div className="ph">
                 <div className="ph-row">
                     <div>
@@ -119,7 +111,6 @@ function Analytics(){
                 </div>
             </div>
 
-            {/* KPI Grid */}
             <div className="g4" style={{ marginBottom: '16px' }}>
                 {data.kpis.map((k, i) => (
                     <div key={i} className="card kpi">
@@ -130,7 +121,6 @@ function Analytics(){
                 ))}
             </div>
 
-            {/* Main Charts Row */}
             <div className="g2" style={{ marginBottom: '16px' }}>
                 <div className="card">
                     <div className="sh">
@@ -148,7 +138,6 @@ function Analytics(){
                 </div>
             </div>
 
-            {/* Impairment Breakdown */}
             <div className="card">
                 <div className="sh"><div className="sh-title">Risk Breakdown by Metric</div></div>
                 {data.metrics.map((d, i) => (

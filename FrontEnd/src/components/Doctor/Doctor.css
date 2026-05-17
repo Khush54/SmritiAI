@@ -143,7 +143,6 @@
     border-radius: 2px
 }
 
-/* NAVBAR CONTAINER */
 .doctor-scope .nav {
     position: sticky;
     top: 0;
@@ -163,7 +162,6 @@
     backdrop-filter: blur(10px);
 }
 
-/* LEFT */
 .doctor-scope .nav-left {
     display: flex;
     align-items: center;
@@ -193,7 +191,6 @@
     letter-spacing: 0.3px;
 }
 
-/* BADGE */
 .doctor-scope .nav-badge {
     font-size: 11px;
     font-weight: 500;
@@ -207,7 +204,6 @@
     border: 1px solid var(--cyan-l);
 }
 
-/* SEARCH */
 .doctor-scope .nav-search-box {
     flex: 1;
     max-width: 420px;
@@ -249,7 +245,6 @@
     color: var(--b3);
 }
 
-/* ICON */
 .doctor-scope .search-icon {
     width: 16px;
     height: 16px;
@@ -258,14 +253,12 @@
     fill: none;
 }
 
-/* RIGHT */
 .doctor-scope .nav-right {
     display: flex;
     align-items: center;
     gap: 20px;
 }
 
-/* ICON BUTTON */
 .doctor-scope .nav-icon {
     width: 36px;
     height: 36px;
@@ -299,7 +292,6 @@
     stroke: var(--cyan);
 }
 
-/* NOTIFICATION DOT */
 .doctor-scope .dot {
     position: absolute;
     top: 6px;
@@ -314,7 +306,6 @@
     box-shadow: 0 0 0 2px var(--surface);
 }
 
-/* USER */
 .doctor-scope .nav-user {
     display: flex;
     align-items: center;
@@ -331,7 +322,6 @@
     background: var(--navy-2);
 }
 
-/* AVATAR */
 .doctor-scope .nav-avi, .doctor-scope .avatar-placeholder, .doctor-scope .avatar-small {
     width: 36px;
     height: 36px;
@@ -349,7 +339,6 @@
     font-size: 13px;
 }
 
-/* USER TEXT */
 .doctor-scope .nav-uname {
     font-size: 14px;
     font-weight: 500;
@@ -361,16 +350,14 @@
     color: var(--b3);
 }
 
-/* ── LAYOUT ── */
 .doctor-scope .shell {
     display: flex;
     height: calc(100vh - var(--nav))
 }
 
-/* SIDEBAR - LIGHT THEME IMPROVED */
 .doctor-scope .sidebar {
     width: var(--side);
-    background: var(--surface);   /* clean white */
+    background: var(--surface);   
     border-right: 1px solid var(--border);
 
     padding: 18px 10px;
@@ -384,7 +371,6 @@
     height: calc(100vh - var(--nav));
 }
 
-/* SECTION TITLE */
 .doctor-scope .sb-sec {
     font-size: 10px;
     font-family: var(--mono);
@@ -395,7 +381,6 @@
     padding: 14px 12px 6px;
 }
 
-/* ITEM */
 .doctor-scope .sb-it {
     display: flex;
     align-items: center;
@@ -412,7 +397,7 @@
 }
 
 .doctor-scope .sb-it:hover {
-    background: var(--navy-2);   /* soft hover */
+    background: var(--navy-2);   
     color: var(--b1);
 }
 
@@ -437,13 +422,11 @@
     transition: 0.2s;
 }
 
-/* ACTIVE ICON */
 .doctor-scope .sb-it.on .ico {
     background: var(--cyan);
     color: white;
 }
 
-/* COUNT BADGE */
 .doctor-scope .sb-ct {
     margin-left: auto;
     font-family: var(--mono);
@@ -456,16 +439,14 @@
     border-radius: var(--r4);
 }
 
-/* STATS BOX */
 .doctor-scope .sb-stat {
-    background: var(--navy-2);  /* softer */
+    background: var(--navy-2);  
     border-radius: var(--r12);
     padding: 14px;
 
     border: 1px solid var(--border);
 }
 
-/* STAT ROW */
 .doctor-scope .sb-stat-row {
     display: flex;
     justify-content: space-between;
@@ -483,14 +464,13 @@
     font-family: var(--mono);
     font-weight: 500;
 }
-/* ── MAIN ── */
+
 .doctor-scope .main {
     flex: 1;
     overflow-y: auto;
     padding: 26px
 }
 
-/* ── HEADERS ── */
 .doctor-scope .ph {
     margin-bottom: 24px
 }
@@ -524,7 +504,6 @@
     align-items: center
 }
 
-/* ── BUTTONS ── */
 .doctor-scope .btn {
     display: inline-flex;
     align-items: center;
@@ -600,7 +579,6 @@
     border-radius: var(--r8)
 }
 
-/* ── CARD ── */
 .doctor-scope .card {
     background: var(--navy-2);
     border: 1px solid var(--border);
@@ -613,7 +591,6 @@
     padding: 14px
 }
 
-/* ── GRID ── */
 .doctor-scope .g2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -632,7 +609,6 @@
     gap: 14px
 }
 
-/* ── BADGE ── */
 .doctor-scope .badge {
     display: inline-flex;
     align-items: center;
@@ -680,7 +656,6 @@
     border: 1px solid var(--border)
 }
 
-/* ── TABLE ── */
 .doctor-scope .tbl-wrap {
     overflow-x: auto
 }
@@ -725,7 +700,6 @@
     color: var(--cyan)
 }
 
-/* ── STAT CARD ── */
 .doctor-scope .kpi {
     position: relative;
     overflow: hidden
@@ -763,7 +737,6 @@
 }
 
 
-/* ── PROGRESS ── */
 .doctor-scope .prog-t {
     height: 5px;
     background: var(--navy-5);
@@ -777,7 +750,6 @@
     transition: width .4s ease
 }
 
-/* ── SEC HEADER ── */
 .doctor-scope .sh {
     display: flex;
     align-items: center;
@@ -799,7 +771,6 @@
     font-family: var(--mono)
 }
 
-/* ── PATIENT ROW ── */
 .doctor-scope .pat-row {
     display: flex;
     align-items: center;
@@ -829,7 +800,6 @@
     flex-shrink: 0
 }
 
-/* ── MODAL ── */
 .doctor-scope .overlay {
     position: fixed;
     inset: 0;
@@ -898,7 +868,6 @@
     color: var(--b1)
 }
 
-/* ── FORM ── */
 .doctor-scope .field {
     display: flex;
     flex-direction: column;
@@ -934,7 +903,6 @@
     color: var(--b4)
 }
 
-/* ── NOTE BOX ── */
 .doctor-scope .note-box {
     background: var(--navy-4);
     border: 1px solid var(--border);
@@ -957,7 +925,6 @@
     font-style: italic
 }
 
-/* ── CHIP ── */
 .doctor-scope .chip {
     display: inline-flex;
     align-items: center;
@@ -979,7 +946,6 @@
     color: var(--cyan)
 }
 
-/* ── NOTIF ── */
 .doctor-scope .notif-it {
     display: flex;
     gap: 12px;
@@ -1001,7 +967,6 @@
     flex-shrink: 0
 }
 
-/* ── PAGE ANIM ── */
 .doctor-scope .page {
     animation: fadeSlide .2s ease
 }
@@ -1042,7 +1007,6 @@
     }
 }
 
-/* ── RISK METER ── */
 .doctor-scope .risk-meter {
     height: 6px;
     border-radius: var(--rf);
@@ -1063,7 +1027,6 @@
     transition: .4s
 }
 
-/* RESPONSIVE */
 @media(max-width:1024px) {
     .doctor-scope .sidebar {
         display: none

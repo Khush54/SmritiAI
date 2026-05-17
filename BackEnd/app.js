@@ -9,10 +9,11 @@ const patientRoutes = require("./src/routes/patientRoutes");
 const screeningRoutes = require("./src/routes/screeningRoutes");
 const moodRoutes = require("./src/routes/moodRoutes");
 const alertRoutes = require("./src/routes/alertRoutes");
+const feedbackRoutes = require("./src/routes/feedbackRoutes");
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: '10mb' })); // Increase limit for profile photos
+app.use(express.json({ limit: '10mb' })); 
 
 app.use(express.urlencoded({
   extended: true,
@@ -42,6 +43,11 @@ app.use(
 app.use(
   "/api/alerts",
   alertRoutes
+);
+
+app.use(
+  "/api/feedback",
+  feedbackRoutes
 );
 
 app.get("/", (req, res) => {

@@ -13,7 +13,6 @@ const sync = async () => {
     console.log(`Processing ${patients.length} patients...`);
 
     for (let patient of patients) {
-      // 1. Sync Last Test
       const lastAssessment = await Assessment.findOne({ patientId: patient._id }).sort({ createdAt: -1 });
       if (lastAssessment) {
         patient.lastTestDate = lastAssessment.createdAt.toLocaleDateString('en-CA');
@@ -21,7 +20,6 @@ const sync = async () => {
         patient.risk = lastAssessment.riskLevel;
       }
 
-      // 2. Sync Last Log
       const lastLog = await MoodLog.findOne({ patientId: patient._id }).sort({ date: -1 });
       if (lastLog) {
         patient.lastLogDate = lastLog.date;

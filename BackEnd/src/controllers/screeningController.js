@@ -6,7 +6,6 @@ exports.addAssessment = async (req, res) => {
   try {
     const { patientId, answers } = req.body;
     
-    // Check if an assessment already exists for today (Local Time)
     const today = new Date().toLocaleDateString('en-CA'); 
     
     const startOfDay = new Date();
@@ -26,23 +25,18 @@ exports.addAssessment = async (req, res) => {
       });
     }
     
-    // Naive scoring logic for demo (Will be replaced with AI later)
     let score = 100;
     if (answers.memoryAns && answers.memoryAns !== "30 Oct") score -= 20; 
     if (answers.beh1 === "Often") score -= 30;
     if (answers.beh1 === "Slight") score -= 15;
 
-    // Determine Risk
     let risk = "Low";
     if (score < 50) risk = "High";
     else if (score < 75) risk = "Moderate"; 
 
-    // Determine Trend
-    // This is naive, ideally we check previous assessments
     let trend = "stable";
     if (score < 70) trend = "down";
 
-    // 1. Create Assessment Record
     const newAssessment = await Assessment.create({
       userId: req.user.id,
       patientId,
@@ -51,14 +45,12 @@ exports.addAssessment = async (req, res) => {
       details: answers
     });
 
-    // 2. Update Patient's current score and risk
     const updatedPatient = await Patient.findByIdAndUpdate(
       patientId, 
       { score, risk, trend, lastTestDate: today },
       { returnDocument: 'after' }
     );
 
-    // Create persistent alert
     await createAlert(req.user.id, {
       patientId: patientId,
       patientName: updatedPatient.name,
@@ -67,7 +59,6 @@ exports.addAssessment = async (req, res) => {
       type: risk === 'High' ? 'critical' : risk === 'Moderate' ? 'warning' : 'success'
     });
 
-    // Map _id to id for frontend
     const mappedPatient = updatedPatient.toObject();
     mappedPatient.id = mappedPatient._id.toString();
 

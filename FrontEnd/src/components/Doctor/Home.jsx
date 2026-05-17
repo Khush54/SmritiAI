@@ -3,17 +3,14 @@ import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const navigate = useNavigate();
-    // 1. Data State
     const [patients] = useState([
         { id: 1, name: "Anita Rao", age: 62, gender: "F", risk: "High", score: 42, city: "Delhi", lastTest: "12 Dec", followUp: "28 Dec", flag: true, trend: 'down' },
         { id: 2, name: "Suresh Gupta", age: 71, gender: "M", risk: "High", score: 38, city: "Mumbai", lastTest: "15 Dec", followUp: "30 Dec", flag: false, trend: 'down' },
         { id: 3, name: "Meera Singh", age: 55, gender: "F", risk: "Medium", score: 65, city: "Noida", lastTest: "20 Dec", followUp: "05 Jan", flag: true, trend: 'up' }
     ]);
 
-    // 2. Local UI State
     const [selectedId, setSelectedId] = useState(null);
 
-    // 3. Derived Logic
     const highPts = patients.filter(p => p.risk === 'High');
     const scoreColor = (s) => s < 50 ? 'var(--rose)' : 'var(--emerald)';
     
@@ -45,7 +42,6 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* KPI Grid */}
             <div className="g4" style={{ marginBottom: '24px' }}>
                 {stats.map((s, i) => (
                     <div 
@@ -61,10 +57,8 @@ const Home = () => {
                 ))}
             </div>
 
-            {/* Main Content: Table and Detail Preview */}
             <div className="g2" style={{ gridTemplateColumns: selectedId ? '1.5fr 1fr' : '1fr', transition: 'all 0.3s ease' }}>
                 
-                {/* Table Card */}
                 <div className="card">
                     <div className="sh" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
@@ -124,7 +118,6 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* Quick Detail Sidebar (Conditional) */}
                 {selectedId && (
                     <div className="card page" style={{ borderLeft: `4px solid ${scoreColor(patients.find(p => p.id === selectedId).score)}` }}>
                         {patients.filter(p => p.id === selectedId).map(p => (

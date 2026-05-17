@@ -21,7 +21,6 @@ export const AppProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // 1. Load User from localStorage
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
@@ -30,8 +29,6 @@ export const AppProvider = ({ children }) => {
         console.error("Error parsing user data", e);
       }
     }
-
-    // 2. Load Patients & Alerts from backend
     const fetchData = async () => {
       try {
         const [patientsRes, alertsRes] = await Promise.all([

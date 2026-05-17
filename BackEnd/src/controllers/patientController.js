@@ -18,7 +18,6 @@ exports.addPatient = async (req, res) => {
     const patientObj = newPatient.toObject();
     patientObj.id = patientObj._id.toString();
 
-    // Create persistent alert
     await createAlert(req.user.id, {
       patientId: patientObj.id,
       patientName: patientObj.name,
@@ -41,7 +40,6 @@ exports.getPatients = async (req, res) => {
   try {
     const patients = await Patient.find({ userId: req.user.id }).sort({ createdAt: -1 });
     
-    // Map _id to id for frontend compatibility
     const mappedPatients = patients.map(p => {
       const patientObj = p.toObject();
       patientObj.id = patientObj._id.toString();

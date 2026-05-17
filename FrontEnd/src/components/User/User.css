@@ -51,10 +51,8 @@
     --side: 258px;
 }
 
-/* ── DARK MODE OVERRIDES ── */
 [data-dark="true"]:has(.user-scope), [data-dark="true"] .user-scope {
-    /* Invert Neutral Scale */
-    --c0: #FAFAF9; /* Lightest text */
+    --c0: #FAFAF9; 
     --c1: #F5F5F4;
     --c2: #D6D3D1;
     --c3: #A8A29E;
@@ -62,26 +60,21 @@
     --c5: #44403C;
     --c6: #292524;
     --c7: #1C1917;
-    --c8: #0C0A09; /* Darkest background */
-
-    /* Core Surfaces */
+    --c8: #0C0A09; 
     --surface: #1C1917;
     --border: rgba(231, 229, 228, 0.1);
     
-    /* Adjust Brand Tints for Dark Context */
     --warm-l: rgba(245, 158, 11, 0.15);
     --sage-l: rgba(16, 185, 129, 0.15);
     --rose-l: rgba(244, 63, 94, 0.15);
     --sky-l: rgba(14, 165, 233, 0.15);
     --indigo-l: rgba(99, 102, 241, 0.15);
 
-    /* Shadows need to be darker/heavier in dark mode to be visible */
     --sh1: 0 1px 4px rgba(0, 0, 0, 0.4);
     --sh2: 0 4px 14px rgba(0, 0, 0, 0.5);
     --sh3: 0 12px 36px rgba(0, 0, 0, 0.6);
 }
 
-/* Specific component tweaks for Dark Mode visibility */
 [data-dark="true"] .user-scope .sb-it .sico {
     background: var(--c6);
 }
@@ -117,7 +110,6 @@
     background: none
 }
 
-/* ── NAV ── */
 .user-scope .nav {
     position: sticky;
     top: 0;
@@ -311,7 +303,6 @@
     padding: 30px
 }
 
-/* ── COMMON ── */
 .user-scope .ph {
     margin-bottom: 26px
 }
@@ -541,7 +532,6 @@
 }
 
 
-/* MOOD TRACKER */
 .user-scope .mood-btn {
     width: 44px;
     height: 44px;
@@ -582,7 +572,6 @@
     }
 }
 
-/* ── RISK COLOR BADGES ── */
 .user-scope .b-green {
     background: var(--sage-l) !important;
     color: var(--sage-d) !important;

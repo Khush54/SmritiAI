@@ -12,6 +12,7 @@ import Settings from '../components/User/Settings'
 import Alerts from '../components/User/Alerts'
 import Mood from '../components/User/Mood'
 import DoctorContact from '../components/User/DoctorContact'
+import FeedbackPortal from '../components/User/FeedbackPortal'
 import { AppContext } from '../context/AppContext'
 import { getAlerts } from '../Services/alertService'
 import { submitAssessment } from '../services/assessmentService'
@@ -31,7 +32,6 @@ function User() {
       const res = await submitAssessment(selectedPatient.id, testData);
       
       if (res.success && res.data.patient) {
-        // Update context with the newly calculated scores
         updatePatient(res.data.patient);
         const alertsRes = await getAlerts();
         if (alertsRes.success) setAlerts(alertsRes.data);
@@ -40,7 +40,6 @@ function User() {
       navigate('/user/reports');
     } catch(err) {
       console.error("Failed to submit test", err);
-      // Fallback navigation
       navigate('/user/reports');
     }
   };
@@ -80,6 +79,7 @@ function User() {
             } />
             
             <Route path="doctor" element={<DoctorContact patient={selectedPatient} />} />
+            <Route path="feedback" element={<FeedbackPortal />} />
             
             <Route path="settings" element={
               <Settings patient={selectedPatient} onUpdatePatient={updatePatient} />

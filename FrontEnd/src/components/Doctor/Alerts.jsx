@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 const Alerts = () => {
-  // Initial data state
   const [alerts, setAlerts] = useState([
     { id: 1, pt: "Anita Rao", text: "Cognitive score dropped by 15% in the last 24 hours.", time: "10:42 AM", type: "critical", icon: "🚨" },
     { id: 2, pt: "Suresh Gupta", text: "Missed scheduled daily cognitive game check-in.", time: "09:15 AM", type: "high", icon: "⚠️" },
@@ -10,7 +9,6 @@ const Alerts = () => {
     { id: 5, pt: "System Update", text: "Cloud sync completed for all active patient nodes.", time: "01:00 AM", type: "system", icon: "✅" }
   ]);
 
-  // Derived counts for KPIs
   const counts = {
     critical: alerts.filter(a => a.type === 'critical').length,
     high: alerts.filter(a => a.type === 'high').length,
@@ -26,20 +24,18 @@ const Alerts = () => {
     setAlerts([]);
   };
 
-  // Helper for border colors
   const getTypeColor = (type) => {
     switch (type) {
-      case 'critical': return 'var(--rose)'; // var(--rose)
-      case 'high': return 'var(--amber)';     // var(--amber)
-      case 'info': return 'var(--cyan)';     // var(--cyan)
-      case 'system': return 'var(--emerald)';   // var(--emerald)
+      case 'critical': return 'var(--rose)'; 
+      case 'high': return 'var(--amber)';     
+      case 'info': return 'var(--cyan)';     
+      case 'system': return 'var(--emerald)';   
       default: return 'var(--navy-5)';
     }
   };
 
   return (
     <div className="page">
-      {/* Header */}
       <div className="ph">
         <div className="ph-row">
           <div>
@@ -54,7 +50,6 @@ const Alerts = () => {
         </div>
       </div>
 
-      {/* KPI Summary Row */}
       <div className="g4" style={{ marginBottom: '16px' }}>
         <div className="card kpi">
           <div className="kpi-val" style={{ color: 'var(--rose)', fontSize: '24px' }}>{counts.critical}</div>
@@ -74,7 +69,6 @@ const Alerts = () => {
         </div>
       </div>
 
-      {/* Alerts List Container */}
       <div className="card" style={{ padding: '20px' }}>
         {alerts.length > 0 ? (
           alerts.map((a) => (
@@ -86,7 +80,7 @@ const Alerts = () => {
                 alignItems: 'flex-start',
                 padding: '15px',
                 borderRadius: 'var(--r8)',
-                background: 'var(--navy-2)', // Using your background var
+                background: 'var(--navy-2)', 
                 marginBottom: '10px',
                 borderLeft: `4px solid ${getTypeColor(a.type)}`,
                 border: '1px solid var(--border)',

@@ -5,7 +5,6 @@ exports.addMoodLog = async (req, res) => {
   try {
     const { patientId, mood, date, notes, sleep, appetite } = req.body;
     
-    // Check if a log already exists for this patient and date
     const existingLog = await MoodLog.findOne({ patientId, date });
     if (existingLog) {
       return res.status(400).json({
@@ -23,7 +22,6 @@ exports.addMoodLog = async (req, res) => {
       appetite
     });
 
-    // Update patient current metrics
     const updatedPatient = await Patient.findByIdAndUpdate(patientId, {
       mood,
       sleep,

@@ -25,7 +25,7 @@ const assessmentSchema = new mongoose.Schema({
     default: "Low"
   },
   details: {
-    type: mongoose.Schema.Types.Mixed, // Will store dynamic JSON object representing answers
+    type: mongoose.Schema.Types.Mixed, 
     default: {}
   }
 }, { timestamps: true });

@@ -4,7 +4,6 @@ function Settings({ doctorData, onUpdateDoctor }) {
     const [selectedLang, setSelectedLang] = useState('en');
     const [formData, setFormData] = useState({});
 
-    // Sync with the lifted state from Doctor.jsx
     useEffect(() => {
         if (doctorData) {
             setFormData({

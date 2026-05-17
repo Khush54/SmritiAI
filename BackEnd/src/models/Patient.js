@@ -26,7 +26,6 @@ const patientSchema = new mongoose.Schema({
   phone: String,
   city: String,
   
-  // Health Metrics Default Values
   score: {
     type: Number,
     default: null
@@ -53,11 +52,11 @@ const patientSchema = new mongoose.Schema({
     default: null
   },
   lastTestDate: {
-    type: String, // YYYY-MM-DD
+    type: String, 
     default: null
   },
   lastLogDate: {
-    type: String, // YYYY-MM-DD
+    type: String, 
     default: null
   }
 }, { timestamps: true });

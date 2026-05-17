@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import './Doctor.css'
 function Patients() {
-    // --- State Management ---
     const [patients, setPatients] = useState([]);
     const [riskFilter, setRiskFilter] = useState('all');
     const [loading, setLoading] = useState(true);
-    const [selectedPatient, setSelectedPatient] = useState(null); // For "Report" button
-    const [showAddModal, setShowAddModal] = useState(false); // For "+ Add" button
+    const [selectedPatient, setSelectedPatient] = useState(null); 
+    const [showAddModal, setShowAddModal] = useState(false);
 
-    // --- Data Fetching ---
     useEffect(() => {
         const fetchPatients = async () => {
             try {
-                // Replace with your actual API endpoint
                 const response = await fetch('/api/patients');
                 const data = await response.json();
                 setPatients(data);
             } catch (err) {
                 console.error("Fetch error:", err);
-                // Fallback dummy data for preview
                 setPatients([
                     { id: 1, name: "Anita Rao", age: 62, gender: "F", risk: "High", score: 42, city: "Delhi", tests: 12, caregiver: "Dr. Verma", lastTest: "12 Dec", followUp: "28 Dec", flag: true, trend: 'down' },
                     { id: 2, name: "Suresh Gupta", age: 71, gender: "M", risk: "High", score: 38, city: "Mumbai", tests: 8, caregiver: "Dr. Kapoor", lastTest: "15 Dec", followUp: "30 Dec", flag: false, trend: 'down' },
@@ -31,7 +27,6 @@ function Patients() {
         fetchPatients();
     }, []);
 
-    // --- Derived Logic ---
     const filtered = riskFilter === 'all' ? patients : patients.filter(p => p.risk === riskFilter);
     const getScoreColor = (s) => s < 50 ? '#F43F5E' : '#10B981';
 
@@ -39,7 +34,6 @@ function Patients() {
 
     return (
         <div className="page">
-            {/* 1. Header & Global Filters */}
             <div className="ph">
                 <div className="ph-row">
                     <div>
@@ -63,7 +57,6 @@ function Patients() {
                 </div>
             </div>
 
-            {/* 2. Dynamic Risk Summary Cards */}
             <div className="g3" style={{ marginBottom: '24px' }}>
                 {[
                     { label: 'High Risk', count: patients.filter(p => p.risk === 'High').length, color: '#F43F5E' },
@@ -77,7 +70,6 @@ function Patients() {
                 ))}
             </div>
 
-            {/* 3. Main Data Table */}
             <div className="card">
                 <div className="tbl-wrap">
                     <table className="tbl">
@@ -130,7 +122,6 @@ function Patients() {
                 </div>
             </div>
 
-            {/* 4. Quick View Report Modal (Conditional Rendering) */}
             {selectedPatient && (
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div className="card" style={{ width: '400px', textAlign: 'center', position: 'relative' }}>

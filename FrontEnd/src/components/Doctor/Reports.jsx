@@ -6,23 +6,20 @@ Chart.register(...registerables);
 function Reports(){
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeReport, setActiveReport] = useState(null); // The patient currently shown in Radar
+    const [activeReport, setActiveReport] = useState(null); 
     const radarRef = useRef(null);
     const chartInstance = useRef(null);
 
-    // 1. Fetch Reports Queue
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                // Replace with your API: const res = await fetch('/api/reports');
-                // Mocking data based on your requirements
                 const mockData = [
                     { id: 1, name: "Ramesh Kumar", score: 45, lastTest: "12 May 2026", city: "Delhi", risk: "High", flag: true, notes: "Significant decline in short-term recall and spatial orientation.", domains: [40, 55, 30, 60, 45] },
                     { id: 2, name: "Sita Devi", score: 62, lastTest: "10 May 2026", city: "Mumbai", risk: "Medium", flag: false, notes: "Executive function stable, minor word-finding difficulties.", domains: [65, 70, 55, 50, 60] },
                     { id: 3, name: "Arjun Singh", score: 28, lastTest: "09 May 2026", city: "Bangalore", risk: "High", flag: true, notes: "Urgent: Patient struggling with basic orientation tasks.", domains: [20, 30, 25, 40, 35] }
                 ];
                 setReports(mockData);
-                setActiveReport(mockData[0]); // Default to first patient
+                setActiveReport(mockData[0]); 
             } catch (err) {
                 console.error("Error fetching reports:", err);
             } finally {
@@ -32,14 +29,10 @@ function Reports(){
         fetchReports();
     }, []);
 
-    // 2. Initialize/Update Radar Chart
     useEffect(() => {
         if (!activeReport || !radarRef.current) return;
-
         const ctx = radarRef.current.getContext('2d');
-        
         if (chartInstance.current) chartInstance.current.destroy();
-
         chartInstance.current = new Chart(ctx, {
             type: 'radar',
             data: {
@@ -83,7 +76,6 @@ function Reports(){
 
     return (
         <div className="page">
-            {/* Header Area */}
             <div className="ph">
                 <div className="ph-row">
                     <div>
@@ -93,7 +85,6 @@ function Reports(){
                 </div>
             </div>
 
-            {/* KPI Row */}
             <div className="g4" style={{ marginBottom: '16px' }}>
                 <div className="card kpi"><div className="kpi-val" style={{ color: 'var(--amber)' }}>{reports.length}</div><div className="kpi-label">Pending Review</div></div>
                 <div className="card kpi"><div className="kpi-val" style={{ color: 'var(--emerald)' }}>3</div><div className="kpi-label">Reviewed Today</div></div>
@@ -101,10 +92,7 @@ function Reports(){
                 <div className="card kpi"><div className="kpi-val" style={{ color: 'var(--cyan)' }}>18</div><div className="kpi-label">Total Month</div></div>
             </div>
 
-            {/* Main Content: Left List, Right Detail */}
             <div className="g2" style={{ gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
-                
-                {/* Left: Pending List */}
                 <div className="card">
                     <div className="sh">
                         <div className="sh-title">Pending Reviews</div>
@@ -142,7 +130,6 @@ function Reports(){
                     ))}
                 </div>
 
-                {/* Right: Domain Analysis Detail */}
                 <div className="card" style={{height: 'fit-content', position: 'sticky', top: '20px'}}>
                     <div className="sh">
                         <div className="sh-title">Domain Analysis — {activeReport?.name}</div>

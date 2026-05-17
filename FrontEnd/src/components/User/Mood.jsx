@@ -45,8 +45,6 @@ const Mood = ({ patient, onUpdatePatient }) => {
   const moods = ['😄', '😊', '😐', '😔', '😤', '😰'];
 
   const handleSave = async () => {
-    // We can now save even without notes since we made them optional in the backend
-    
     try {
       setLoading(true);
       const pId = patient.id || patient._id;

@@ -1,10 +1,11 @@
 import React, { useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import './User.css'
 
 function Sidebar() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { logout } = useContext(AppContext);
 
     const handleLogout = () => {
@@ -12,20 +13,54 @@ function Sidebar() {
         window.location.href = '/';
     };
 
+    const isActive = (path) => location.pathname === `/user/${path}`;
+
+    const navItem = (path, icon, label) => (
+        <div
+            className="sb-it"
+            id={`sb-${path}`}
+            onClick={() => navigate(`/user/${path}`)}
+            style={{
+                background: isActive(path) ? 'var(--blue-light)' : 'transparent',
+                color: isActive(path) ? 'var(--blue)' : 'inherit',
+                fontWeight: isActive(path) ? '600' : '400',
+                borderRadius: 'var(--r10)',
+                transition: 'all 0.15s'
+            }}
+        >
+            <div className="sico">{icon}</div>{label}
+        </div>
+    );
+
     return (
         <aside className="sidebar">
             <div className="sb-lbl">Monitoring</div>
-            <div className="sb-it" onClick={() => navigate('/user/home')} id="sb-home"><div className="sico">🏡</div>Family Overview</div>
-            <div className="sb-it" onClick={() => navigate('/user/patients')} id="sb-patients"><div className="sico">👥</div>My Patients</div>
-            <div className="sb-it" onClick={() => navigate('/user/test')} id="sb-test"><div className="sico">🧠</div>Start a Test</div>
-            <div className="sb-it" onClick={() => navigate('/user/reminders')} id="sb-reminders"><div className="sico">⏰</div>Reminders</div>
-            <div className="sb-it" onClick={() => navigate('/user/alerts')} id="sb-alerts"><div className="sico">🔔</div>Alerts &amp; Notifications</div>
-            <div className="sb-it" onClick={() => navigate('/user/reports')} id="sb-reports"><div className="sico">📊</div>Reports &amp; Trends</div>
-            <div className="sb-it" onClick={() => navigate('/user/history')} id="sb-history"><div className="sico">📜</div>Test History</div>
-            <div className="sb-it" onClick={() => navigate('/user/mood')} id="sb-mood"><div className="sico">😊</div>Mood &amp; Behaviour</div>
-            <div className="sb-it" onClick={() => navigate('/user/doctor')} id="sb-doctor"><div className="sico">👩‍⚕️</div>Doctor Contact</div>
-            <div className="sb-it" onClick={() => navigate('/user/settings')} id="sb-settings"><div className="sico">⚙️</div>Settings</div>
-            <div className="sb-it" onClick={handleLogout} id="sb-logout"><div className="sico">🚪</div>Log Out</div>
+            {navItem('home', '🏡', 'Family Overview')}
+            {navItem('patients', '👥', 'My Patients')}
+            {navItem('test', '🧠', 'Start a Test')}
+
+            <div className="sb-lbl" style={{ marginTop: '12px' }}>Tracking</div>
+            {navItem('mood', '😊', 'Mood & Behaviour')}
+            {navItem('reminders', '📋', 'AI Recommendations')}
+            {navItem('history', '📜', 'Test History')}
+
+            <div className="sb-lbl" style={{ marginTop: '12px' }}>Reports</div>
+            {navItem('reports', '📊', 'Reports & Trends')}
+            {navItem('alerts', '🔔', 'Alerts & Notifications')}
+            {navItem('doctor', '👩‍⚕️', 'Doctor Contact')}
+
+            <div className="sb-lbl" style={{ marginTop: '12px' }}>Account</div>
+            {navItem('feedback', '💬', 'Share Feedback')}
+            {navItem('settings', '⚙️', 'Settings')}
+
+            <div
+                className="sb-it"
+                id="sb-logout"
+                onClick={handleLogout}
+                style={{ marginTop: 'auto', color: 'var(--rose)', borderRadius: 'var(--r10)' }}
+            >
+                <div className="sico">🚪</div>Log Out
+            </div>
         </aside>
     )
 }

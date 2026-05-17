@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 function Notes(){
-    // --- State Management ---
     const [patients, setPatients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
@@ -11,11 +10,9 @@ function Notes(){
         recommendations: ''
     });
 
-    // --- Data Fetching ---
     useEffect(() => {
         const fetchPatients = async () => {
             try {
-                // Replace with your actual API endpoint
                 const response = await fetch('/api/patients');
                 const data = await response.json();
                 setPatients(data);
@@ -24,7 +21,6 @@ function Notes(){
                 }
             } catch (err) {
                 console.error("Fetch error:", err);
-                // Fallback dummy data for local testing
                 const dummy = [
                     { id: 1, name: "Anita Rao", risk: "High", score: 42, lastTest: "12 Dec", notes: "Showing signs of increased confusion in evening hours." },
                     { id: 2, name: "Suresh Gupta", risk: "High", score: 38, lastTest: "15 Dec", notes: "Motor skills declining; recommended physical therapy." },
@@ -39,7 +35,6 @@ function Notes(){
         fetchPatients();
     }, []);
 
-    // --- Event Handlers ---
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -59,12 +54,7 @@ function Notes(){
 
         try {
             console.log("Saving to Database:", payload);
-            // Example API call:
-            // await fetch('/api/notes', { method: 'POST', body: JSON.stringify(payload) });
-            
             alert(isSharing ? "Note saved and shared with caregiver!" : "Clinical note saved successfully.");
-            
-            // Reset form (except patient selection)
             setFormData(prev => ({ ...prev, observation: '', recommendations: '' }));
         } catch (err) {
             alert("Error saving note.");
@@ -87,7 +77,6 @@ function Notes(){
             </div>
 
             <div className="g2" style={{ gridTemplateColumns: '1fr 1.2fr', gap: '24px' }}>
-                {/* Left: Recent Notes List */}
                 <div>
                     <h3 style={{ fontSize: '12px', color: 'var(--b4)', marginBottom: '12px', textTransform: 'uppercase' }}>Recent History</h3>
                     {patients.map(p => (
@@ -119,7 +108,6 @@ function Notes(){
                     ))}
                 </div>
 
-                {/* Right: Entry Form */}
                 <div className="card" style={{ height: 'fit-content' }}>
                     <div className="sh-title" style={{ marginBottom: '16px', fontSize: '16px' }}>Add Clinical Note</div>
                     
