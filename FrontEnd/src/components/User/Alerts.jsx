@@ -52,7 +52,7 @@ const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
                   marginBottom: '12px', 
                   borderRadius: '12px', 
                   border: '1px solid var(--c8)', 
-                  backgroundColor: 'var(--surface)', 
+                  backgroundColor: '#ffffff', 
                   display: 'flex',
                   alignItems: 'center',
                   gap: '16px',

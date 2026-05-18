@@ -101,7 +101,11 @@
     background: var(--c8);
     color: var(--c0);
     font-size: 15px;
-    line-height: 1.6
+    line-height: 1.6;
+}
+
+body:has(.user-scope) {
+    background: var(--c8) !important;
 }
 
 :where(.user-scope) button {
@@ -311,7 +315,8 @@
 .user-scope .main {
     flex: 1;
     overflow-y: auto;
-    padding: 30px
+    padding: 24px;
+    background: var(--c8);
 }
 
 .user-scope .ph {
