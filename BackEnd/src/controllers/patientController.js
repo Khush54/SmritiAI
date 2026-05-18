@@ -64,7 +64,7 @@ exports.updatePatient = async (req, res) => {
     const patient = await Patient.findOneAndUpdate(
       { _id: id, userId: req.user.id },
       updateData,
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!patient) {

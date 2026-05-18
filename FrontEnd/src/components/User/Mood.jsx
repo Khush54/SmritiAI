@@ -106,7 +106,7 @@ const Mood = ({ patient, onUpdatePatient }) => {
           </div>
           <div className="field">
             <label className="flabel">How is {patient.name} feeling?</label>
-            <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '6px', flexWrap: 'wrap' }}>
               {moods.map((m) => (
                 <div 
                   key={m}

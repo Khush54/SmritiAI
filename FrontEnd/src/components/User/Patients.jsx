@@ -7,7 +7,7 @@ import { AppContext } from '../../context/AppContext'
 import { useContext } from 'react'
 
 function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPatient }) {
-    const { setAlerts } = useContext(AppContext);
+    const { setAlerts, showAlert } = useContext(AppContext);
     const navigate = useNavigate();
     const [isAdding, setIsAdding] = useState(false);
     const [formData, setFormData] = useState({
@@ -55,10 +55,11 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
                 if (alertsRes.success) setAlerts(alertsRes.data);
                 setIsAdding(false);
                 setFormData({ name: '', relation: '', age: '', location: '', notes: '' });
+                showAlert("Profile created successfully!", "success");
             }
         } catch (error) {
             console.error("Failed to add patient", error);
-            // Optionally, show an error alert/toast here
+            showAlert("Failed to create profile. Please try again.", "error");
         }
     };
 
@@ -158,7 +159,7 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
                 <div className="ph-row">
                     <div>
                         <h1>My Patients</h1>
-                        <p>Monitoring {patients.length} family members</p>
+                        <p><span>Monitoring {patients.length} family members</span></p>
                     </div>
                     <button className="btn btn-p btn-sm" onClick={() => setIsAdding(true)}>
                         + Add Patient

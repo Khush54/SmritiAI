@@ -97,7 +97,7 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
             <h1>Family Overview 🏡</h1>
             <p>Monitoring {patients.length} loved one{patients.length !== 1 ? 's' : ''} · {today}</p>
           </div>
-          <div className="ph-act" style={{ display: 'flex', gap: '10px' }}>
+          <div className="ph-act" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button className="btn btn-s btn-sm" onClick={() => navigate('/user/patients')}>
               📝 All Patients
             </button>
@@ -108,7 +108,7 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
         </div>
       </div>
 
-      <div className="g2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+      <div className="g2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
         {patients.map((p) => (
           <div 
             key={p.id} 
@@ -155,7 +155,7 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
               {p.score === null ? (
                 <div style={{ flex: 1, background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '20px', textAlign: 'center', border: '1px dashed var(--c6)' }}>
                   <div style={{ fontSize: '13px', color: 'var(--c3)', fontWeight: 600 }}>Please take an assessment</div>

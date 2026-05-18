@@ -7,11 +7,11 @@ function FeedbackPortal() {
   const { showAlert } = useContext(AppContext);
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
-  const [form, setForm] = useState({ displayName: '', role: 'Family Caregiver', message: '' });
+  const [form, setForm] = useState({ displayName: '', role: 'User', message: '' });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const roles = ['Family Caregiver', 'Doctor / Physician', 'Nurse / Healthcare Worker', 'Researcher', 'Other'];
+  const roles = ['User', 'Doctor', 'Other'];
 
   const handleSubmit = async () => {
     if (!rating) { showAlert('Please select a star rating.', 'error'); return; }
@@ -19,7 +19,7 @@ function FeedbackPortal() {
     try {
       setLoading(true);
       const res = await submitFeedback({
-        displayName: form.displayName.trim() || 'Anonymous Caregiver',
+        displayName: form.displayName.trim() || 'Anonymous',
         role: form.role,
         rating,
         message: form.message.trim(),
@@ -46,7 +46,7 @@ function FeedbackPortal() {
         <div style={{ display: 'flex', gap: '3px', justifyContent: 'center', marginBottom: '30px' }}>
           {[1,2,3,4,5].map(i => <span key={i} style={{ fontSize: '28px', color: i <= rating ? '#f59e0b' : '#d1d5db' }}>★</span>)}
         </div>
-        <button className="btn btn-s btn-sm" onClick={() => { setSubmitted(false); setRating(0); setForm({ displayName: '', role: 'Family Caregiver', message: '' }); }}>
+        <button className="btn btn-s btn-sm" onClick={() => { setSubmitted(false); setRating(0); setForm({ displayName: '', role: 'User', message: '' }); }}>
           Submit Another
         </button>
       </div>
@@ -83,12 +83,12 @@ function FeedbackPortal() {
         </div>
       </div>
 
-      <div className="card" style={{ padding: '28px' }}>
+      <div className="card">
         <div style={{ marginBottom: '24px' }}>
           <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--c3)', display: 'block', marginBottom: '12px' }}>
             OVERALL RATING <span style={{ color: 'var(--rose)' }}>*</span>
           </label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {[1,2,3,4,5].map(i => (
               <button
                 key={i}
@@ -117,7 +117,7 @@ function FeedbackPortal() {
           )}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+        <div className="settings-grid" style={{ marginBottom: '20px' }}>
           <div className="field">
             <label className="flabel">Your Name <span style={{ color: 'var(--c4)', fontWeight: 400 }}>(optional)</span></label>
             <input
@@ -152,7 +152,7 @@ function FeedbackPortal() {
 
         <div style={{ fontSize: '12px', color: 'var(--c4)', marginBottom: '20px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
           <span>🔒</span>
-          <span>Leaving Name blank submits as "Anonymous Caregiver". We never share your email or personal data. Feedback may be reviewed before going live.</span>
+          <span>Leaving Name blank submits as "Anonymous". We never share your email or personal data. Feedback may be reviewed before going live.</span>
         </div>
 
         <button className="btn btn-p" onClick={handleSubmit} disabled={loading} style={{ width: '100%', padding: '14px' }}>

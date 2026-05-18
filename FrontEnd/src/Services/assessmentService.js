@@ -4,6 +4,7 @@ const API = axios.create({
   baseURL: "http://localhost:5000/api/assessments"
 });
 
+// Automatically inject JWT authentication token into requests
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -12,12 +13,18 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-export const submitAssessment = async (patientId, answers) => {
-  const response = await API.post("/", { patientId, answers });
+// FIXED: Removed forced "multipart/form-data" header to allow seamless JSON serialization
+export const submitAssessment = async (assessmentPayload) => {
+  const response = await API.post("/high-accuracy-eval", assessmentPayload);
   return response.data;
 };
 
 export const getPatientAssessments = async (patientId) => {
   const response = await API.get(`/${patientId}`);
+  return response.data;
+};
+
+export const generateDynamicTest = async (lang = 'en') => {
+  const response = await API.get(`/generate-dynamic-test?lang=${lang}`);
   return response.data;
 };

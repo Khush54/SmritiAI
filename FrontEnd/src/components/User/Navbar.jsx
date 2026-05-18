@@ -2,16 +2,20 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import './User.css'
 
-function Navbar({ caregiverName = "Anita Singh", alertCount = 0 }) {
+function Navbar({ caregiverName = "Anita Singh", alertCount = 0, onToggleSidebar }) {
     const navigate = useNavigate();
     return (
         <nav className="nav">
-            <div className="nav-brand" onClick={() => navigate('/user/home')} style={{ cursor: 'pointer' }}>
-                <div className="brand-ico">🧠</div>
-                <span className="brand-txt">Smriti AI</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <button className="mobile-menu-btn" onClick={onToggleSidebar}>
+                    ☰
+                </button>
+                <div className="nav-brand" onClick={() => navigate('/user/home')} style={{ cursor: 'pointer' }}>
+                    <div className="brand-ico">🧠</div>
+                    <span className="brand-txt">Smriti AI</span>
+                </div>
+                <span className="nav-role">User Portal</span>
             </div>
-
-            <span className="nav-role">User Portal</span>
 
             <div className="nav-r">
                 <div className="notif-btn" onClick={() => navigate('/user/alerts')} style={{ position: 'relative' }}>

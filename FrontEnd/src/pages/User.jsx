@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Navbar from '../components/User/Navbar'
 import Sidebar from '../components/User/Sidebar'
@@ -15,31 +15,29 @@ import DoctorContact from '../components/User/DoctorContact'
 import FeedbackPortal from '../components/User/FeedbackPortal'
 import { AppContext } from '../context/AppContext'
 import { getAlerts } from '../Services/alertService'
-import { submitAssessment } from '../services/assessmentService'
 
 function User() {
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { 
     user, patients, selectedPatient, setSelectedPatient, 
-    alerts, addPatient, updatePatient 
+    alerts, addPatient, updatePatient, showAlert 
   } = useContext(AppContext);
   
   const userName = user?.fullName || user?.name || "User";
 
-  const handleCompleteTest = async (testData) => {
+  const handleCompleteTest = async (apiResponse) => {
     try {
-      if (!selectedPatient) return;
-      const res = await submitAssessment(selectedPatient.id, testData);
+      if (!selectedPatient || !apiResponse) return;
       
-      if (res.success && res.data.patient) {
-        updatePatient(res.data.patient);
-        const alertsRes = await getAlerts();
-        if (alertsRes.success) setAlerts(alertsRes.data);
+      if (apiResponse.success && apiResponse.data && apiResponse.data.patient) {
+        updatePatient(apiResponse.data.patient);
+        showAlert("Self-Assessment completed successfully! Reports updated.", "success");
       }
       
       navigate('/user/reports');
     } catch(err) {
-      console.error("Failed to submit test", err);
+      console.error("Failed to complete test", err);
       navigate('/user/reports');
     }
   };
@@ -48,10 +46,12 @@ function User() {
 
   return (
     <div className="user-scope">
-      <Navbar caregiverName={userName} alertCount={unreadCount} />
+      <Navbar caregiverName={userName} alertCount={unreadCount} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+      <div className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
       <div className="dash-layout">
-        <Sidebar />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <div className="main-content">
           <Routes>

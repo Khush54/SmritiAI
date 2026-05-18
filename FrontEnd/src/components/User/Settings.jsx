@@ -104,13 +104,14 @@ function Settings({ patient, onUpdatePatient }) {
     const renderSettingsContent = () => {
         if (activeTab === 'profile') return (
             <div className="settings-section">
-                <div className="settings-section-title" style={{ marginBottom: '20px', fontWeight: '700' }}>Personal Information</div>
+                <div className="settings-section-title" style={{ marginBottom: '20px', fontWeight: '700' }}>Manage Profile</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
                     <div style={{ 
-                        width: '64px', height: '64px', borderRadius: '50%', 
+                        width: '100px', height: '100px', borderRadius: '50%', 
                         background: profilePhoto ? `url(${profilePhoto}) center/cover` : 'linear-gradient(135deg,var(--blue),var(--teal))', 
                         display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', 
-                        fontSize: '22px', fontWeight: '600', overflow: 'hidden', border: '2px solid var(--border)' 
+                        fontSize: '32px', fontWeight: '600', overflow: 'hidden', border: '2px solid var(--border)',
+                        flexShrink: 0
                     }}>
                         {!profilePhoto && (formData.firstName?.charAt(0) || '') + (formData.lastName?.charAt(0) || '')}
                     </div>
@@ -122,7 +123,7 @@ function Settings({ patient, onUpdatePatient }) {
                         </label>
                     </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="settings-grid">
                     <div className="form-group"><label className="form-label">First Name</label>
                         <input type="text" className="form-input" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
                     </div>
@@ -180,28 +181,15 @@ function Settings({ patient, onUpdatePatient }) {
             </div>
         );
 
-        if (activeTab === 'privacy') return (
-            <div className="settings-section">
-                <div className="settings-section-title" style={{ fontWeight: '700', marginBottom: '20px' }}>Data & Privacy</div>
-                {['Allow doctor access', 'Receive automated alerts', 'Share data with caregiver'].map((label, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
-                        <span style={{ fontSize: '14px' }}>{label}</span>
-                        <input type="checkbox" defaultChecked />
-                    </div>
-                ))}
-            </div>
-        );
     };
-
     return (
         <div className="page" style={{ padding: '24px' }}>
             <div className="section-header" style={{ marginBottom: '24px' }}>
                 <h1 className="section-title" style={{ fontSize: '22px' }}>Settings</h1>
-                <p className="section-sub">Manage profile and preferences for {patient.name}</p>
             </div>
-            <div className="settings-layout" style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: '32px' }}>
+            <div className="settings-layout">
                 <div className="settings-nav" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {Object.entries({ profile: 'Profile', language: 'Language', privacy: 'Privacy & Data' }).map(([k, v]) => (
+                    {Object.entries({ profile: 'Profile', language: 'Language' }).map(([k, v]) => (
                         <div
                             key={k}
                             className={`settings-nav-item ${activeTab === k ? 'active' : ''}`}
@@ -222,7 +210,7 @@ function Settings({ patient, onUpdatePatient }) {
                 </div>
             </div>
         </div>
-    );
-};
+    )};
+
 
 export default Settings;

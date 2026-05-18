@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { jsPDF } from 'jspdf'; 
 import { Radar } from 'react-chartjs-2';
-import { getPatientAssessments } from '../../services/assessmentService';
+import { getPatientAssessments } from '../../Services/assessmentService';
 import { AppContext } from '../../context/AppContext';
 import {
     Chart as ChartJS,
@@ -12,7 +12,7 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
-import './User.css'
+import './User.css';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -22,212 +22,246 @@ function Reports({ patient }) {
     const [latestTest, setLatestTest] = useState(null);
     const [dynamicBreakdown, setDynamicBreakdown] = useState([]);
     const [dynamicStats, setDynamicStats] = useState([0,0,0,0,0,0]);
-    const [debugError, setDebugError] = useState("");
+    const [clinicalSummary, setClinicalSummary] = useState("");
+    const [recommendations, setRecommendations] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadTest = async () => {
-            if (patient) {
-                try {
-                    const pId = patient.id || patient._id;
-                    const res = await getPatientAssessments(pId);
-                    if (res.success && res.data.length > 0) {
-                        const latest = res.data[0];
-                        setLatestTest(latest);
+            if (!patient) {
+                setLoading(false);
+                return;
+            }
+            try {
+                setLoading(true);
+                const pId = patient.id || patient._id;
+                
+                if (!pId) {
+                    setLoading(false);
+                    return;
+                }
 
-                        // Generate Dynamic Metrics based on latest score & answers
-                        let memScore = latest.score;
-                        if (latest.details?.memoryAns && latest.details.memoryAns !== "30 Oct") {
-                            memScore = Math.max(30, memScore - 40);
-                        }
+                const res = await getPatientAssessments(pId);
+                
+                if (res && res.success && res.data && res.data.length > 0) {
+                    const latest = res.data[0];
+                    setLatestTest(latest);
+
+                    // Pull data straight out of the rich AI fusion engine logs
+                    const aiReport = latest.details?.aiReport;
+                    
+                    if (aiReport) {
+                        setClinicalSummary(aiReport.clinicalSummary || "No comprehensive summary logs compiled.");
+                        setRecommendations(aiReport.recommendations || []);
                         
-                        let behScore = latest.score;
-                        let attScore = latest.score;
-                        if (latest.details?.beh1 === "Often") {
-                            behScore = Math.max(20, behScore - 50);
-                            attScore = Math.max(30, attScore - 30);
-                        } else if (latest.details?.beh1 === "Slight") {
-                            behScore = Math.max(50, behScore - 20);
-                        }
+                        // Read numeric percentile data dynamically from AI engine logs
+                        const b1 = typeof aiReport.breakdown?.memory === 'number' ? aiReport.breakdown.memory : latest.score || 50;
+                        const b2 = typeof aiReport.breakdown?.language === 'number' ? aiReport.breakdown.language : latest.score || 50;
+                        const b3 = typeof aiReport.breakdown?.spatial === 'number' ? aiReport.breakdown.spatial : latest.score || 50;
+                        const b4 = typeof aiReport.breakdown?.attention === 'number' ? aiReport.breakdown.attention : latest.score || 50;
+                        const b5 = typeof aiReport.breakdown?.logic === 'number' ? aiReport.breakdown.logic : latest.score || 50;
+                        const b6 = typeof aiReport.breakdown?.behavior === 'number' ? aiReport.breakdown.behavior : latest.score || 50;
 
                         const breakdown = [
-                            { title: 'Memory Recall', score: memScore },
-                            { title: 'Language & Speech', score: Math.min(100, latest.score + 5) },
-                            { title: 'Attention & Focus', score: attScore },
-                            { title: 'Spatial Recognition', score: latest.score },
-                            { title: 'Logic & Reasoning', score: latest.score },
-                            { title: 'Behavioral Stability', score: behScore }
+                            { title: 'Memory Recall / Orientation', score: b1 },
+                            { title: 'Language & Speech Fluency', score: b2 },
+                            { title: 'Attention & Focus Metrics', score: b4 },
+                            { title: 'Spatial Grid Recognition', score: b3 },
+                            { title: 'Logic & Executive Reasoning', score: b5 },
+                            { title: 'Emotional & Behavioral Stability', score: b6 }
                         ];
                         setDynamicBreakdown(breakdown);
-                        
-                        const stats = [memScore, Math.min(100, latest.score + 5), attScore, latest.score, latest.score, behScore];
-                        setDynamicStats(stats);
+                        setDynamicStats([b1, b2, b4, b3, b5, b6]);
                     } else {
-                        setLatestTest(null);
-                        setDynamicBreakdown([]);
-                        setDynamicStats([0,0,0,0,0,0]);
-                        setDebugError("API Success, but no data found for patient " + pId);
+                        // Fallback logic for legacy structural models schema records
+                        const fallbackBreakdown = [
+                            { title: 'Memory Recall', score: latest.score || 0 },
+                            { title: 'Language & Speech', score: latest.score || 0 },
+                            { title: 'Attention & Focus', score: latest.score || 0 },
+                            { title: 'Spatial Recognition', score: latest.score || 0 },
+                            { title: 'Logic & Reasoning', score: latest.score || 0 },
+                            { title: 'Behavioral Stability', score: latest.score || 0 }
+                        ];
+                        setDynamicBreakdown(fallbackBreakdown);
+                        setDynamicStats(Array(6).fill(latest.score || 0));
+                        setClinicalSummary("Legacy manual tracking telemetry without deep AI semantic mapping logs.");
+                        setRecommendations([]);
                     }
-                } catch(e) {
-                    console.error("Failed to load assessments", e);
-                    setDebugError(e.message);
+                } else {
+                    setLatestTest(null);
+                    setDynamicBreakdown([]);
+                    setDynamicStats([0,0,0,0,0,0]);
+                    setClinicalSummary("");
+                    setRecommendations([]);
                 }
+            } catch(e) {
+                console.error("Failed to fetch assessment records stream", e);
+                // Fail gracefully instead of showing aggressive alerts to user
+                setLatestTest(null);
+            } finally {
+                setLoading(false);
             }
         };
         loadTest();
     }, [patient]);
 
-    if (!patient) {
-        return (
-            <div className="page" style={{ textAlign: 'center', padding: '100px 20px' }}>
-                <div style={{ fontSize: '50px', marginBottom: '20px' }}>📂</div>
-                <h2 style={{ color: 'var(--c1)' }}>No Patient Selected</h2>
-                <p style={{ color: 'var(--c4)' }}>Please select a family member from the Dashboard to view their analysis.</p>
-            </div>
-        );
-    }
-
     const handleDownloadPDF = () => {
+        if (!latestTest) return;
         const doc = new jsPDF();
         const timestamp = new Date().toLocaleString();
 
         doc.setFontSize(22);
-        doc.setTextColor(59, 130, 246); // Blue color
-        doc.text("Smriti AI - Cognitive Report", 20, 20);
+        doc.setTextColor(59, 130, 246); 
+        doc.text("Smriti AI - Cognitive Evaluation Matrix", 20, 20);
         
-        doc.setDrawColor(200, 200, 200);
-        doc.line(20, 25, 190, 25);
+        doc.setDrawColor(229, 231, 235);
+        doc.line(20, 26, 190, 26);
 
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        doc.text(`Patient Name: ${patient.name}`, 20, 40);
-        doc.text(`Patient ID: ${patient.id}`, 20, 48);
-        doc.text(`Overall Score: ${patient.score}/100`, 20, 56);
-        doc.text(`Risk Category: ${patient.risk}`, 20, 64);
-        doc.text(`Report Generated: ${timestamp}`, 20, 72);
+        doc.setFontSize(11);
+        doc.setTextColor(55, 65, 81);
+        doc.text(`Patient Name: ${patient.name}`, 20, 38);
+        doc.text(`Patient ID: ${patient.id || patient._id}`, 20, 46);
+        doc.text(`Calculated Cognitive Baseline: ${patient.score || 'N/A'}%`, 20, 54);
+        doc.text(`Risk Metric: ${patient.risk || 'Pending'} Level`, 20, 62);
+        doc.text(`Report Datestamp: ${timestamp}`, 20, 70);
 
         doc.setFontSize(14);
-        doc.text("Detailed Breakdown:", 20, 90);
-        doc.setFontSize(11);
+        doc.setTextColor(17, 24, 39);
+        doc.text("Neurological Skill Vectors Breakdown:", 20, 85);
         
+        doc.setFontSize(11);
+        doc.setTextColor(75, 85, 99);
         dynamicBreakdown.forEach((item, index) => {
-            doc.text(`• ${item.title}: ${item.score}%`, 25, 100 + (index * 8));
+            doc.text(`• ${item.title}: ${item.score}%`, 25, 95 + (index * 8));
         });
 
+        // Safe insertion wrapper logic for chart graphic asset vectors 
         if (chartRef.current) {
-            const chartImage = chartRef.current.toBase64Image();
-            doc.addImage(chartImage, 'PNG', 30, 140, 150, 100);
+            try {
+                const chartImage = chartRef.current.toBase64Image();
+                doc.addImage(chartImage, 'PNG', 35, 145, 140, 95);
+            } catch (err) {
+                console.error("Chart asset snapshot binding failed during pdf generation", err);
+            }
         }
 
-        doc.save(`${patient.name}_Report_${patient.id}.pdf`);
+        doc.save(`${patient.name.replace(/\s+/g, '_')}_SmritiAI_Report.pdf`);
     };
 
     const handleShare = async () => {
-        const shareText = `Cognitive Report for ${patient.name}:\nScore: ${patient.score}/100\nRisk: ${patient.risk}\nAnalyzed by Smriti AI.`;
-        
+        const shareText = `Cognitive Report Summary for ${patient.name}:\nBaseline Score: ${patient.score || 0}/100\nRisk Classification: ${patient.risk || 'Unknown'}\nProcessed via Smriti AI Linguistic Engine.`;
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: `Report - ${patient.name}`,
+                    title: `Smriti AI Diagnostic Report - ${patient.name}`,
                     text: shareText,
                     url: window.location.href,
                 });
             } catch (err) {
-                console.error("Error sharing:", err);
+                console.error("Native device share pipeline rejected", err);
             }
         } else {
-            showAlert("Sharing not supported on this browser. Copying to clipboard...", "info");
             navigator.clipboard.writeText(shareText);
+            showAlert("Summary payload copied securely to local clipboard!", "success");
         }
     };
 
+    // Dark-Mode Mutation Observers
     const [isDarkMode, setIsDarkMode] = useState(document.documentElement.getAttribute('data-dark') === 'true');
-
     useEffect(() => {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'data-dark') {
-                    setIsDarkMode(document.documentElement.getAttribute('data-dark') === 'true');
-                }
-            });
+        const observer = new MutationObserver(() => {
+            setIsDarkMode(document.documentElement.getAttribute('data-dark') === 'true');
         });
-
         observer.observe(document.documentElement, { attributes: true });
         return () => observer.disconnect();
     }, []);
 
-    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.1)';
-    const labelColor = isDarkMode ? '#E7E5E4' : '#44403C';
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)';
+    const labelColor = isDarkMode ? '#D1D5DB' : '#374151';
 
     const chartOptions = {
         maintainAspectRatio: false,
         scales: {
             r: {
                 grid: { color: gridColor },
-                angleLines: { color: gridColor, lineWidth: 1.5 },
+                angleLines: { color: gridColor, lineWidth: 1.2 },
                 pointLabels: { 
                     color: labelColor, 
-                    font: { size: 12, weight: '700' },
-                    padding: 10
+                    font: { size: 11, weight: '600', family: 'Inter, sans-serif' },
+                    padding: 8
                 },
                 ticks: { display: false },
-                suggestedMin: 0,
-                suggestedMax: 100
+                suggestMin: 0,
+                suggestMax: 100
             }
         },
-        plugins: {
-            legend: { display: false }
-        }
+        plugins: { legend: { display: false } }
     };
 
     const chartData = {
         labels: ['Memory', 'Language', 'Attention', 'Spatial', 'Logic', 'Behavior'],
         datasets: [{
-            label: 'Current Performance',
             data: dynamicStats,
-            backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)',
-            borderColor: '#3b82f6',
+            backgroundColor: isDarkMode ? 'rgba(37, 99, 235, 0.25)' : 'rgba(37, 99, 235, 0.12)',
+            borderColor: '#2563EB',
             borderWidth: 2,
-            pointBackgroundColor: '#3b82f6',
+            pointBackgroundColor: '#2563EB',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#2563EB'
         }]
     };
 
-    const riskColor = patient.risk === 'High' ? '#ef4444' : (patient.risk === 'Moderate' || patient.risk === 'Medium') ? '#f59e0b' : '#10b981';
+    const hasNoScore = patient.score === null || patient.score === undefined;
+    const riskColor = patient.risk === 'High' ? '#EF4444' : (patient.risk === 'Moderate' || patient.risk === 'Medium') ? '#F59E0B' : '#10B981';
+
+    if (loading) {
+        return (
+            <div className="page" style={{ textAlign: 'center', padding: '100px 0' }}>
+                <div className="loader" style={{ margin: '0 auto' }}></div>
+                <p style={{ marginTop: '20px', color: 'var(--c4)' }}>Retrieving complex clinical observation profiles...</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="page" style={{ padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+        <div className="page" style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+            {/* Header Module Matrix */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--c1)' }}>Clinical Reports</h1>
-                    <p style={{ color: 'var(--c4)', fontSize: '14px' }}>Deep-dive analysis of {patient.name}'s cognitive data.</p>
+                    <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--c1)', margin: 0 }}>Clinical Diagnostics Dashboard</h1>
+                    <p style={{ color: 'var(--c4)', fontSize: '14px', marginTop: '4px' }}>Automated multimodal mapping matrix data for {patient.name}.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button className="btn btn-s btn-sm" onClick={handleDownloadPDF}>Download PDF</button>
-                    <button className="btn btn-p btn-sm" onClick={handleShare}>Share with Doctor</button>
+                    <button className="btn btn-s btn-sm" disabled={!latestTest} onClick={handleDownloadPDF} style={{ borderRadius: '10px' }}>Download PDF</button>
+                    <button className="btn btn-p btn-sm" disabled={!latestTest} onClick={handleShare} style={{ borderRadius: '10px' }}>Share Profile</button>
                 </div>
             </div>
 
-            <div style={{ 
-                background: patient.score === null ? 'var(--c7)' : `linear-gradient(135deg, ${riskColor}, var(--c1))`,
-                padding: '30px', borderRadius: 'var(--r16)', color: patient.score === null ? 'var(--c3)' : 'white', marginBottom: '25px',
-                boxShadow: '0 10px 20px -5px rgba(0,0,0,0.1)'
+            {/* Comprehensive Risk Status Banner */}
+            <div className="risk-banner" style={{ 
+                background: hasNoScore ? 'var(--c7)' : `linear-gradient(135deg, ${riskColor}, #111827)`,
+                borderRadius: '24px', color: hasNoScore ? 'var(--c3)' : 'white', marginBottom: '30px',
+                boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08)'
             }}>
-                <span style={{ fontSize: '12px', textTransform: 'uppercase', opacity: 0.8 }}>Current Risk Status</span>
-                <h2 style={{ fontSize: '36px', fontWeight: '800', margin: '5px 0' }}>
-                    {patient.score === null ? 'Pending Assessment' : `${patient.risk} Risk`}
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.85, fontWeight: '600' }}>Baseline Risk Index Classification</span>
+                <h2 style={{ fontSize: '38px', fontWeight: '800', margin: '8px 0 4px' }}>
+                    {hasNoScore ? 'Awaiting System Diagnostic Init' : `${patient.risk} Clinical Risk`}
                 </h2>
-                <div style={{ fontSize: '16px', fontWeight: '500' }}>
-                    {patient.score === null ? 'Please complete the cognitive test to generate score.' : `Overall Cognitive Score: ${patient.score} / 100`}
+                <div style={{ fontSize: '16px', fontWeight: '500', opacity: 0.95 }}>
+                    {hasNoScore ? 'No telemetry logs compiled. Please trigger an assessment loop first.' : `Comprehensive Multimodal Baseline: ${patient.score}%`}
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px' }}>
+            {/* Split Screen Render Engine Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '25px' }}>
                 
-                <div className="card" style={{ padding: '25px', borderRadius: 'var(--r16)', background: 'var(--surface)', opacity: patient.score === null ? 0.5 : 1 }}>
-                    <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Cognitive Skill Map</h3>
-                    <div style={{ height: '320px' }}>
-                        {patient.score === null ? (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c4)' }}>
-                                Map will appear after test
+                {/* Visual Radar Skill-Mapping Node */}
+                <div className="card" style={{ padding: '25px', borderRadius: '20px', backgroundColor: 'var(--surface)', border: '1px solid var(--c8)', display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ marginBottom: '20px', fontSize: '16px', fontWeight: '600', color: 'var(--c1)' }}>Cognitive Skill Topology Map</h3>
+                    <div style={{ height: '320px', position: 'relative', width: '100%', margin: 'auto' }}>
+                        {hasNoScore ? (
+                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--c4)', fontSize: '14px' }}>
+                                Performance mapping trace will render post-screening sequence.
                             </div>
                         ) : (
                             <Radar ref={chartRef} data={chartData} options={chartOptions} />
@@ -235,31 +269,64 @@ function Reports({ patient }) {
                     </div>
                 </div>
 
-                <div className="card" style={{ padding: '25px', borderRadius: 'var(--r16)', background: 'var(--surface)', opacity: patient.score === null ? 0.5 : 1 }}>
-                    <h3 style={{ marginBottom: '20px', fontSize: '16px' }}>Metric Breakdown</h3>
-                    {patient.score === null ? (
-                         <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--c4)' }}>
-                            No analysis data available.
+                {/* Granular Progressive Percentile Metrics Block */}
+                <div className="card" style={{ padding: '25px', borderRadius: '20px', backgroundColor: 'var(--surface)', border: '1px solid var(--c8)' }}>
+                    <h3 style={{ marginBottom: '20px', fontSize: '16px', fontWeight: '600', color: 'var(--c1)' }}>Diagnostic Metric Vector Sliders</h3>
+                    {hasNoScore ? (
+                        <div style={{ padding: '6px 0', color: 'var(--c4)', fontSize: '14px' }}>
+                            No variable data streams initialized yet.
                         </div>
                     ) : dynamicBreakdown.length > 0 ? dynamicBreakdown.map((item, idx) => (
                         <div key={idx} style={{ marginBottom: '18px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
-                                <span style={{ color: 'var(--c3)' }}>{item.title}</span>
-                                <span style={{ fontWeight: '700' }}>{item.score}%</span>
+                                <span style={{ color: 'var(--c3)', fontWeight: '500' }}>{item.title}</span>
+                                <span style={{ fontWeight: '700', color: 'var(--c1)' }}>{item.score}%</span>
                             </div>
                             <div style={{ height: '8px', background: 'var(--c8)', borderRadius: '10px', overflow: 'hidden' }}>
                                 <div style={{ 
                                     width: `${item.score}%`, height: '100%', 
-                                    background: riskColor, borderRadius: '10px', transition: 'width 1.5s ease' 
+                                    background: riskColor, borderRadius: '10px', transition: 'width 1.2s cubic-bezier(0.4, 0, 0.2, 1)' 
                                 }} />
                             </div>
                         </div>
                     )) : (
-                        <p style={{ color: 'var(--c4)', fontSize: '13px' }}>No test data available to generate metrics.</p>
+                        <p style={{ color: 'var(--c4)', fontSize: '13px' }}>Error compiling dynamic baseline vectors stream.</p>
                     )}
                 </div>
-
             </div>
+
+            {/* AI Clinical Diagnostic Insights Summary Component Row */}
+            {!hasNoScore && clinicalSummary && (
+                <div className="card" style={{ marginTop: '25px', padding: '25px', borderRadius: '20px', backgroundColor: 'var(--surface)', border: '1px solid var(--c8)', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                    <h3 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600', color: '#2563EB', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>✨</span> Smriti AI Clinical Synthesis Insight
+                    </h3>
+                    <p style={{ fontSize: '14px', lineHeight: '1.7', color: 'var(--c3)', margin: 0, fontWeight: '400', textAlign: 'justify' }}>
+                        {clinicalSummary}
+                    </p>
+
+                    {recommendations && recommendations.length > 0 && (
+                        <div style={{ marginTop: '24px', borderTop: '1px solid var(--c8)', paddingTop: '20px' }}>
+                            <h4 style={{ fontSize: '15px', color: 'var(--c1)', marginBottom: '16px', fontWeight: '600' }}>AI Actionable Recommendations</h4>
+                            <div style={{ display: 'grid', gap: '12px' }}>
+                                {recommendations.map((rec, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', background: 'var(--bg)', padding: '12px 16px', borderRadius: '12px', borderLeft: `4px solid ${rec.color || '#3B82F6'}` }}>
+                                        <div style={{ fontSize: '20px', lineHeight: 1 }}>{rec.icon || '📌'}</div>
+                                        <div>
+                                            <div style={{ fontSize: '12px', fontWeight: '700', color: rec.color || 'var(--c3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                                                {rec.priority || 'Suggestion'}
+                                            </div>
+                                            <div style={{ fontSize: '14px', color: 'var(--c2)', lineHeight: '1.5' }}>
+                                                {rec.text}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

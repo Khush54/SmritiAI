@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { getPatientAssessments } from '../../services/assessmentService';
+import { Bar } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Tooltip,
+    Legend
+} from 'chart.js';
 import './User.css'
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const TestHistory = ({ patient }) => {
   const [history, setHistory] = useState([]);
@@ -8,16 +19,20 @@ const TestHistory = ({ patient }) => {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      if (patient) {
-        try {
-          const pId = patient.id || patient._id;
-          const res = await getPatientAssessments(pId);
-          if (res.success) {
-            setHistory(res.data);
-          }
-        } catch (error) {
-          console.error("Failed to fetch history", error);
+      if (!patient) return;
+      try {
+        const pId = patient.id || patient._id;
+        if (!pId) return;
+
+        const res = await getPatientAssessments(pId);
+        if (res && res.success) {
+          setHistory(res.data || []);
+        } else {
+          setHistory([]);
         }
+      } catch (error) {
+        console.error("Failed to fetch history", error);
+        setHistory([]);
       }
     };
     fetchHistory();
@@ -53,61 +68,26 @@ const TestHistory = ({ patient }) => {
         <div className="sec-title">Test History</div>
       </div>
       
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px' }}>
-          <thead>
-            <tr>
-              {['Date', 'Score', 'Risk', 'Duration', 'Action'].map((header) => (
-                <th 
-                  key={header}
-                  style={{
-                    textAlign: 'left',
-                    padding: '10px 14px',
-                    fontSize: '11px',
-                    color: 'var(--slate-4)',
-                    fontWeight: '600',
-                    borderBottom: '2px solid var(--border)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '.05em'
-                  }}
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {history.length > 0 ? history.map((record) => (
-              <tr key={record.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '12px 14px', fontWeight: 500 }}>
-                  {new Date(record.createdAt).toLocaleDateString()}
-                </td>
-                <td style={{ 
-                  padding: '12px 14px', 
-                  fontWeight: 700, 
-                  color: getScoreColor(record.score) 
-                }}>
-                  {record.score}/100
-                </td>
-                <td style={{ padding: '12px 14px' }}>
-                  {renderRiskBadge(record.riskLevel)}
-                </td>
-                <td style={{ padding: '12px 14px', color: 'var(--slate-4)' }}>
-                  ~10 min
-                </td>
-                <td style={{ padding: '12px 14px' }}>
-                  <button className="btn btn-s btn-sm" onClick={() => setSelectedRecord(record)}>View</button>
-                </td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--c4)' }}>
-                  No test history found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="history-list">
+        {history.length > 0 ? history.map((record) => (
+          <div key={record._id || record.id} className="act-it" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--border)', flexWrap: 'wrap', gap: '10px' }}>
+            <div>
+              <div style={{ fontWeight: 600 }}>{new Date(record.createdAt).toLocaleDateString()}</div>
+              <div style={{ fontSize: '12px', color: 'var(--c4)' }}>Duration: ~10 min</div>
+            </div>
+            <div style={{ fontWeight: 700, color: getScoreColor(record.score) }}>
+              Score: {record.score}/100
+            </div>
+            <div>
+              {renderRiskBadge(record.riskLevel)}
+            </div>
+            <button className="btn btn-s btn-sm" onClick={() => setSelectedRecord(record)}>View</button>
+          </div>
+        )) : (
+          <div style={{ textAlign: 'center', padding: '20px', color: 'var(--c4)' }}>
+            No test history found.
+          </div>
+        )}
       </div>
 
       {selectedRecord && (
@@ -141,13 +121,41 @@ const TestHistory = ({ patient }) => {
               <div style={{ marginTop: '5px' }}>{renderRiskBadge(selectedRecord.riskLevel)}</div>
             </div>
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
-              <h4 style={{ marginBottom: '10px' }}>Patient Responses</h4>
-              <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {selectedRecord.details && Object.entries(selectedRecord.details).map(([key, val]) => (
-                  <div key={key} style={{ background: 'var(--gray-100)', padding: '10px', borderRadius: '8px' }}>
-                    <span style={{ fontWeight: '600', color: 'var(--c2)' }}>{key}:</span> {val}
+              <h4 style={{ marginBottom: '15px' }}>Cognitive Breakdown</h4>
+              <div style={{ height: '200px', marginBottom: '20px' }}>
+                {selectedRecord.details?.aiReport?.breakdown ? (
+                  <Bar 
+                    data={{
+                      labels: ['Memory', 'Language', 'Attention', 'Spatial', 'Logic', 'Behavior'],
+                      datasets: [{
+                        label: 'Score %',
+                        data: [
+                          selectedRecord.details.aiReport.breakdown.memory || 0,
+                          selectedRecord.details.aiReport.breakdown.language || 0,
+                          selectedRecord.details.aiReport.breakdown.attention || 0,
+                          selectedRecord.details.aiReport.breakdown.spatial || 0,
+                          selectedRecord.details.aiReport.breakdown.logic || 0,
+                          selectedRecord.details.aiReport.breakdown.behavior || 0
+                        ],
+                        backgroundColor: 'rgba(37, 99, 235, 0.6)',
+                        borderColor: '#2563EB',
+                        borderWidth: 1,
+                      }]
+                    }} 
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        y: { beginAtZero: true, max: 100 }
+                      },
+                      plugins: { legend: { display: false } }
+                    }}
+                  />
+                ) : (
+                  <div style={{ textAlign: 'center', color: 'var(--c4)', paddingTop: '40px' }}>
+                    No granular breakdown available for this record.
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>

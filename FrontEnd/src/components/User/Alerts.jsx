@@ -41,15 +41,18 @@ const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
         </div>
       </div>
 
-      <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+      <div style={{ padding: '0' }}>
         <div className="alerts-list">
           {alertsData.length > 0 ? (
             alertsData.map((alert) => {
               const style = getAlertStyle(alert.type);
               return (
-                <div key={alert.id} className="act-item" style={{ 
+                <div key={alert._id || alert.id} className="act-item" style={{ 
                   padding: '16px', 
-                  borderBottom: '1px solid var(--c8)',
+                  marginBottom: '12px', 
+                  borderRadius: '12px', 
+                  border: '1px solid var(--c8)', 
+                  backgroundColor: 'var(--surface)', 
                   display: 'flex',
                   alignItems: 'center',
                   gap: '16px',

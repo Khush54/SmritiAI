@@ -1,5 +1,6 @@
 const MoodLog = require("../models/MoodLog");
 const Patient = require("../models/Patient");
+const { createAlert } = require("./alertController");
 
 exports.addMoodLog = async (req, res) => {
   try {
@@ -27,10 +28,21 @@ exports.addMoodLog = async (req, res) => {
       sleep,
       appetite,
       lastLogDate: date
-    }, { new: true });
+    }, { returnDocument: 'after' });
 
     const patientObj = updatedPatient.toObject();
     patientObj.id = patientObj._id.toString();
+
+    // Create an alert for the mood log
+    if (req.user) {
+      await createAlert(req.user.id, {
+        patientId: patientId,
+        patientName: updatedPatient.name,
+        title: 'Daily Mood Log Saved',
+        message: `${updatedPatient.name} is feeling ${mood} today. Notes: ${notes ? notes : 'None'}`,
+        type: (mood === '😔' || mood === '😤' || mood === '😰') ? 'warning' : 'info'
+      });
+    }
 
     res.status(201).json({
       success: true,

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import './User.css'
 
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { logout } = useContext(AppContext);
@@ -19,7 +19,7 @@ function Sidebar() {
         <div
             className="sb-it"
             id={`sb-${path}`}
-            onClick={() => navigate(`/user/${path}`)}
+            onClick={() => { navigate(`/user/${path}`); onClose && onClose(); }}
             style={{
                 background: isActive(path) ? 'var(--blue-light)' : 'transparent',
                 color: isActive(path) ? 'var(--blue)' : 'inherit',
@@ -33,7 +33,7 @@ function Sidebar() {
     );
 
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
             <div className="sb-lbl">Monitoring</div>
             {navItem('home', '🏡', 'Family Overview')}
             {navItem('patients', '👥', 'My Patients')}

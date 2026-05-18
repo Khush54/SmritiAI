@@ -25,7 +25,7 @@ function Testimonials() {
   useEffect(() => {
     getPublicFeedback()
       .then(res => {
-        if (res.success && res.data.length >= 2) {
+        if (res.success && res.data.length >= 1) {
           setItems(res.data);
         }
       })

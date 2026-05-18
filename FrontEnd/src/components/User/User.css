@@ -97,6 +97,7 @@
 
 .user-scope {
     font-family: var(--font-body);
+    overflow-x: hidden;
     background: var(--c8);
     color: var(--c0);
     font-size: 15px;
@@ -122,6 +123,16 @@
     padding: 0 22px;
     gap: 14px;
     box-shadow: var(--sh1)
+}
+
+.user-scope .mobile-menu-btn {
+    display: none;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--c1);
+    padding: 5px;
 }
 
 .user-scope .nav-brand {
@@ -461,6 +472,22 @@
     flex-shrink: 0
 }
 
+.user-scope .settings-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 32px;
+}
+
+.user-scope .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.user-scope .risk-banner {
+    padding: 35px;
+}
+
 .user-scope .field {
     display: flex;
     flex-direction: column;
@@ -474,7 +501,10 @@
     color: var(--c2)
 }
 
-.user-scope .finput {
+.user-scope .finput,
+.user-scope .form-input {
+    width: 100%;
+    box-sizing: border-box;
     padding: 10px 13px;
     border: 1.5px solid var(--border);
     border-radius: var(--r10);
@@ -551,9 +581,39 @@
     transform: scale(1.1)
 }
 
+.user-scope .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 250;
+    display: none;
+}
+
+.user-scope .sidebar-backdrop.open {
+    display: block;
+}
+
 @media(max-width:900px) {
     .user-scope .sidebar {
-        display: none
+        position: fixed;
+        top: 0;
+        left: -258px;
+        height: 100vh;
+        z-index: 300;
+        transition: left 0.3s ease;
+        display: flex !important;
+        box-shadow: var(--sh3);
+    }
+
+    .user-scope .sidebar.open {
+        left: 0;
+    }
+
+    .user-scope .mobile-menu-btn {
+        display: block !important;
     }
 
     .user-scope .g4 {
@@ -569,6 +629,22 @@
 
     .user-scope .main {
         padding: 16px
+    }
+
+    .user-scope .act-item,
+    .user-scope .act-it {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+
+    .user-scope .settings-layout {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    .user-scope .settings-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 
@@ -591,4 +667,73 @@
     background: var(--c7) !important;
     color: var(--c3) !important;
     border: 1px solid var(--border) !important;
+}
+
+@media(max-width:420px) {
+    .user-scope .nav {
+        padding: 0 10px;
+        gap: 8px;
+    }
+
+    .user-scope .nav-role {
+        display: none;
+    }
+
+    .user-scope .mobile-menu-btn {
+        margin-right: 15px !important;
+    }
+
+    .user-scope .nav-pill span {
+        display: none;
+    }
+
+    .user-scope .nav-pill {
+        padding: 5px;
+    }
+
+    .user-scope .brand-txt {
+        display: none;
+    }
+
+    .user-scope .brand-ico {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .user-scope .card {
+        padding: 14px;
+    }
+
+    .user-scope .risk-banner {
+        padding: 20px !important;
+    }
+
+    .user-scope .ph h1 {
+        font-size: 20px;
+    }
+
+    .user-scope .main {
+        padding: 12px;
+    }
+}
+
+@media(max-width:330px) {
+    .user-scope .ph h1 {
+        font-size: 18px;
+    }
+
+    .user-scope .btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .user-scope .nav {
+        padding: 0 5px;
+        gap: 5px;
+    }
+
+    .user-scope .brand-txt {
+        display: none;
+    }
 }

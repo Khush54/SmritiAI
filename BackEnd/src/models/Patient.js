@@ -58,7 +58,13 @@ const patientSchema = new mongoose.Schema({
   lastLogDate: {
     type: String, 
     default: null
-  }
+  },
+  recommendations: [{
+    icon: String,
+    color: String,
+    priority: String,
+    text: String
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model("Patient", patientSchema);
