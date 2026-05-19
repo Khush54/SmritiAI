@@ -12,7 +12,7 @@ import {
 import {
   saveUserToDB,
   loginUser
-} from "../services/authService";
+} from "../Services/authService";
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +21,7 @@ function Auth() {
   const navigate = useNavigate();
   const [authTab, setAuthTab] = useState('signup');
   const [selectedRole, setSelectedRole] = useState('');
-  const [formData, setFormData] = useState({ fullName: '', contact: '', password: '' });
+  const [formData, setFormData] = useState({ fullName: '', contact: '', password: '', location: '', specialization: '', clinic: '' });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
@@ -75,6 +75,9 @@ function Auth() {
     else if (formData.password.length < 8) {
       newErrors.password = 'Minimum 8 characters required';
     }
+    if (!isLogin && selectedRole === "doctor" && !formData.location.trim()) {
+      newErrors.location = 'Practice city is required for nearby patient matching';
+    }
     return newErrors;
   };
 
@@ -91,7 +94,10 @@ function Auth() {
     setFormData({
       fullName: '',
       contact: '',
-      password: ''
+      password: '',
+      location: '',
+      specialization: '',
+      clinic: ''
     });
     setErrors({});
     setTouched({});
@@ -174,6 +180,10 @@ function Auth() {
           firebaseUID: user.uid,
           fullName: formData.fullName,
           email: formData.contact,
+          specialization: selectedRole === "doctor" ? formData.specialization : "",
+          clinic: selectedRole === "doctor" ? formData.clinic : "",
+          location: selectedRole === "doctor" ? formData.location : "",
+          city: selectedRole === "doctor" ? formData.location : "",
           role: selectedRole,
           authProvider: "email"
         });
@@ -182,7 +192,10 @@ function Auth() {
         setFormData({
           fullName: "",
           contact: "",
-          password: ""
+          password: "",
+          location: "",
+          specialization: "",
+          clinic: ""
         });
         setErrors({});
         setTouched({});
@@ -219,7 +232,7 @@ function Auth() {
       else {
 
         showModal(
-          error.message
+          error.response?.data?.message || error.message
         );
 
       }
@@ -234,6 +247,16 @@ function Auth() {
 
     if (!selectedRole) {
       showModal("Please select a role");
+      return;
+    }
+
+    if (!isLogin && selectedRole === "doctor" && !formData.location.trim()) {
+      setTouched(prev => ({ ...prev, location: true }));
+      setErrors(prev => ({
+        ...prev,
+        location: 'Practice city is required for nearby patient matching'
+      }));
+      showModal("Please enter your practice city before Google signup");
       return;
     }
 
@@ -252,6 +275,10 @@ function Auth() {
         firebaseUID: user.uid,
         fullName: user.displayName,
         email: user.email,
+        specialization: selectedRole === "doctor" ? formData.specialization : "",
+        clinic: selectedRole === "doctor" ? formData.clinic : "",
+        location: selectedRole === "doctor" ? formData.location : "",
+        city: selectedRole === "doctor" ? formData.location : "",
         role: selectedRole,
         authProvider: "google"
       });
@@ -299,7 +326,7 @@ function Auth() {
       }
 
       else {
-        showModal(error.message);
+        showModal(error.response?.data?.message || error.message);
       }
 
     } finally {
@@ -462,6 +489,55 @@ function Auth() {
               </span>
             )}
           </div>
+
+          {!isLogin && selectedRole === "doctor" && (
+            <>
+              <div className="form-group">
+                <label className="form-label">
+                  Practice City
+                </label>
+              <input
+                type="text"
+                name="location"
+                  className="form-input"
+                  placeholder="Ludhiana"
+                  value={formData.location}
+                onChange={handleChange}
+              />
+              {touched.location && errors.location && (
+                <span style={errorStyle}>
+                  {errors.location}
+                </span>
+              )}
+            </div>
+              <div className="form-group">
+                <label className="form-label">
+                  Specialization
+                </label>
+                <input
+                  type="text"
+                  name="specialization"
+                  className="form-input"
+                  placeholder="Cognitive Neurology"
+                  value={formData.specialization}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">
+                  Clinic / Hospital
+                </label>
+                <input
+                  type="text"
+                  name="clinic"
+                  className="form-input"
+                  placeholder="City Neuro Centre"
+                  value={formData.clinic}
+                  onChange={handleChange}
+                />
+              </div>
+            </>
+          )}
 
           {isLogin && (
             <div

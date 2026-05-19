@@ -1,12 +1,12 @@
 import React from 'react';
 
 const BADGES = [
-  { icon: '🔒', title: 'HIPAA Safe', sub: 'Data encrypted at rest & in transit' },
-  { icon: '🧬', title: 'MMSE / MoCA Aligned', sub: 'Built on validated clinical scales' },
-  { icon: '🌐', title: '10 Indian Languages', sub: 'Inclusive multilingual screening' },
-  { icon: '🏥', title: '50+ Neurology Partners', sub: 'Trusted by certified neurologists' },
-  { icon: '🤖', title: '93% AI Accuracy', sub: 'Validated in 3-centre pilot study' },
-  { icon: '⚡', title: 'No Download Needed', sub: 'Fully browser-based, works on any device' },
+  { icon: 'Lock', title: 'Privacy First', sub: 'Data protected in transit and at rest' },
+  { icon: 'Scale', title: 'MMSE / MoCA Inspired', sub: 'Structured around clinical screening domains' },
+  { icon: 'Lang', title: '10 Indian Languages', sub: 'Inclusive multilingual screening' },
+  { icon: 'Care', title: 'Doctor Portal', sub: 'Assigned doctors can review reports' },
+  { icon: 'AI', title: 'Clinician Review Ready', sub: 'AI screening with doctor-facing summaries' },
+  { icon: 'Web', title: 'No Download Needed', sub: 'Browser-based SaaS for any device' },
 ];
 
 function TrustBadges() {

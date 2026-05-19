@@ -5,7 +5,7 @@ function Stats() {
     { n: '5.3M+', l: 'Dementia patients in India' },
     { n: '90%', l: 'Cases undetected at early stage' },
     { n: '10 Min', l: 'Complete screening time' },
-    { n: '93%', l: 'AI detection accuracy (pilot)' },
+    { n: '4-Part', l: 'Voice, grid, memory, behaviour screen' },
   ];
 
   return (

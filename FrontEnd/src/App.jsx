@@ -12,7 +12,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
   let user = null;
   try {
     user = JSON.parse(localStorage.getItem("user"));
-  } catch (e) {
+  } catch {
     console.error("Failed to parse user");
   }
 

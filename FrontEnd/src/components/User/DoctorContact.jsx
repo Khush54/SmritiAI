@@ -7,23 +7,26 @@ const DoctorContact = ({ patient }) => {
 
     const getRecommendedDoctor = (p) => {
         if (!p || p.score === null) return null;
-        if (p.risk === 'High' || p.score < 50) return {
-            name: 'Dr. Priya Sharma',
-            specialty: 'Neurologist',
-            hospital: 'AIIMS Neurology Dept.',
-            phone: '+91-11-2659-3308',
-            email: 'neurology@aiims.edu',
-            urgency: 'high',
-            reason: 'cognitive score below 50 and high-risk classification'
+        if (p.assignedDoctorId || p.assignedDoctorName || p.doctor) return {
+            name: p.assignedDoctorName || p.doctor,
+            specialty: p.assignedDoctorSpecialty || 'Cognitive Care Specialist',
+            hospital: p.assignedDoctorClinic || 'Smriti AI clinical network',
+            location: p.assignedDoctorLocation || p.assignedDoctorCity || '',
+            phone: p.assignedDoctorPhone || 'Shared after booking',
+            email: p.assignedDoctorEmail || 'Shared after booking',
+            urgency: p.risk === 'High' ? 'high' : 'moderate',
+            reason: p.doctorRecommendationReason || `${p.risk.toLowerCase()} cognitive risk detected`,
+            isNearby: !p.doctorRecommendationReason?.toLowerCase().includes('no nearby doctor')
         };
-        if (p.risk === 'Moderate' || p.score < 75) return {
-            name: 'Dr. Anil Kumar',
-            specialty: 'General Physician',
-            hospital: 'Apollo Clinics India',
-            phone: '+91-44-2829-0200',
-            email: 'appointments@apolloclinics.com',
-            urgency: 'moderate',
-            reason: 'moderate cognitive risk detected'
+        if (p.risk === 'High' || p.score < 50 || p.risk === 'Moderate' || p.score < 75) return {
+            name: 'Doctor assignment pending',
+            specialty: p.risk === 'High' ? 'Neurologist' : 'Clinical Review',
+            hospital: 'Smriti AI clinical network',
+            phone: 'Pending',
+            email: 'Pending',
+            urgency: p.risk === 'High' || p.score < 50 ? 'high' : 'moderate',
+            reason: 'AI recommended a consultation and is waiting for an available doctor account',
+            isNearby: false
         };
         return null;
     };
@@ -62,6 +65,15 @@ const DoctorContact = ({ patient }) => {
     }
 
     const doctor = getRecommendedDoctor(patient);
+    const sharedNotes = patient.sharedClinicalNotes || (patient.clinicalNotes || []).filter(note => note.sharedWithCaregiver);
+    const latestSharedNote = patient.latestSharedClinicalNote || sharedNotes?.[0] || null;
+    const visitText = `${latestSharedNote?.noteType || ''} ${latestSharedNote?.recommendations || ''} ${latestSharedNote?.observation || ''}`.toLowerCase();
+    const doctorRequestedVisit = Boolean(latestSharedNote) && (
+        latestSharedNote.noteType === 'Referral' ||
+        visitText.includes('visit') ||
+        visitText.includes('appointment') ||
+        visitText.includes('consult')
+    );
 
     if (!doctor) {
         return (
@@ -106,6 +118,36 @@ const DoctorContact = ({ patient }) => {
                 {urgencyLabel} — due to {doctor.reason}.
             </div>
 
+            {!doctor.isNearby && (
+                <div style={{
+                    background: '#fff7ed',
+                    border: '1px solid #fb923c55',
+                    borderRadius: 'var(--r10)',
+                    padding: '12px 18px',
+                    marginBottom: '20px',
+                    fontSize: '13.5px',
+                    fontWeight: '600',
+                    color: '#c2410c'
+                }}>
+                    No nearby doctor was found for {patient.location || 'this location'}. You can still visit the suggested available specialist.
+                </div>
+            )}
+
+            {doctorRequestedVisit && (
+                <div style={{
+                    background: '#fee2e2',
+                    border: '1px solid #ef444455',
+                    borderRadius: 'var(--r10)',
+                    padding: '12px 18px',
+                    marginBottom: '20px',
+                    fontSize: '13.5px',
+                    fontWeight: '700',
+                    color: '#b91c1c'
+                }}>
+                    Doctor has recommended a visit for {patient.name}. Please review the latest clinical note below before booking or travelling.
+                </div>
+            )}
+
             <div className="card" style={{ borderLeft: `4px solid ${urgencyColor}`, marginBottom: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
                     <div style={{
@@ -116,7 +158,7 @@ const DoctorContact = ({ patient }) => {
                     }}>👩‍⚕️</div>
                     <div>
                         <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--c1)' }}>{doctor.name}</div>
-                        <div style={{ fontSize: '13px', color: 'var(--c3)' }}>{doctor.specialty} · {doctor.hospital}</div>
+                        <div style={{ fontSize: '13px', color: 'var(--c3)' }}>{doctor.specialty} · {doctor.hospital}{doctor.location ? ` · ${doctor.location}` : ''}</div>
                     </div>
                 </div>
 
@@ -126,8 +168,9 @@ const DoctorContact = ({ patient }) => {
                         <div style={{ fontWeight: '600', color: 'var(--c1)' }}>{doctor.specialty}</div>
                     </div>
                     <div style={{ background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '14px' }}>
-                        <div style={{ fontSize: '11px', color: 'var(--c4)', marginBottom: '4px', textTransform: 'uppercase' }}>Hospital</div>
+                        <div style={{ fontSize: '11px', color: 'var(--c4)', marginBottom: '4px', textTransform: 'uppercase' }}>Hospital / City</div>
                         <div style={{ fontWeight: '600', color: 'var(--c1)' }}>{doctor.hospital}</div>
+                        {doctor.location && <div style={{ fontSize: '12px', color: 'var(--c4)', marginTop: '2px' }}>{doctor.location}</div>}
                     </div>
                     <div style={{ background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '14px' }}>
                         <div style={{ fontSize: '11px', color: 'var(--c4)', marginBottom: '4px', textTransform: 'uppercase' }}>Phone</div>
@@ -158,6 +201,23 @@ const DoctorContact = ({ patient }) => {
             <div style={{ fontSize: '12px', color: 'var(--c4)', padding: '12px', background: 'var(--c8)', borderRadius: 'var(--r10)' }}>
                 ⚠️ <strong>Disclaimer:</strong> Smriti AI does not provide medical treatment or definitive diagnosis. This is a screening tool. Always consult a licensed medical professional.
             </div>
+
+            {latestSharedNote && (
+                <div className="card" style={{ marginTop: '20px', borderLeft: '4px solid var(--blue)' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--c4)', marginBottom: '6px', textTransform: 'uppercase', fontWeight: 700 }}>
+                        Latest Doctor Note
+                    </div>
+                    <h3 style={{ color: 'var(--c1)', marginBottom: '8px' }}>{latestSharedNote.noteType || 'Clinical Note'}</h3>
+                    <p style={{ color: 'var(--c3)', lineHeight: 1.6, marginBottom: '12px' }}>
+                        {latestSharedNote.observation}
+                    </p>
+                    {latestSharedNote.recommendations && (
+                        <div style={{ background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '12px', color: 'var(--c2)', lineHeight: 1.5 }}>
+                            <strong>Doctor recommendation:</strong> {latestSharedNote.recommendations}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

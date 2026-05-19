@@ -11,7 +11,7 @@ import FAQ from '../components/Landing/FAQ'
 import Cta from '../components/Landing/Cta'
 import Footer from '../components/Landing/Footer'
 
-function LandingPage({ darkMode, toggleDark }) {
+function LandingPage() {
     const navigate = useNavigate();
     const setPage = (pageStr) => {
         if (pageStr === 'landing') navigate('/');

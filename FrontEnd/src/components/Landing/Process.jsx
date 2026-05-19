@@ -4,7 +4,7 @@ function Process() {
     const steps = [
         { n: '01', title: 'Take the Test', desc: 'Complete our 4-part, 10-minute cognitive screening in Hindi, Tamil, or 8 other Indian languages.', color: 'var(--blue)' },
         { n: '02', title: 'AI Analysis', desc: 'Our model cross-references your responses with validated clinical scales (MMSE, MoCA) and population data.', color: 'var(--teal)' },
-        { n: '03', title: 'Get Your Report', desc: 'Receive a clear, colour-coded risk report with specific recommendations and doctor referral if needed.', color: 'var(--green)' },
+        { n: '03', title: 'Connect With Care', desc: 'Receive a colour-coded report, nearby doctor recommendation, and shared clinical notes when a doctor reviews the case.', color: 'var(--green)' },
     ];
     return (
         <div className="section" id='process'>

@@ -14,7 +14,6 @@ import Mood from '../components/User/Mood'
 import DoctorContact from '../components/User/DoctorContact'
 import FeedbackPortal from '../components/User/FeedbackPortal'
 import { AppContext } from '../context/AppContext'
-import { getAlerts } from '../Services/alertService'
 
 function User() {
   const navigate = useNavigate();

@@ -20,10 +20,15 @@ const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
   };
 
   const handleView = (alert) => {
-    const targetPatient = patients.find(p => p.id === alert.patientId);
+    const targetPatient = patients.find(p => p.id === String(alert.patientId));
     if (targetPatient) {
       setSelectedPatient(targetPatient);
-      navigate(alert.type === 'critical' ? '/user/reports' : '/user/patients');
+      const title = (alert.title || '').toLowerCase();
+      if (title.includes('doctor')) {
+        navigate('/user/doctor');
+      } else {
+        navigate(alert.type === 'critical' ? '/user/reports' : '/user/patients');
+      }
     }
   };
 

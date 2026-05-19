@@ -19,3 +19,15 @@ export const loginUser = async (firebaseUID) => {
   );
   return response.data;
 };
+
+export const updateUserProfile = async (profileData) => {
+  const token = localStorage.getItem("token");
+  const response = await API.put(
+    "/profile",
+    profileData,
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    }
+  );
+  return response.data;
+};

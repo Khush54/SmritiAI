@@ -8,7 +8,7 @@ const FAQ_DATA = [
 
   {
     q: "Who can see my family member's health data?",
-    a: 'Only you (the registered user) can see your family members\' data. Doctors can only access reports if you explicitly share them using the "Share with Doctor" feature in the Reports page. We never sell or share your data with third parties.'
+    a: 'You can see your family members\' data in the patient portal. When Smriti AI assigns or connects a doctor for a patient, that doctor can review the patient reports inside the doctor portal and share clinical notes back to the patient portal.'
   },
 
   {
@@ -28,12 +28,12 @@ const FAQ_DATA = [
 
   {
     q: 'How accurate is the AI detection?',
-    a: 'In our pilot study across multiple neurology centers in India, the AI achieved 93% screening accuracy for early-stage cognitive impairment when validated against MMSE and MoCA clinical benchmarks.'
+    a: 'Smriti AI is designed as a screening and monitoring system, not a standalone diagnosis. The risk score is calculated from structured task performance and then summarized for doctor review.'
   },
 
   {
     q: 'What happens after a high-risk result?',
-    a: 'The app flags a critical alert, recommends consulting a neurologist or physician, and generates a shareable PDF report that can be reviewed by your doctor. Smriti AI does not make treatment decisions.'
+    a: 'The app flags a critical alert, recommends an available doctor near the patient when possible, and shows that doctor in Doctor Contact. If the doctor shares notes or asks the patient to visit, the patient sees it in alerts and Doctor Contact.'
   }
 ];
 

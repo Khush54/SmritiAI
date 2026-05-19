@@ -24,7 +24,11 @@ export const getPatientAssessments = async (patientId) => {
   return response.data;
 };
 
-export const generateDynamicTest = async (lang = 'en') => {
-  const response = await API.get(`/generate-dynamic-test?lang=${lang}`);
+export const generateDynamicTest = async (lang = 'en', patient = null) => {
+  const params = new URLSearchParams({ lang });
+  if (patient?.id) params.set("patientId", patient.id);
+  if (patient?.age) params.set("age", patient.age);
+
+  const response = await API.get(`/generate-dynamic-test?${params.toString()}`);
   return response.data;
 };

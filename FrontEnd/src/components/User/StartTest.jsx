@@ -8,24 +8,12 @@ function StartTest({ completeTest, patient }) {
   const { showAlert } = useContext(AppContext);
   const navigate = useNavigate();
 
-  if (!patient) {
-    return (
-      <div className="page" style={{ textAlign: 'center', padding: '100px 20px' }}>
-        <div style={{ fontSize: '50px', marginBottom: '20px' }}>🧠</div>
-        <h2>No Patient Selected</h2>
-        <p style={{ color: 'var(--c4)', marginBottom: '20px' }}>Please select a profile from the dashboard to start the self-assessment.</p>
-        <button className="btn btn-p" onClick={() => navigate('/user/home')}>Go to Dashboard</button>
-      </div>
-    );
-  }
-
   // --- State Architecture ---
   const [loadingTest, setLoadingTest] = useState(true);
   const [dynamicData, setDynamicData] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
-  const [audioBlob, setAudioBlob] = useState(null);
 
   // Pagination sub-counters for dynamic questions array arrays
   const [memoryIndex, setMemoryIndex] = useState(0);
@@ -62,13 +50,13 @@ function StartTest({ completeTest, patient }) {
     const fetchTestData = async () => {
       try {
         setLoadingTest(true);
-        const data = await generateDynamicTest(patient?.language || 'en');
+        const data = await generateDynamicTest(patient?.language || 'en', patient);
         if (data.success) {
           setDynamicData(data.testData);
         } else {
           showAlert("Failed to initialize cognitive parameter grid", "error");
         }
-      } catch (err) {
+      } catch {
         showAlert("Error talking to backend AI orchestration layer", "error");
       } finally {
         setLoadingTest(false);
@@ -85,7 +73,6 @@ function StartTest({ completeTest, patient }) {
     setBehaviorIndex(0);
     setAnswers({ memoryAnswers: {}, behaviorAnswers: {}, gameScore: 0, gameTimeSec: 0, speechDurationSec: 0 });
     setAudioUrl(null);
-    setAudioBlob(null);
     setUserClicks([]);
     setIsShowingPattern(false);
     setStepStatus(['pending', 'pending', 'pending', 'pending', 'pending']);
@@ -132,7 +119,6 @@ function StartTest({ completeTest, patient }) {
         const duration = (Date.now() - startTimeRef.current) / 1000;
         const blob = new Blob(chunks, { type: 'audio/mp3' });
         
-        setAudioBlob(blob);
         setAudioUrl(URL.createObjectURL(blob));
         setAnswers(prev => ({ ...prev, speechDurationSec: duration }));
         cancelAnimationFrame(animationRef.current);
@@ -143,7 +129,7 @@ function StartTest({ completeTest, patient }) {
       };
       mediaRecorderRef.current.start();
       setIsRecording(true);
-    } catch (err) { 
+    } catch { 
       showAlert("Microphone system access denied.", "error"); 
     }
   };
@@ -242,7 +228,10 @@ function StartTest({ completeTest, patient }) {
         speechDuration: answers.speechDurationSec,
         gameScore: answers.gameScore,
         gameTimeSec: answers.gameTimeSec,
-        memoryAnswer: answers.memoryAnswers,   // Direct object pass karo
+        memoryAnswer: {
+          answers: answers.memoryAnswers,
+          questions: dynamicData?.memoryQuestions || []
+        },
         behaviorAnswer: answers.behaviorAnswers // Direct object pass karo
       };
 
@@ -255,7 +244,7 @@ function StartTest({ completeTest, patient }) {
       } else {
         showAlert("Analysis Pipeline Interrupted: " + data.message, "error");
       }
-    } catch (err) {
+    } catch {
       showAlert("Server communication timeout error.", "error");
     } finally {
       setIsSubmitting(false);
@@ -421,6 +410,17 @@ function StartTest({ completeTest, patient }) {
       </div>
     );
   };
+
+  if (!patient) {
+    return (
+      <div className="page" style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <div style={{ fontSize: '32px', marginBottom: '20px', fontWeight: 700 }}>Smriti AI</div>
+        <h2>No Patient Selected</h2>
+        <p style={{ color: 'var(--c4)', marginBottom: '20px' }}>Please select a profile from the dashboard to start the self-assessment.</p>
+        <button className="btn btn-p" onClick={() => navigate('/user/home')}>Go to Dashboard</button>
+      </div>
+    );
+  }
 
   if (patient?.lastTestDate === new Date().toLocaleDateString('en-CA')) {
     return (

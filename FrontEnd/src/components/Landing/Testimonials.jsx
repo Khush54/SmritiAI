@@ -20,7 +20,6 @@ function StarRating({ rating }) {
 
 function Testimonials() {
   const [items, setItems] = useState(FALLBACK);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getPublicFeedback()
@@ -29,8 +28,7 @@ function Testimonials() {
           setItems(res.data);
         }
       })
-      .catch(() => {}) 
-      .finally(() => setLoading(false));
+      .catch(() => {});
   }, []);
 
   const avatarColors = ['#2563eb', '#0d9488', '#7c3aed', '#d97706', '#dc2626', '#059669'];

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Doctor.css';
 
-const Navbar = ({ user, onSearch }) => {
+const Navbar = ({ user, onSearch, onToggleSidebar }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -15,6 +15,9 @@ const Navbar = ({ user, onSearch }) => {
   return (
     <nav className="nav">
       <div className="nav-left">
+        <button className="mobile-menu-btn" onClick={onToggleSidebar}>
+          ☰
+        </button>
         <div className="nav-brand" onClick={() => navigate('/doctor/home')}>
           <div className="brand-mark">🧠</div>
           <span className="brand-name">Smriti AI</span>

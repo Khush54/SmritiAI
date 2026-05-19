@@ -2,55 +2,73 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import './Doctor.css'
 
-const Sidebar = () => {
+const isToday = (date) => {
+    if (!date) return false;
+    return new Date(date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+};
+
+const Sidebar = ({ isOpen, onClose, dashboard, loading }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const isActive = (path) => location.pathname.includes(path) ? "on" : "";
+    const patients = dashboard?.patients || [];
+    const stats = dashboard?.analytics?.kpis || {};
+    const testsToday = patients.filter(patient => isToday(patient.lastTestDate || patient.lastTest)).length;
+
+    const navItem = (path, icon, label) => (
+        <div className={`sb-it ${isActive(path)}`} onClick={() => { navigate(`/doctor/${path}`); onClose && onClose(); }}>
+            <div className="ico">{icon}</div> {label}
+        </div>
+    );
 
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
             <div className="sb-sec">Clinical</div>
-            <div className={`sb-it ${isActive("home")}`} onClick={() => navigate("/doctor/home")}><div className="ico">⚡</div> Command Centre</div>
-            <div className={`sb-it ${isActive("patients")}`} onClick={() => navigate("/doctor/patients")}><div className="ico">👥</div> Patient Directory </div>
-            <div className={`sb-it ${isActive("alerts")}`} onClick={() => navigate("/doctor/alerts")}> <div className="ico">🔔</div> Alerts </div>
-            <div className={`sb-it ${isActive("reports")}`} onClick={() => navigate("/doctor/reports")}> <div className="ico">📋</div> Reports Queue </div>
-            <div className={`sb-it ${isActive("analytics")}`} onClick={() => navigate("/doctor/analytics")}> <div className="ico">📊</div> Analytics </div>
+            {navItem("home", "⚡", "Command Centre")}
+            {navItem("patients", "👥", "Patient Directory")}
+            {navItem("alerts", "🔔", "Alerts")}
+            {navItem("reports", "📋", "Reports Queue")}
+            {navItem("analytics", "📊", "Analytics")}
 
             <div className="sb-sec">Workflow</div>
-            <div className={`sb-it ${isActive("notes")}`} onClick={() => navigate("/doctor/notes")}> <div className="ico">📝</div> Clinical Notes </div>
-            <div className={`sb-it ${isActive("followups")}`} onClick={() => navigate("/doctor/followups")}> <div className="ico">📅</div> Follow-ups </div>
+            {navItem("notes", "📝", "Clinical Notes")}
+            {navItem("followups", "📅", "Follow-ups")}
+            
             <div className="sb-sp"></div>
 
             <div className="sb-stat">
                 <div className="sb-stat-row">
                     <span>Total Patients</span>
-                    <span className="sb-stat-val">24</span>
+                    <span className="sb-stat-val">{loading ? "--" : stats.totalPatients || patients.length}</span>
                 </div>
 
                 <div className="sb-stat-row">
                     <span>High Risk</span>
                     <span className="sb-stat-val" style={{ color: "var(--rose)" }}>
-                        8
+                        {loading ? "--" : stats.highRisk || 0}
                     </span>
                 </div>
 
                 <div className="sb-stat-row">
                     <span>Pending Reviews</span>
                     <span className="sb-stat-val" style={{ color: "var(--amber)" }}>
-                        5
+                        {loading ? "--" : stats.pendingReports || dashboard?.reports?.length || 0}
                     </span>
                 </div>
 
                 <div className="sb-stat-row">
                     <span>Tests Today</span>
                     <span className="sb-stat-val" style={{ color: "var(--emerald)" }}>
-                        3
+                        {loading ? "--" : testsToday}
                     </span>
                 </div>
             </div>
-            <div className={`sb-it ${isActive("settings")}`} onClick={() => navigate("/doctor/settings")}> <div className="ico">⚙️</div> Settings </div>
             
-            <div className="sb-it" onClick={() => { localStorage.clear(); window.location.href = '/'; }}> <div className="ico">🚪</div> Log Out </div>
+            {navItem("settings", "⚙️", "Settings")}
+            
+            <div className="sb-it" onClick={() => { localStorage.clear(); window.location.href = '/'; onClose && onClose(); }}> 
+                <div className="ico">🚪</div> Log Out 
+            </div>
         </aside>
     );
 };

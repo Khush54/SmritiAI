@@ -41,10 +41,6 @@ function Navbar({ setPage }) {
             Sign In
           </button>
 
-          <button className="btn btn-primary btn-md" onClick={() => setPage('auth')}>
-            Get Started
-          </button>
-
           <select
             className="custom-lang-select"  
             onChange={(e) => handleLanguageChange(e.target.value)}

@@ -5,16 +5,6 @@ import './User.css'
 
 const Mood = ({ patient, onUpdatePatient }) => {
   const { showAlert } = useContext(AppContext);
-  if (!patient) {
-    return (
-      <div className="page" style={{ textAlign: 'center', padding: '100px 20px' }}>
-        <div style={{ fontSize: '50px', marginBottom: '20px' }}>🧠</div>
-        <h2>Select a Patient</h2>
-        <p>Please select a family member to manage their daily logs.</p>
-      </div>
-    );
-  }
-
   const [entries, setEntries] = useState([]);
   const [selectedMood, setSelectedMood] = useState('😊');
   const [loading, setLoading] = useState(false);
@@ -80,6 +70,16 @@ const Mood = ({ patient, onUpdatePatient }) => {
       setLoading(false);
     }
   };
+
+  if (!patient) {
+    return (
+      <div className="page" style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <div style={{ fontSize: '32px', marginBottom: '20px', fontWeight: 700 }}>Smriti AI</div>
+        <h2>Select a Patient</h2>
+        <p>Please select a family member to manage their daily logs.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="page">

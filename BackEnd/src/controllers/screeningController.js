@@ -1,5 +1,6 @@
 const Assessment = require("../models/Assessment");
 const Patient = require("../models/Patient");
+const User = require("../models/User");
 const { createAlert } = require("./alertController");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -9,6 +10,64 @@ if (!process.env.GEMINI_API_KEY) {
 }
 
 const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const normalizeLocation = (value = "") =>
+  String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+
+const normalizeLocationText = (value = "") => normalizeLocation(value).join(" ");
+
+const getLocationScore = (doctor, patient) => {
+  const patientLocation = normalizeLocationText(patient?.location || patient?.city || "");
+  const patientCity = normalizeLocationText(patient?.city || "");
+  const patientTokens = normalizeLocation(`${patient?.city || ""} ${patient?.location || ""}`)
+    .filter(token => token.length > 2 && !["city", "near", "area", "clinic", "hospital"].includes(token));
+  if (!patientLocation && !patientCity && !patientTokens.length) return 0;
+
+  const doctorTokens = normalizeLocation(`${doctor.city || ""} ${doctor.location || ""} ${doctor.clinic || ""}`);
+  if (!doctorTokens.length) return 0;
+
+  const doctorText = doctorTokens.join(" ");
+  let score = 0;
+  if (patientLocation && doctorText.includes(patientLocation)) score += 3;
+  if (patientCity && doctorText.includes(patientCity)) score += 3;
+  const matchedTokens = patientTokens.filter(token => doctorTokens.includes(token) || doctorText.includes(token));
+  return score + matchedTokens.length;
+};
+
+const selectRecommendedDoctor = async (patient) => {
+  const doctors = await User.find({ role: "doctor" }).sort({ createdAt: 1 }).lean();
+  if (!doctors.length) return null;
+
+  const rankedDoctors = doctors
+    .map((doctor, index) => ({
+      doctor,
+      index,
+      locationScore: getLocationScore(doctor, patient)
+    }))
+    .sort((a, b) => b.locationScore - a.locationScore || a.index - b.index);
+
+  const { doctor, locationScore } = rankedDoctors[0];
+  if (!doctor) return null;
+
+  return {
+    id: doctor._id,
+    name: doctor.fullName || "Assigned Doctor",
+    specialty: doctor.specialization || "Cognitive Care Specialist",
+    contact: doctor.phone || "",
+    email: doctor.email || "",
+    clinic: doctor.clinic || "",
+    location: doctor.location || doctor.city || "",
+    isNearby: locationScore > 0,
+    matchScore: locationScore,
+    availabilityNote: locationScore > 0
+      ? "Nearby doctor matched from patient location."
+      : "No nearby doctor found. This available doctor can be visited for consultation."
+  };
+};
 
 /**
  * Advanced JSON Extractor: Extracts valid JSON content even if Gemini 
@@ -34,11 +93,157 @@ const cleanAndExtractJson = (rawText) => {
   return text;
 };
 
+const buildDailyClinicalFallbackTest = (seedText = "") => {
+  const seed = [...seedText].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const pick = (items, count) => {
+    const rotated = items.map((item, index) => ({ item, rank: (index * 37 + seed) % 997 }))
+      .sort((a, b) => a.rank - b.rank)
+      .map(entry => entry.item);
+    return rotated.slice(0, count);
+  };
+
+  const clinicalQuestions = [
+    {
+      id: "m1",
+      domain: "orientation",
+      question: "Without looking at a calendar, which part of the day is it right now?",
+      options: ["Morning or afternoon", "The middle of the night", "I am not sure"],
+      correct: "Morning or afternoon"
+    },
+    {
+      id: "m2",
+      domain: "delayed_recall",
+      question: "Please remember these words: lemon, key, river. Which set matches the three words?",
+      options: ["lemon, key, river", "lemon, door, river", "orange, key, garden"],
+      correct: "lemon, key, river"
+    },
+    {
+      id: "m3",
+      domain: "attention",
+      question: "If you start at 20 and count backward by 3, what comes next?",
+      options: ["17", "18", "16"],
+      correct: "17"
+    },
+    {
+      id: "m4",
+      domain: "executive_function",
+      question: "If you need tea, a cup, and hot water, what should you do first?",
+      options: ["Put tea in the cup", "Drink before adding water", "Leave the cup in another room"],
+      correct: "Put tea in the cup"
+    },
+    {
+      id: "m5",
+      domain: "language",
+      question: "Which word best names something used to tell time?",
+      options: ["Clock", "Spoon", "Pillow"],
+      correct: "Clock"
+    },
+    {
+      id: "m6",
+      domain: "visuospatial",
+      question: "If a clock's minute hand points to 12 and hour hand points to 3, what time is it?",
+      options: ["3 o'clock", "12 o'clock", "6 o'clock"],
+      correct: "3 o'clock"
+    },
+    {
+      id: "m7",
+      domain: "judgment",
+      question: "If you smell smoke in the kitchen, what is the safest first action?",
+      options: ["Turn off the stove and call for help", "Ignore it", "Open medicine bottles"],
+      correct: "Turn off the stove and call for help"
+    }
+  ];
+
+  const behaviorQuestions = [
+    { id: "b1", question: "In the last week, have you misplaced familiar items in unusual places?", options: ["Never", "Sometimes", "Often"] },
+    { id: "b2", question: "In the last week, have you repeated the same question without realizing it?", options: ["Never", "Sometimes", "Often"] },
+    { id: "b3", question: "In the last week, have you felt unsure about the date, day, or routine?", options: ["Never", "Sometimes", "Often"] },
+    { id: "b4", question: "In the last week, have you found familiar tasks harder to finish in the right order?", options: ["Never", "Sometimes", "Often"] },
+    { id: "b5", question: "In the last week, have family members noticed changes in your memory or attention?", options: ["Never", "Sometimes", "Often"] },
+    { id: "b6", question: "In the last week, have you had trouble finding common words while speaking?", options: ["Never", "Sometimes", "Often"] }
+  ];
+
+  return {
+    voicePhrase: "Today I will calmly remember the small blue cup near the window.",
+    cognitiveGame: pick([0, 1, 2, 3, 4, 5, 6, 7, 8], 4),
+    memoryQuestions: pick(clinicalQuestions, 5).map((question, index) => ({ ...question, id: `m${index + 1}` })),
+    behaviorQuestions: pick(behaviorQuestions, 5).map((question, index) => ({ ...question, id: `b${index + 1}` }))
+  };
+};
+
+const validateGeneratedTest = (testData) => {
+  if (!testData || typeof testData !== "object") return false;
+  if (!testData.voicePhrase || typeof testData.voicePhrase !== "string") return false;
+  if (!Array.isArray(testData.cognitiveGame) || testData.cognitiveGame.length < 3 || testData.cognitiveGame.length > 4) return false;
+  if (!Array.isArray(testData.memoryQuestions) || testData.memoryQuestions.length !== 5) return false;
+  if (!Array.isArray(testData.behaviorQuestions) || testData.behaviorQuestions.length !== 5) return false;
+
+  return testData.memoryQuestions.every(q => q.id && q.question && Array.isArray(q.options) && q.options.length === 3 && q.correct)
+    && testData.behaviorQuestions.every(q => q.id && q.question && Array.isArray(q.options) && q.options.length === 3);
+};
+
+const clampScore = (value, min = 0, max = 100) =>
+  Math.max(min, Math.min(max, Math.round(Number(value) || 0)));
+
+const buildClinicalScreeningScore = ({ speechDuration, gameScore, gameTimeSec, memoryAnswer, behaviorAnswer }) => {
+  const memoryAnswers = memoryAnswer?.answers || memoryAnswer || {};
+  const memoryQuestions = Array.isArray(memoryAnswer?.questions) ? memoryAnswer.questions : [];
+  const answeredMemory = Object.keys(memoryAnswers).length;
+  const correctMemory = memoryQuestions.length
+    ? memoryQuestions.filter(question => memoryAnswers[question.id] === question.correct).length
+    : answeredMemory;
+
+  const voiceDuration = Number(speechDuration || 0);
+  const voice = voiceDuration <= 0
+    ? 8
+    : voiceDuration < 2
+      ? 12
+      : voiceDuration <= 20
+        ? 22
+        : 16;
+
+  const speedPenalty = Number(gameTimeSec || 0) > 15 ? 3 : Number(gameTimeSec || 0) > 10 ? 1 : 0;
+  const game = clampScore((Number(gameScore || 0) / 100) * 25 - speedPenalty, 0, 25);
+  const memory = clampScore((correctMemory / Math.max(memoryQuestions.length || 5, 1)) * 25, 0, 25);
+
+  const behaviorValues = Object.values(behaviorAnswer || {});
+  const behaviorPenalty = behaviorValues.reduce((sum, answer) => {
+    const normalized = String(answer).toLowerCase();
+    if (normalized.includes("often")) return sum + 5;
+    if (normalized.includes("sometimes")) return sum + 2;
+    return sum;
+  }, 0);
+  const behavior = clampScore(25 - behaviorPenalty, 0, 25);
+  const total = clampScore(voice + game + memory + behavior);
+
+  const risk = total < 50 ? "High" : total < 75 ? "Moderate" : "Low";
+  const breakdown = {
+    memory: clampScore((memory / 25) * 100),
+    language: clampScore((voice / 25) * 100),
+    attention: clampScore(((game + memory) / 50) * 100),
+    spatial: clampScore((game / 25) * 100),
+    logic: clampScore(((memory + behavior) / 50) * 100),
+    behavior: clampScore((behavior / 25) * 100)
+  };
+
+  return {
+    total,
+    risk,
+    phaseScores: { voice, game, memory, behavior },
+    clinicalRiskScore: clampScore(100 - total),
+    breakdown,
+    correctMemory,
+    answeredMemory
+  };
+};
+
 // @desc    Generate Unique Dynamic Multi-Modal Test Questions for Patient Self-Assessment
 // @route   GET /api/assessments/generate-dynamic-test
 const generateDynamicTest = async (req, res) => {
   try {
     const langCode = req.query.lang || 'en';
+    const patientId = req.query.patientId;
+    const patientAge = Number(req.query.age || 65);
     
     // Map language codes to names for the AI
     const langMap = {
@@ -56,42 +261,57 @@ const generateDynamicTest = async (req, res) => {
     };
     const lang = langMap[langCode] || 'English';
     const today = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', weekday: 'long' });
+    const dailySeed = `${new Date().toLocaleDateString('en-CA')}|${req.user.id}|${patientId || "no-patient"}|${langCode}`;
+    const patient = patientId
+      ? await Patient.findOne({ _id: patientId, userId: req.user.id }).lean()
+      : null;
 
     const systemInstruction = `
-    You are a clinical neuro-geriatrician expert creating an unpredictable, interactive cognitive self-assessment test for a patient suspected of early-stage dementia.
+    You are a senior clinical neurologist and neuro-geriatrician creating a brief digital screening module for early-stage dementia risk.
     The patient is taking this test ALONE on a screen. Every question must be direct, clear, and easy to interact with.
 
     CRITICAL CLINICAL GUIDELINES:
-    1. Questions must NOT be overly difficult or require advanced education. They should be suitable for an elderly person (60+).
-    2. Questions must be scientifically based on standard cognitive assessment domains used by doctors (like MMSE/MoCA) to detect early-stage dementia:
-       - Orientation (e.g., questions about time, season, or place suitable for a home setting).
-       - Short-term Recall (e.g., remembering items or facts).
-       - Attention/Working Memory (e.g., simple counting or sequencing).
-       - Language/Object Recognition (e.g., identifying common objects or their uses).
-    3. Avoid trick questions, complex logic puzzles, or non-clinical trivia. Keep them different and unpredictable each time.
-    4. The generated content must be in the language: ${lang}. If Hindi, use clear Devanagari script.
-    5. Today's date is: ${today}. If you ask orientation questions about the current day, month, season, or year, you MUST use this information and ensure the correct answer is among the options and marked correctly.
+    1. This is a SCREENING tool, not a diagnosis. Questions should detect early cognitive change and support referral decisions.
+    2. Questions must be suitable for an older adult around age ${patient?.age || patientAge || 65}; avoid advanced education, trivia, politics, math puzzles, and culturally narrow facts.
+    3. The 5 memoryQuestions must cover five different clinical domains used in early dementia screening:
+       - orientation to time or situation,
+       - attention / working memory,
+       - delayed recall or learning of simple words,
+       - language / naming / comprehension,
+       - executive function / judgment / sequencing.
+    4. Questions should feel like a neurologist or memory-clinic doctor would ask in a brief screen. Use everyday tasks, time awareness, recall, safety judgment, naming, and simple sequencing.
+    5. Every memory question must have exactly one clinically correct answer and two plausible incorrect choices.
+    6. Do not ask generic trivia such as capital cities, colors of the sky, fruit identification, celebrity names, or school-style GK questions.
+    7. Daily uniqueness is mandatory. Use this seed to vary today's question set and wording: ${dailySeed}. Do not repeat the exact examples or wording from previous days.
+    8. The generated content must be in the language: ${lang}. If Hindi, use clear Devanagari script.
+    9. Today's date is: ${today}. If you ask orientation questions about the current day, month, season, or year, you MUST use this information and ensure the correct answer is among the options and marked correctly.
 
     CRITICAL GENERATION METRICS:
-    1. voicePhrase: A simple, comforting sentence in ${lang} with rhythmic words to test articulation/speech apraxia.
+    1. voicePhrase: A simple, comforting sentence in ${lang} with mixed consonant sounds and natural rhythm to screen articulation, fluency, and speech planning.
     2. cognitiveGame: An array of exactly 3 or 4 unique indices (0 to 8) for a 3x3 grid pattern.
-    3. memoryQuestions: Exactly 5 direct patient-facing cognitive questions targeting the domains above, in ${lang}, with 3 options each and one correct option.
-    4. behaviorQuestions: 5 Patient Self-Awareness/Mood tracking questions in ${lang} with options corresponding to: ["Never", "Sometimes", "Often"].
+    3. memoryQuestions: Exactly 5 direct patient-facing clinical screening questions, in ${lang}, with 3 options each and one correct option.
+    4. behaviorQuestions: 5 self-awareness questions about symptoms from the last 7 days, in ${lang}, with options corresponding to: ["Never", "Sometimes", "Often"].
 
     Return strictly a valid JSON object matching the exact schema requested. Do not include markdown wraps.
     `;
 
     const prompt = `
-    Generate a completely randomized, unique patient-facing cognitive test payload in ${lang} following this exact structural JSON schema:
+    Generate today's unique patient-facing early dementia screening payload in ${lang}.
+    Patient context:
+    - Patient name: ${patient?.name || "Patient"}
+    - Patient age: ${patient?.age || patientAge || "unknown"}
+    - Daily seed: ${dailySeed}
+
+    Follow this exact structural JSON schema:
     {
       "voicePhrase": "Clear string for the patient to read aloud.",
       "cognitiveGame": [1, 5, 8],
       "memoryQuestions": [
-        { "id": "m1", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt1" },
-        { "id": "m2", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt2" },
-        { "id": "m3", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt3" },
-        { "id": "m4", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt1" },
-        { "id": "m5", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt2" }
+        { "id": "m1", "domain": "orientation", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt1" },
+        { "id": "m2", "domain": "attention", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt2" },
+        { "id": "m3", "domain": "delayed_recall", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt3" },
+        { "id": "m4", "domain": "language", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt1" },
+        { "id": "m5", "domain": "executive_function", "question": "Question text...", "options": ["Opt1", "Opt2", "Opt3"], "correct": "Opt2" }
       ],
       "behaviorQuestions": [
         { "id": "b1", "question": "Self-awareness question text...", "options": ["Never", "Sometimes", "Often"] },
@@ -179,37 +399,26 @@ const generateDynamicTest = async (req, res) => {
     
     try {
       const dynamicTestData = JSON.parse(cleanedJson);
+      if (!validateGeneratedTest(dynamicTestData)) {
+        throw new Error("Generated test did not match clinical screening schema.");
+      }
       return res.status(200).json({
         success: true,
         testData: dynamicTestData
       });
     } catch (parseError) {
       console.error("🚨 Gemini JSON Parsing Failed. Raw Output was:\n", rawText);
-      return res.status(502).json({ success: false, message: "AI Orchestration layer returned invalid JSON schema structure." });
+      return res.status(200).json({
+        success: true,
+        testData: buildDailyClinicalFallbackTest(dailySeed),
+        message: "AI returned an invalid schema. Loaded today's clinical fallback screen."
+      });
     }
 
   } catch (error) {
     console.error("Dynamic test generation orchestration error:", error);
     
-    // Ultimate Fallback: Return static test data so the app NEVER crashes
-    const staticTestData = {
-      "voicePhrase": "The sun rises in the east and sets in the west.",
-      "cognitiveGame": [1, 4, 7],
-      "memoryQuestions": [
-        { "id": "m1", "question": "What is the capital of India?", "options": ["Mumbai", "New Delhi", "Kolkata"], "correct": "New Delhi" },
-        { "id": "m2", "question": "Which of these is a fruit?", "options": ["Apple", "Potato", "Carrot"], "correct": "Apple" },
-        { "id": "m3", "question": "How many days are in a week?", "options": ["5", "6", "7"], "correct": "7" },
-        { "id": "m4", "question": "Which direction does the sun rise?", "options": ["East", "West", "North"], "correct": "East" },
-        { "id": "m5", "question": "What color is the sky on a clear day?", "options": ["Green", "Blue", "Red"], "correct": "Blue" }
-      ],
-      "behaviorQuestions": [
-        { "id": "b1", "question": "Do you often forget where you put your keys?", "options": ["Never", "Sometimes", "Often"] },
-        { "id": "b2", "question": "Do you find it hard to remember names of new people?", "options": ["Never", "Sometimes", "Often"] },
-        { "id": "b3", "question": "Do you feel confused in familiar places?", "options": ["Never", "Sometimes", "Often"] },
-        { "id": "b4", "question": "Do you lose track of the date or season?", "options": ["Never", "Sometimes", "Often"] },
-        { "id": "b5", "question": "Do you need help with daily tasks like dressing?", "options": ["Never", "Sometimes", "Often"] }
-      ]
-    };
+    const staticTestData = buildDailyClinicalFallbackTest(`${new Date().toLocaleDateString('en-CA')}|${req.user?.id || ""}|${req.query.patientId || ""}|${req.query.lang || "en"}`);
 
     return res.status(200).json({
       success: true,
@@ -256,6 +465,22 @@ const evaluateHighAccuracyTest = async (req, res) => {
       });
     }
 
+    const targetPatient = await Patient.findOne({ _id: patientId, userId });
+    if (!targetPatient) {
+      return res.status(404).json({
+        success: false,
+        message: "Target patient tracking profile not found."
+      });
+    }
+
+    const deterministicScore = buildClinicalScreeningScore({
+      speechDuration,
+      gameScore,
+      gameTimeSec,
+      memoryAnswer,
+      behaviorAnswer
+    });
+
     const systemInstruction = `
     You are a senior expert neuro-geriatrician evaluating a patient's digital multi-modal cognitive self-assessment.
     Analyze the incoming parameters derived dynamically to trace signals of early-stage cognitive degradation, memory gaps, or speech markers.
@@ -266,7 +491,7 @@ const evaluateHighAccuracyTest = async (req, res) => {
 
     // FIXED: Clean validation checking if input parameters are already parsed objects or strings
     const stringifiedMemory = typeof memoryAnswer === 'object' ? JSON.stringify(memoryAnswer) : memoryAnswer;
-    const stringifiedBehavior = typeof behaviorAnswer === 'object' ? JSON.stringify(behaviorAnswer) : behaviorAnsw    
+    const stringifiedBehavior = typeof behaviorAnswer === 'object' ? JSON.stringify(behaviorAnswer) : behaviorAnswer;
     const prompt = `
     Evaluate the following clinical self-assessment metrics for the patient:
     - Patient Age: ${patientAge}
@@ -407,34 +632,41 @@ const evaluateHighAccuracyTest = async (req, res) => {
       };
     }
 
-    // Doctor Allocation Matrix based on score evaluation
-    if (evaluationReport.clinicalRiskScore >= 50) {
-      evaluationReport.recommendedDoctors = [
-        { name: "Dr. Alok Sharma", specialty: "Consultant Neurologist", contact: "+91-9988776655", clinic: "Neuro Care Clinic" },
-        { name: "Dr. Meenakshi Rai", specialty: "Geriatric Psychiatrist", contact: "+91-8877665544", clinic: "Mind & Memory Hospital" }
-      ];
-      evaluationReport.actionRequired = "Immediate clinical consultation recommended.";
-    } else {
-      evaluationReport.recommendedDoctors = [];
-      evaluationReport.actionRequired = "Routine check-up in 6 months.";
-    }
+    evaluationReport.phaseScores = deterministicScore.phaseScores;
+    evaluationReport.clinicalRiskScore = deterministicScore.clinicalRiskScore;
+    evaluationReport.riskLevel = `${deterministicScore.risk} Risk`;
+    evaluationReport.breakdown = {
+      ...(evaluationReport.breakdown || {}),
+      ...deterministicScore.breakdown
+    };
+    evaluationReport.screeningBasis = {
+      method: "Deterministic clinical screening score with AI narrative support",
+      correctMemory: deterministicScore.correctMemory,
+      answeredMemory: deterministicScore.answeredMemory,
+      note: "This is not a diagnosis. It flags possible cognitive risk for clinical review."
+    };
 
-    // Calculate total score as sum of 4 phases (25 marks each)
-    let legacyCalculatedScore = 0;
-    if (evaluationReport.phaseScores) {
-      legacyCalculatedScore = (evaluationReport.phaseScores.voice || 0) + 
-                              (evaluationReport.phaseScores.game || 0) + 
-                              (evaluationReport.phaseScores.memory || 0) + 
-                              (evaluationReport.phaseScores.behavior || 0);
-    } else {
-      legacyCalculatedScore = Math.max(0, 100 - evaluationReport.clinicalRiskScore);
-    }
-
-    let risk = "Low";
-    if (legacyCalculatedScore < 50) risk = "High";
-    else if (legacyCalculatedScore < 75) risk = "Moderate";"Moderate";
+    const legacyCalculatedScore = deterministicScore.total;
+    let risk = deterministicScore.risk;
 
     let trend = legacyCalculatedScore < 70 ? "down" : "stable";
+    const recommendedDoctor = risk === "High" || risk === "Moderate"
+      ? await selectRecommendedDoctor(targetPatient)
+      : null;
+
+    if (recommendedDoctor) {
+      evaluationReport.recommendedDoctors = [recommendedDoctor];
+      evaluationReport.actionRequired = risk === "High"
+        ? (recommendedDoctor.isNearby ? "Immediate consultation recommended with a nearby specialist." : "No nearby doctor found. Please visit the suggested available specialist.")
+        : (recommendedDoctor.isNearby ? "Specialist follow-up recommended with a nearby doctor." : "No nearby doctor found. Please visit the suggested available doctor.");
+      evaluationReport.nearbyDoctorAvailable = recommendedDoctor.isNearby;
+    } else {
+      evaluationReport.recommendedDoctors = [];
+      evaluationReport.actionRequired = risk === "Low"
+        ? "Routine check-up in 6 months."
+        : "Clinical referral recommended. Add a doctor account to enable referral assignment.";
+      evaluationReport.nearbyDoctorAvailable = false;
+    }
 
     // Write assessment payload straight into database
     const newAssessment = await Assessment.create({
@@ -448,15 +680,36 @@ const evaluateHighAccuracyTest = async (req, res) => {
       }
     });
 
-    const updatedPatient = await Patient.findByIdAndUpdate(
-      patientId, 
-      { 
+    const patientUpdate = { 
         score: legacyCalculatedScore, 
         risk, 
         trend, 
         lastTestDate: today,
         recommendations: evaluationReport.recommendations || []
-      },
+      };
+
+    if (recommendedDoctor) {
+      patientUpdate.assignedDoctorId = recommendedDoctor.id;
+      patientUpdate.assignedDoctorName = recommendedDoctor.name;
+      patientUpdate.assignedDoctorSpecialty = recommendedDoctor.specialty;
+      patientUpdate.assignedDoctorLocation = recommendedDoctor.location;
+      patientUpdate.doctor = recommendedDoctor.name;
+      patientUpdate.doctorRecommendationReason = evaluationReport.actionRequired;
+      patientUpdate.doctorReferralStatus = "assigned";
+      patientUpdate.doctorAssignedAt = new Date();
+    } else if (risk === "Low") {
+      patientUpdate.assignedDoctorId = null;
+      patientUpdate.assignedDoctorName = "";
+      patientUpdate.assignedDoctorSpecialty = "";
+      patientUpdate.assignedDoctorLocation = "";
+      patientUpdate.doctor = "";
+      patientUpdate.doctorRecommendationReason = "";
+      patientUpdate.doctorReferralStatus = "none";
+    }
+
+    const updatedPatient = await Patient.findOneAndUpdate(
+      { _id: patientId, userId },
+      patientUpdate,
       { returnDocument: 'after' }
     );
 
@@ -472,6 +725,16 @@ const evaluateHighAccuracyTest = async (req, res) => {
       type: risk === 'High' ? 'critical' : risk === 'Moderate' ? 'warning' : 'success'
     });
 
+    if (recommendedDoctor && !recommendedDoctor.isNearby) {
+      await createAlert(userId, {
+        patientId,
+        patientName: updatedPatient.name,
+        title: 'No Nearby Doctor Found',
+        message: `${recommendedDoctor.name} has been suggested as an available specialist. No doctor matched ${updatedPatient.location || updatedPatient.city || "the patient location"}, so the patient may need to visit them.`,
+        type: 'warning'
+      });
+    }
+
     const mappedPatient = updatedPatient.toObject();
     mappedPatient.id = mappedPatient._id.toString();
 
@@ -486,24 +749,22 @@ const evaluateHighAccuracyTest = async (req, res) => {
   } catch (error) {
     console.error("Advanced AI Evaluation controller error:", error);
     
-    // Ultimate Fallback for Evaluation: Return a standard report based on the game score
-    const legacyCalculatedScore = req.body.gameScore || 50;
-    let risk = "Low";
-    if (legacyCalculatedScore < 50) risk = "High";
-    else if (legacyCalculatedScore < 75) risk = "Moderate";
+    const fallbackScore = buildClinicalScreeningScore(req.body);
+    const legacyCalculatedScore = fallbackScore.total;
+    let risk = fallbackScore.risk;
 
     const fallbackReport = {
       "clinicalRiskScore": 100 - legacyCalculatedScore,
       "riskLevel": risk + " Risk",
-      "breakdown": {
-        "memory": legacyCalculatedScore,
-        "language": legacyCalculatedScore,
-        "attention": legacyCalculatedScore,
-        "spatial": legacyCalculatedScore,
-        "logic": legacyCalculatedScore,
-        "behavior": legacyCalculatedScore
+      "phaseScores": fallbackScore.phaseScores,
+      "breakdown": fallbackScore.breakdown,
+      "clinicalSummary": "Screening report generated from deterministic clinical scoring because the AI narrative service was unavailable. Please use this as a screening signal and consult a licensed clinician for diagnosis.",
+      "screeningBasis": {
+        "method": "Deterministic clinical screening score",
+        "correctMemory": fallbackScore.correctMemory,
+        "answeredMemory": fallbackScore.answeredMemory,
+        "note": "This is not a diagnosis. It flags possible cognitive risk for clinical review."
       },
-      "clinicalSummary": "Fallback report generated due to AI service timeout. Please re-evaluate later for deeper insights.",
       "recommendations": [
         { "icon": "💧", "color": "#3B82F6", "priority": "Daily Habit", "text": "Ensure patient drinks at least 1.5 liters of water daily." }
       ]
@@ -522,14 +783,46 @@ const evaluateHighAccuracyTest = async (req, res) => {
         }
       });
 
-      const updatedPatient = await Patient.findByIdAndUpdate(
-        patientId, 
-        { score: legacyCalculatedScore, risk, lastTestDate: today },
+      const fallbackPatient = await Patient.findOne({ _id: patientId, userId }).lean();
+      const recommendedDoctor = risk === "High" || risk === "Moderate"
+        ? await selectRecommendedDoctor(fallbackPatient || { _id: patientId })
+        : null;
+      const fallbackPatientUpdate = { score: legacyCalculatedScore, risk, lastTestDate: today };
+
+      if (recommendedDoctor) {
+        fallbackReport.recommendedDoctors = [recommendedDoctor];
+        fallbackReport.actionRequired = recommendedDoctor.isNearby
+          ? "Clinical consultation recommended with a nearby doctor."
+          : "No nearby doctor found. Please visit the suggested available doctor.";
+        fallbackReport.nearbyDoctorAvailable = recommendedDoctor.isNearby;
+        fallbackPatientUpdate.assignedDoctorId = recommendedDoctor.id;
+        fallbackPatientUpdate.assignedDoctorName = recommendedDoctor.name;
+        fallbackPatientUpdate.assignedDoctorSpecialty = recommendedDoctor.specialty;
+        fallbackPatientUpdate.assignedDoctorLocation = recommendedDoctor.location;
+        fallbackPatientUpdate.doctor = recommendedDoctor.name;
+        fallbackPatientUpdate.doctorRecommendationReason = fallbackReport.actionRequired;
+        fallbackPatientUpdate.doctorReferralStatus = "assigned";
+        fallbackPatientUpdate.doctorAssignedAt = new Date();
+      }
+
+      const updatedPatient = await Patient.findOneAndUpdate(
+        { _id: patientId, userId },
+        fallbackPatientUpdate,
         { returnDocument: 'after' }
       );
 
       const mappedPatient = updatedPatient ? updatedPatient.toObject() : { _id: patientId, name: "Patient" };
       if (mappedPatient._id) mappedPatient.id = mappedPatient._id.toString();
+
+      if (updatedPatient && recommendedDoctor && !recommendedDoctor.isNearby) {
+        await createAlert(userId, {
+          patientId,
+          patientName: updatedPatient.name,
+          title: 'No Nearby Doctor Found',
+          message: `${recommendedDoctor.name} has been suggested as an available specialist. No doctor matched ${updatedPatient.location || updatedPatient.city || "the patient location"}, so the patient may need to visit them.`,
+          type: 'warning'
+        });
+      }
 
       return res.status(201).json({
         success: true,

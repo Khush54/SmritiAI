@@ -60,8 +60,8 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '28px' }}>
           {[
             { n: '01', icon: '👤', title: 'Add a Family Member', desc: 'Create a profile for the person you are caring for — their name, age, and relation.', action: 'Add Patient', route: 'patients', color: 'var(--blue)' },
-            { n: '02', icon: '🧠', title: 'Take the First Assessment', desc: 'Run the 10-minute 4-part cognitive screening — voice, drawing, memory & behaviour.', action: 'Start Test', route: 'test', color: 'var(--teal)' },
-            { n: '03', icon: '📊', title: 'Review Their Report', desc: 'Get a colour-coded risk score, radar chart, and AI-generated care recommendations.', action: 'View Reports', route: 'reports', color: '#7c3aed' },
+            { n: '02', icon: '🧠', title: 'Take the First Assessment', desc: 'Run the 10-minute 4-part cognitive screening — voice, pattern grid, memory & behaviour.', action: 'Start Test', route: 'test', color: 'var(--teal)' },
+            { n: '03', icon: '📊', title: 'Review Their Report', desc: 'Get a colour-coded risk score, AI care recommendations, and doctor referral when needed.', action: 'View Reports', route: 'reports', color: '#7c3aed' },
           ].map((step, i) => (
             <div key={i} className="card card-hover" style={{ borderTop: `3px solid ${step.color}`, position: 'relative', overflow: 'hidden' }}>
               <div style={{ fontSize: '48px', fontWeight: '800', color: step.color, opacity: .1, position: 'absolute', top: '-6px', right: '10px', fontFamily: 'var(--font-serif)', lineHeight: 1 }}>{step.n}</div>

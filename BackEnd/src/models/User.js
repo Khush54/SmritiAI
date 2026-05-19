@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema({
   fullName: String,
   email: String,
   phone: String,
+  specialization: String,
+  license: String,
+  clinic: String,
+  location: String,
+  city: String,
+  preferredLanguage: String,
 
   role: {
     type: String,

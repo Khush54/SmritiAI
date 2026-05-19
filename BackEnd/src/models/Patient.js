@@ -20,6 +20,36 @@ const patientSchema = new mongoose.Schema({
   },
   location: String,
   doctor: String,
+  assignedDoctorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+  },
+  assignedDoctorName: String,
+  assignedDoctorSpecialty: String,
+  assignedDoctorLocation: String,
+  doctorRecommendationReason: String,
+  doctorReferralStatus: {
+    type: String,
+    enum: ["none", "recommended", "assigned", "completed"],
+    default: "none"
+  },
+  doctorAssignedAt: Date,
+  followUpDate: String,
+  clinicalNotes: [{
+    doctorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    noteType: String,
+    observation: String,
+    recommendations: String,
+    sharedWithCaregiver: Boolean,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   notes: String,
   profilePhoto: String,
   gender: String,

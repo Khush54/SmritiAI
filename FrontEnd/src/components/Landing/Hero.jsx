@@ -10,11 +10,11 @@ function Hero({ setPage }) {
 
                 <h1 className="hero-title">
                     AI-Powered Early<br />
-                    <em>Dementia Detection</em>
+                    <em>Dementia Screening</em>
                 </h1>
 
                 <p className="hero-sub">
-                    A 10-minute multi-modal screening — voice, drawing, memory & behaviour —
+                    A 10-minute multi-modal screening — voice, pattern grid, memory & behaviour —
                     in 10+ Indian languages. Early detection changes everything.
                 </p>
 

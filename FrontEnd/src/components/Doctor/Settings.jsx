@@ -12,7 +12,8 @@ function Settings({ doctorData, onUpdateDoctor }) {
                 specialization: doctorData.specialization || '',
                 license: doctorData.license || '',
                 email: doctorData.email || '',
-                clinic: doctorData.clinic || ''
+                clinic: doctorData.clinic || '',
+                location: doctorData.location || ''
             });
             setSelectedLang(doctorData.preferredLanguage || 'en');
         }
@@ -54,7 +55,7 @@ function Settings({ doctorData, onUpdateDoctor }) {
         }
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const updatedData = {
             ...doctorData,
             name: `${formData.firstName} ${formData.lastName}`,
@@ -62,10 +63,16 @@ function Settings({ doctorData, onUpdateDoctor }) {
             license: formData.license,
             email: formData.email,
             clinic: formData.clinic,
+            location: formData.location,
             preferredLanguage: selectedLang
         };
-        onUpdateDoctor(updatedData);
-        alert(`Profile updated successfully, Dr. ${formData.lastName}`);
+        try {
+            await onUpdateDoctor(updatedData);
+            alert(`Profile updated successfully, Dr. ${formData.lastName}`);
+        } catch (error) {
+            console.error("Doctor profile update failed", error);
+            alert(error.response?.data?.message || "Unable to save profile changes.");
+        }
     };
 
     const renderSettingsContent = () => {
@@ -99,6 +106,9 @@ function Settings({ doctorData, onUpdateDoctor }) {
                     </div>
                     <div className="form-group"><label className="form-label">Clinic Name</label>
                         <input type="text" className="form-input" value={formData.clinic} onChange={(e) => setFormData({...formData, clinic: e.target.value})} />
+                    </div>
+                    <div className="form-group"><label className="form-label">Practice City</label>
+                        <input type="text" className="form-input" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
                     </div>
                 </div>
                 <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
@@ -136,17 +146,7 @@ function Settings({ doctorData, onUpdateDoctor }) {
             </div>
         );
 
-        if (activeTab === 'privacy') return (
-            <div className="settings-section">
-                <div className="settings-section-title" style={{ fontWeight: '700', marginBottom: '20px' }}>Privacy & Security</div>
-                {['Two-Factor Authentication', 'Show clinic address to patients', 'Email notifications for alerts'].map((label, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
-                        <span style={{ fontSize: '14px' }}>{label}</span>
-                        <input type="checkbox" defaultChecked={i !== 1} />
-                    </div>
-                ))}
-            </div>
-        );
+
     };
 
     return (
@@ -157,7 +157,7 @@ function Settings({ doctorData, onUpdateDoctor }) {
             </div>
             <div className="settings-layout" style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: '32px' }}>
                 <div className="settings-nav" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {Object.entries({ profile: 'Profile', language: 'Language', privacy: 'Security' }).map(([k, v]) => (
+                    {Object.entries({ profile: 'Profile', language: 'Language' }).map(([k, v]) => (
                         <div
                             key={k}
                             className={`settings-nav-item ${activeTab === k ? 'active' : ''}`}
