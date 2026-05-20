@@ -10,6 +10,9 @@ const Navbar = ({ user, onSearch, onToggleSidebar }) => {
     const val = e.target.value;
     setSearchTerm(val);
     onSearch(val);
+    if (val.trim() !== '' && !window.location.pathname.includes('/patients')) {
+      navigate('/doctor/patients');
+    }
   };
 
   return (

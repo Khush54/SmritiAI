@@ -4,6 +4,74 @@ import { AppContext } from '../../context/AppContext';
 import { generateDynamicTest, submitAssessment as submitAssessmentAPI } from '../../Services/assessmentService';
 import './User.css';
 
+function MemoryQuestion({ q, memoryIndex, setMemoryIndex, answers, setAnswers, dynamicData }) {
+    const [showOptions, setShowOptions] = useState(false);
+
+    useEffect(() => {
+        setShowOptions(false);
+        const timer = setTimeout(() => {
+            setShowOptions(true);
+        }, 7000);
+        return () => clearTimeout(timer);
+    }, [memoryIndex]);
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <span className="badge bg-blue" style={{ fontSize: '14px', padding: '6px 12px' }}>Question {memoryIndex + 1} of 5</span>
+            <span style={{ color: 'var(--c4)', fontSize: '14px' }}>Cognitive Skill Task</span>
+          </div>
+          
+          {!showOptions ? (
+            <div style={{ textAlign: 'center', padding: '40px 10px', background: 'var(--sky-l)', borderRadius: '16px', border: '1px solid var(--sky)' }}>
+                <p style={{ fontSize: '1.2rem', color: 'var(--c1)', marginBottom: '15px' }}>⏱️ Memorize this text or read the test for 7 seconds to answer the questions:</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--c0)', margin: '0' }}>
+                    {q?.question}
+                </p>
+            </div>
+          ) : (
+            <>
+                <p style={{ fontSize: '1.35rem', fontWeight: '600', color: 'var(--c0)', lineHeight: '1.5', margin: '10px 0' }}>
+                  What did you just see? Select from the options below:
+                </p>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {q?.options.map(opt => (
+                    <div 
+                      key={opt} 
+                      className={`test-option ${answers.memoryAnswers[q.id] === opt ? 'selected' : ''}`} 
+                      style={{ 
+                        padding: '20px', fontSize: '1.15rem', borderRadius: '16px', 
+                        border: answers.memoryAnswers[q.id] === opt ? '2px solid var(--sky)' : '1px solid var(--border)',
+                        backgroundColor: answers.memoryAnswers[q.id] === opt ? 'var(--sky-l)' : 'var(--surface)',
+                        cursor: 'pointer', transition: 'all 0.15s'
+                      }}
+                      onClick={() => setAnswers({
+                        ...answers, 
+                        memoryAnswers: { ...answers.memoryAnswers, [q.id]: opt }
+                      })}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+            </>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', flexWrap: 'wrap', gap: '10px' }}>
+            <button className="btn btn-ghost" disabled={memoryIndex === 0} onClick={() => setMemoryIndex(memoryIndex - 1)}>← Previous</button>
+            {memoryIndex < (dynamicData?.memoryQuestions?.length || 5) - 1 ? (
+              <button className="btn btn-primary" disabled={!answers.memoryAnswers[q?.id] || !showOptions} onClick={() => setMemoryIndex(memoryIndex + 1)}>
+                Next Question →
+              </button>
+            ) : (
+              <p style={{ color: 'var(--sage)', fontWeight: '500', margin: 0 }}>✓ Dynamic Memory section checked!</p>
+            )}
+          </div>
+        </div>
+    );
+}
+
 function StartTest({ completeTest, patient }) {
   const { showAlert } = useContext(AppContext);
   const navigate = useNavigate();
@@ -155,7 +223,7 @@ function StartTest({ completeTest, patient }) {
       let x = 0;
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i] / 2;
-        ctx.fillStyle = `#2563EB`;
+        ctx.fillStyle = `#0EA5E9`;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
         x += barWidth + 1;
       }
@@ -221,7 +289,6 @@ function StartTest({ completeTest, patient }) {
  const submitAssessment = async () => {
     setIsSubmitting(true);
     try {
-      // FIX: FormData ki jagah clean, native JSON object ka use karo
       const payload = {
         patientId: patient.id,
         patientAge: patient.age || 65,
@@ -232,7 +299,7 @@ function StartTest({ completeTest, patient }) {
           answers: answers.memoryAnswers,
           questions: dynamicData?.memoryQuestions || []
         },
-        behaviorAnswer: answers.behaviorAnswers // Direct object pass karo
+        behaviorAnswer: answers.behaviorAnswers 
       };
 
       const data = await submitAssessmentAPI(payload);
@@ -250,6 +317,7 @@ function StartTest({ completeTest, patient }) {
       setIsSubmitting(false);
     }
   };
+
   // --- Render Dynamic Segment Layouts ---
   const renderContent = () => {
     if (loadingTest) {
@@ -267,7 +335,7 @@ function StartTest({ completeTest, patient }) {
       <div style={{ textAlign: 'center', padding: '10px' }}>
         <div className="alert-card-blue" style={{ fontSize: '1.15rem', padding: '20px', borderRadius: '16px', lineHeight: '1.6' }}>
           <span>Please read this line out loud:</span>
-          <div style={{ fontSize: '1.3rem', color: '#1E3A8A', fontWeight: 'bold', marginTop: '10px' }}>
+          <div style={{ fontSize: '1.3rem', color: 'var(--c1)', fontWeight: 'bold', marginTop: '10px' }}>
             "{dynamicData?.voicePhrase}"
           </div>
         </div>
@@ -281,14 +349,14 @@ function StartTest({ completeTest, patient }) {
 
     if (stepId === 'game') return (
       <div style={{ textAlign: 'center', padding: '10px' }}>
-        <p style={{ marginBottom: '20px', fontSize: '1.2rem', fontWeight: '500', color: '#374151' }}>
+        <p style={{ marginBottom: '20px', fontSize: '1.2rem', fontWeight: '500', color: 'var(--c2)' }}>
           {isShowingPattern ? "🧠 Watch carefully and remember the highlighted boxes..." : "👇 Tap on the same boxes you just saw!"}
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', maxWidth: '280px', margin: '0 auto 25px' }}>
           {Array(9).fill(null).map((_, idx) => {
-            let bgStyle = '#E5E7EB';
-            if (isShowingPattern && dynamicData?.cognitiveGame?.includes(idx)) bgStyle = '#2563EB';
-            if (!isShowingPattern && userClicks.includes(idx)) bgStyle = '#4B5563';
+            let bgStyle = 'var(--c6)';
+            if (isShowingPattern && dynamicData?.cognitiveGame?.includes(idx)) bgStyle = 'var(--sky)';
+            if (!isShowingPattern && userClicks.includes(idx)) bgStyle = 'var(--c3)';
 
             return (
               <div 
@@ -306,49 +374,16 @@ function StartTest({ completeTest, patient }) {
     if (stepId === 'memory') {
       const q = dynamicData?.memoryQuestions[memoryIndex];
       if (!q) return <p style={{ color: 'var(--c4)', textAlign: 'center', padding: '20px' }}>Question data missing or invalid.</p>;
+      
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <span className="badge bg-blue" style={{ fontSize: '14px', padding: '6px 12px' }}>Question {memoryIndex + 1} of 5</span>
-            <span style={{ color: 'var(--c4)', fontSize: '14px' }}>Cognitive Skill Task</span>
-          </div>
-          
-          <p style={{ fontSize: '1.35rem', fontWeight: '600', color: '#1F2937', lineHeight: '1.5', margin: '10px 0' }}>
-            {q?.question}
-          </p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {q?.options.map(opt => (
-              <div 
-                key={opt} 
-                className={`test-option ${answers.memoryAnswers[q.id] === opt ? 'selected' : ''}`} 
-                style={{ 
-                  padding: '20px', fontSize: '1.15rem', borderRadius: '16px', 
-                  border: answers.memoryAnswers[q.id] === opt ? '2px solid #2563EB' : '1px solid #E5E7EB',
-                  backgroundColor: answers.memoryAnswers[q.id] === opt ? '#EFF6FF' : '#FFFFFF',
-                  cursor: 'pointer', transition: 'all 0.15s'
-                }}
-                onClick={() => setAnswers({
-                  ...answers, 
-                  memoryAnswers: { ...answers.memoryAnswers, [q.id]: opt }
-                })}
-              >
-                {opt}
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', flexWrap: 'wrap', gap: '10px' }}>
-            <button className="btn btn-ghost" disabled={memoryIndex === 0} onClick={() => setMemoryIndex(memoryIndex - 1)}>← Previous</button>
-            {memoryIndex < (dynamicData?.memoryQuestions?.length || 5) - 1 ? (
-              <button className="btn btn-primary" disabled={!answers.memoryAnswers[q?.id]} onClick={() => setMemoryIndex(memoryIndex + 1)}>
-                Next Question →
-              </button>
-            ) : (
-              <p style={{ color: '#10B981', fontWeight: '500', margin: 0 }}>✓ Dynamic Memory section checked!</p>
-            )}
-          </div>
-        </div>
+        <MemoryQuestion 
+            q={q} 
+            memoryIndex={memoryIndex} 
+            setMemoryIndex={setMemoryIndex} 
+            answers={answers} 
+            setAnswers={setAnswers} 
+            dynamicData={dynamicData} 
+        />
       );
     }
 
@@ -362,7 +397,7 @@ function StartTest({ completeTest, patient }) {
             <span style={{ color: 'var(--c4)', fontSize: '14px' }}>Self-Awareness Diary</span>
           </div>
 
-          <p style={{ fontSize: '1.35rem', fontWeight: '600', color: '#1F2937', lineHeight: '1.5', margin: '10px 0' }}>
+          <p style={{ fontSize: '1.35rem', fontWeight: '600', color: 'var(--c0)', lineHeight: '1.5', margin: '10px 0' }}>
             {q?.question}
           </p>
 
@@ -373,8 +408,8 @@ function StartTest({ completeTest, patient }) {
                 className={`test-option ${answers.behaviorAnswers[q.id] === opt ? 'selected' : ''}`} 
                 style={{ 
                   padding: '20px', fontSize: '1.15rem', borderRadius: '16px',
-                  border: answers.behaviorAnswers[q.id] === opt ? '2px solid #7C3AED' : '1px solid #E5E7EB',
-                  backgroundColor: answers.behaviorAnswers[q.id] === opt ? '#F5F3FF' : '#FFFFFF',
+                  border: answers.behaviorAnswers[q.id] === opt ? '2px solid var(--indigo)' : '1px solid var(--border)',
+                  backgroundColor: answers.behaviorAnswers[q.id] === opt ? 'var(--indigo-l)' : 'var(--surface)',
                   cursor: 'pointer', transition: 'all 0.15s'
                 }}
                 onClick={() => setAnswers({
@@ -390,11 +425,11 @@ function StartTest({ completeTest, patient }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px' }}>
             <button className="btn btn-ghost" disabled={behaviorIndex === 0} onClick={() => setBehaviorIndex(behaviorIndex - 1)}>← Previous</button>
             {behaviorIndex < (dynamicData?.behaviorQuestions?.length || 5) - 1 ? (
-              <button className="btn btn-purple" disabled={!answers.behaviorAnswers[q?.id]} onClick={() => setBehaviorIndex(behaviorIndex + 1)} style={{ backgroundColor: '#7C3AED', color: '#fff' }}>
+              <button className="btn btn-purple" disabled={!answers.behaviorAnswers[q?.id]} onClick={() => setBehaviorIndex(behaviorIndex + 1)} style={{ backgroundColor: 'var(--indigo)', color: 'var(--surface)' }}>
                 Next Question →
               </button>
             ) : (
-              <p style={{ color: '#10B981', fontWeight: '500', margin: 0 }}>✓ Self awareness metrics saved!</p>
+              <p style={{ color: 'var(--sage)', fontWeight: '500', margin: 0 }}>✓ Self awareness metrics saved!</p>
             )}
           </div>
         </div>
@@ -441,7 +476,7 @@ function StartTest({ completeTest, patient }) {
   return (
     <div className="page" style={{ maxWidth: '650px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-        <h2 style={{ fontSize: '20px', margin: 0, fontWeight: '600', color: '#111827' }}>Screening Module: {patient?.name}</h2>
+        <h2 style={{ fontSize: '20px', margin: 0, fontWeight: '600', color: 'var(--c0)' }}>Screening Module: {patient?.name}</h2>
         <span className="badge bg" style={{ fontSize: '13px', padding: '5px 10px' }}>Block {currentStep + 1} of 5</span>
       </div>
 
@@ -450,14 +485,14 @@ function StartTest({ completeTest, patient }) {
           <div key={i} style={{ flex: 1 }}>
             <div style={{ 
               height: '8px', borderRadius: '12px', 
-              background: i === currentStep ? '#2563EB' : stepStatus[i] === 'completed' ? '#10B981' : stepStatus[i] === 'missed' ? '#EF4444' : '#E5E7EB',
+              background: i === currentStep ? 'var(--sky)' : stepStatus[i] === 'completed' ? 'var(--sage)' : stepStatus[i] === 'missed' ? 'var(--rose)' : 'var(--c6)',
               transition: 'all 0.3s'
             }}></div>
           </div>
         ))}
       </div>
 
-      <div className="card" style={{ minHeight: '440px', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', backgroundColor: '#fff', border: '1px solid #F3F4F6' }}>
+      <div className="card" style={{ minHeight: '440px', borderRadius: '24px', boxShadow: 'var(--sh1)', backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
         {renderContent()}
       </div>
 

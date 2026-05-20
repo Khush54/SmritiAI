@@ -10,6 +10,7 @@ import Reports from '../components/Doctor/Reports';
 import Analytics from '../components/Doctor/Analytics';
 import Notes from '../components/Doctor/Notes';
 import FollowUps from '../components/Doctor/FollowUps';
+import Feedback from '../components/Doctor/Feedback';
 import { getDoctorDashboard } from '../Services/doctorService';
 import { updateUserProfile } from '../Services/authService';
 
@@ -130,6 +131,8 @@ function Doctor() {
                 <div className="main-content">
                     <Routes>
                         <Route path="/" element={<Navigate to="home" replace />} />
+
+
                         <Route path="home" element={<Home dashboard={dashboard} loading={dashboardLoading} error={dashboardError} doctor={userData} />} />
                         <Route path="patients" element={<Patients dashboard={dashboard} loading={dashboardLoading} error={dashboardError} searchQuery={searchQuery} />} />
                         <Route path="reports" element={<Reports dashboard={dashboard} loading={dashboardLoading} error={dashboardError} />} />
@@ -143,6 +146,7 @@ function Doctor() {
                                 onUpdateDoctor={handleUpdateDoctor} 
                             />
                         } />
+                        <Route path="feedback" element={<Feedback />} />
                     </Routes>
                 </div>
             </div>

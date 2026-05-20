@@ -118,7 +118,16 @@ function Patients({ dashboard, loading, error, searchQuery = '' }) {
                             <div className="card kpi"><div className="kpi-label">Score</div><div className="kpi-val">{selectedPatient.score ?? 'NA'}</div></div>
                             <div className="card kpi"><div className="kpi-label">Status</div><div className="kpi-val" style={{ color: getScoreColor(selectedPatient.score) }}>{selectedPatient.risk}</div></div>
                         </div>
-                        <button className="btn btn-c" style={{ width: '100%', marginTop: '20px' }} onClick={() => setSelectedPatient(null)}>Close Analysis</button>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+                            <button className="btn btn-v" style={{ flex: 1 }} onClick={() => {
+                                // Ideally navigate to reports with the selected patient ID
+                                window.location.href = '/doctor/reports';
+                            }}>Full Report</button>
+                            <button className="btn btn-g" style={{ flex: 1 }} onClick={() => {
+                                window.location.href = '/doctor/notes';
+                            }}>Add Note</button>
+                        </div>
+                        <button className="btn btn-c" style={{ width: '100%', marginTop: '12px' }} onClick={() => setSelectedPatient(null)}>Close</button>
                     </div>
                 </div>
             )}

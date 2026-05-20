@@ -3,7 +3,15 @@ import React, { useState } from 'react';
 const formatTime = (date) => date ? new Date(date).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Now';
 
 const Alerts = ({ dashboard, loading, error }) => {
-  const [dismissed, setDismissed] = useState([]);
+  const [dismissed, setDismissed] = useState(() => {
+    const saved = localStorage.getItem('smriti_dismissed_alerts');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('smriti_dismissed_alerts', JSON.stringify(dismissed));
+  }, [dismissed]);
+
   const alerts = (dashboard?.alerts || []).filter(alert => !dismissed.includes(alert.id));
 
   const counts = {

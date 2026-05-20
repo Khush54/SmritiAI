@@ -1,84 +1,171 @@
+# 🧠 Smriti AI – AI Powered Dementia Care & Cognitive Monitoring Platform
 
-# 🧠 Smriti AI – AI-Powered Dementia Care Platform
-
-> A vernacular AI healthcare platform focused on early-stage dementia detection, cognitive monitoring, patient management, and caregiver support. Smriti AI bridges the gap between technology and elderly care, providing tools for caregivers and doctors to track cognitive health effectively.
-
----
-
-## 🌟 Overview
-
-Smriti AI is a healthcare platform designed to help caregivers, families, and doctors monitor cognitive health and behavioral changes in elderly patients using AI-assisted tools and smart dashboards. The platform transitions from static data to a dynamic, record-driven analysis tool.
-
-### Key Pillars:
-- **Multi-Patient Management**: Caregivers can manage multiple elderly family members from a single account.
-- **Role-Based Dashboards**: Tailored experiences for both Caregivers (Users) and Healthcare Professionals (Doctors).
-- **Cognitive Health Tracking**: Persistent storage of patient assessments and clinical reports.
-- **Vernacular Accessibility**: Designed to support regional languages (Hindi, Punjabi) to reach a broader audience.
+> Smriti AI is an AI-powered healthcare platform focused on early-stage dementia support, cognitive monitoring, behavioral tracking, and patient management. The platform helps caregivers and doctors monitor elderly patients through smart dashboards, assessment reports, and centralized patient records.
 
 ---
 
-## 🚀 Core Features
+# 🌟 Project Overview
 
-### 🔐 Advanced Authentication System
-- **Provider**: Firebase Authentication integration.
-- **Methods**: Google Sign-In (Primary) and Email/Password authentication.
-- **Secure Sessions**: JWT-based backend authentication for protected API routes.
-- **Role Selection**: Forced role selection (User/Doctor) during onboarding to ensure data privacy and relevant UI.
+Smriti AI is designed to simplify elderly cognitive healthcare by combining:
 
-### 👨‍👩‍👧 User (Caregiver) Portal
-- **Patient Profiles**: Create and manage detailed profiles for multiple patients.
-- **Cognitive Monitoring**: Track risk indicators and health summaries over time.
-- **Behavioral Logs**: Monitor mood, sleep quality, appetite, and daily patterns.
-- **History Tracking**: Seamlessly switch between patients to view their individual medical history.
+- AI-assisted cognitive monitoring
+- Multi-patient management
+- Doctor and user dashboards
+- Health report generation
+- Behavioral tracking
+- Vernacular accessibility
 
-### 🏥 Doctor Dashboard
-- **Patient Analysis**: Deep dive into patient cognitive history and behavioral insights.
-- **Progress Monitoring**: Analyze patient progress through longitudinal data.
-- **Test Review**: Access and review results from AI-powered cognitive assessments.
-
-### 🧠 Cognitive Assessment System (In Development)
-- **Persistent Storage**: Save and retrieve screening results for each patient.
-- **Dynamic Reports**: Clinical reports that update based on the latest test responses.
-- **Metric Engine**: Mock metric breakdown engine for granular health insights.
+The platform allows users to manage multiple patients from one account while enabling doctors to review patient progress, reports, and assessment history efficiently.
 
 ---
 
-## 🛠️ Tech Stack
+# 🚀 Main Features
 
-### Frontend
-- **Framework**: React.js
-- **State Management**: React Context API
-- **Styling**: Vanilla CSS (Custom UI), Tailwind CSS (Utilities)
-- **Auth**: Firebase Client SDK
-
-### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB Atlas (Mongoose ODM)
-- **Security**: JSON Web Tokens (JWT), Auth Middleware
-- **Environment**: Dotenv for configuration
+## 🔐 Authentication & Security
+- Firebase Authentication integration
+- Google Sign-In support
+- Email & Password authentication
+- JWT-based secure backend authentication
+- Role-based access control (User / Doctor)
 
 ---
 
-## 📂 Project Structure
+# 👨‍👩‍👧 User Dashboard
+
+Users can:
+
+- Add and manage multiple patients
+- Monitor patient cognitive health
+- View patient history
+- Track mood, sleep, appetite, and behavior
+- Access AI-generated health insights
+- Store patient records securely
+
+### User Dashboard Modules
+- Home Dashboard
+- Patient Management
+- Health Reports
+- Cognitive Tracking
+- Notifications
+- Settings
+
+---
+
+# 🏥 Doctor Dashboard
+
+Doctors can:
+
+- Access patient medical history
+- Review cognitive assessment reports
+- Analyze behavioral patterns
+- Monitor patient progress over time
+- View AI-generated insights
+- Manage multiple patient records efficiently
+
+### Doctor Dashboard Modules
+- Analytics Dashboard
+- Patient Overview
+- Medical Reports
+- Clinical Notes
+- Alerts & Notifications
+- Report Review System
+
+---
+
+# 📄 Reports System
+
+Smriti AI includes a report management system for storing and analyzing patient information.
+
+## Types of Reports
+- Cognitive Assessment Reports
+- Behavioral Analysis Reports
+- Patient Progress Reports
+- Risk Evaluation Reports
+- Doctor Review Reports
+
+## Report Features
+- Persistent report storage
+- Dynamic report generation
+- Patient-wise report history
+- Doctor access to reports
+- Future AI-based prediction support
+
+---
+
+# 🧠 Cognitive Monitoring System
+
+The platform helps track:
+
+- Memory-related symptoms
+- Behavioral changes
+- Sleep patterns
+- Emotional stability
+- Daily health indicators
+- Cognitive risk progression
+
+---
+
+# 🌐 Vernacular Accessibility
+
+Smriti AI is designed to support regional accessibility by integrating:
+- 10 +  Indian language support
+- Easy-to-understand UI for elderly users and caregivers
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+- React.js
+- React Router
+- Context API
+- Tailwind CSS
+- Vanilla CSS
+
+## Backend
+- Node.js
+- Express.js
+
+## Database
+- MongoDB Atlas
+- Mongoose ODM
+
+## Authentication
+- Firebase Authentication
+- JWT Authentication
+
+## Tools & Services
+- Git & GitHub
+- Postman
+- Vite
+- Dotenv
+
+---
+
+# 📂 Project Structure
 
 ```text
 Smriti-AI/
-├── FrontEnd/             # React Application
+│
+├── FrontEnd/
 │   ├── src/
-│   │   ├── components/   # Reusable UI components
-│   │   ├── pages/        # Dashboard and Auth views
-│   │   ├── Services/     # API integration logic
-│   │   └── Firebase/     # Firebase configuration
-├── BackEnd/              # Node.js API
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── Services/
+│   │   ├── Firebase/
+│   │   └── assets/
+│
+├── BackEnd/
 │   ├── src/
-│   │   ├── controllers/  # Request handlers
-│   │   ├── models/       # Mongoose schemas
-│   │   ├── routes/       # API endpoints
-│   │   └── middleware/   # Auth and error handling
-│   └── app.js            # Entry point
-```
-
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── models/
+│   │   ├── middleware/
+│   │   └── config/
+│   │
+│   └── app.js
+│
+└── README.md
 ---
 
 ## ⚙️ Installation & Setup
@@ -97,6 +184,7 @@ npm install
 # PORT=5000
 # MONGO_URI=your_mongodb_uri
 # JWT_SECRET=your_secret
+# API_KEYS
 npm start
 ```
 
@@ -109,17 +197,30 @@ npm run dev
 ```
 
 ---
-
-## 🔜 Roadmap
-- [ ] **AI Test Modules**: Voice-based memory assessments and drawing analysis.
-- [ ] **Longitudinal Visualization**: Chart.js integration for cognitive decline tracking.
-- [ ] **Smart Notifications**: Behavioral anomaly alerts and medication reminders.
-- [ ] **Full Vernacular Support**: Complete UI translation for Hindi and Punjabi.
+# 🔄 Workflow of the Platform
+- User signs in using Firebase Authentication
+- User selects role (User / Doctor)
+- User adds patient profiles
+- Patient data gets stored in MongoDB
+- Doctors can review reports and analytics
+- Reports and insights are generated dynamically
+- Historical records are maintained for monitoring
 
 ---
 
-## 📌 Note
-This project is currently in active development. Features, API endpoints, and UI components are subject to change as we refine the dementia detection algorithms.
+# 🔮 Future Scope
+- OCR-based medical document scanning
 
-## 👩‍💻 Author
-**Khushpreet Kaur**
+- Video consultation support
+- Advanced report analytics
+- Multi-language chatbot assistant
+
+---
+
+# 👩‍💻 Developed By
+ Khushpreet Kaur
+
+---
+
+# 🤝 Contribution
+#Contributions, improvements, and suggestions are welcome for enhancing dementia care technology and accessibility.

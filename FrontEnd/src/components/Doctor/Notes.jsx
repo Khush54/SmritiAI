@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { saveClinicalNote } from '../../Services/doctorService';
+import { AppContext } from '../../context/AppContext';
 
 const EMPTY_PATIENTS = [];
 const EMPTY_NOTES = [];
@@ -7,6 +8,7 @@ const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-IN', {
 const scoreColor = (score = 0) => score < 50 ? 'var(--rose)' : score < 75 ? 'var(--amber)' : 'var(--emerald)';
 
 function Notes({ dashboard, loading, error, refreshDashboard }) {
+    const { showAlert } = useContext(AppContext);
     const patients = dashboard?.patients || EMPTY_PATIENTS;
     const noteHistory = dashboard?.noteHistory || EMPTY_NOTES;
     const [saving, setSaving] = useState(false);
@@ -30,7 +32,7 @@ function Notes({ dashboard, loading, error, refreshDashboard }) {
 
     const handleSubmit = async (isSharing) => {
         if (!formData.patientId || !formData.observation.trim()) {
-            alert("Please select a patient and enter clinical observations.");
+            showAlert("Please select a patient and enter clinical observations.", "error");
             return;
         }
 
@@ -44,10 +46,10 @@ function Notes({ dashboard, loading, error, refreshDashboard }) {
             });
             await refreshDashboard?.();
             setFormData(prev => ({ ...prev, observation: '', recommendations: '' }));
-            alert(isSharing ? "Note saved and shared with caregiver." : "Clinical note saved.");
+            showAlert(isSharing ? "Note saved and shared with caregiver." : "Clinical note saved.", "success");
         } catch (err) {
             console.error("Error saving note", err);
-            alert("Error saving note.");
+            showAlert("Error saving note.", "error");
         } finally {
             setSaving(false);
         }

@@ -65,6 +65,7 @@ const Sidebar = ({ isOpen, onClose, dashboard, loading }) => {
             </div>
             
             {navItem("settings", "⚙️", "Settings")}
+            {navItem("feedback", "💬", "Share Feedback")}
             
             <div className="sb-it" onClick={() => { localStorage.clear(); window.location.href = '/'; onClose && onClose(); }}> 
                 <div className="ico">🚪</div> Log Out 

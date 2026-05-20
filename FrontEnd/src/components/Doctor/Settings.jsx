@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AppContext } from '../../context/AppContext';
+
 function Settings({ doctorData, onUpdateDoctor }) {
+    const { showAlert } = useContext(AppContext);
     const [activeTab, setActiveTab] = useState('profile');
     const [selectedLang, setSelectedLang] = useState('en');
     const [formData, setFormData] = useState({});
@@ -43,6 +46,7 @@ function Settings({ doctorData, onUpdateDoctor }) {
     const handleLanguageChange = (langCode) => {
         setSelectedLang(langCode);
         const googleSelect = document.querySelector('.goog-te-combo');
+
         if (googleSelect) {
             googleSelect.value = langCode;
             googleSelect.dispatchEvent(new Event('change'));
@@ -68,85 +72,86 @@ function Settings({ doctorData, onUpdateDoctor }) {
         };
         try {
             await onUpdateDoctor(updatedData);
-            alert(`Profile updated successfully, Dr. ${formData.lastName}`);
+            showAlert(`Profile updated successfully, Dr. ${formData.lastName}`, 'success');
         } catch (error) {
             console.error("Doctor profile update failed", error);
-            alert(error.response?.data?.message || "Unable to save profile changes.");
         }
     };
 
     const renderSettingsContent = () => {
-        if (activeTab === 'profile') return (
-            <div className="settings-section">
-                <div className="settings-section-title" style={{ marginBottom: '20px', fontWeight: '700' }}>Professional Information</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '22px', fontWeight: '600' }}>
-                        {doctorData.initials}
-                    </div>
-                    <div>
-                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>{doctorData.name}</div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{doctorData.role}</div>
-                    </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div className="form-group"><label className="form-label">First Name</label>
-                        <input type="text" className="form-input" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
-                    </div>
-                    <div className="form-group"><label className="form-label">Last Name</label>
-                        <input type="text" className="form-input" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
-                    </div>
-                    <div className="form-group"><label className="form-label">Specialization</label>
-                        <input type="text" className="form-input" value={formData.specialization} onChange={(e) => setFormData({...formData, specialization: e.target.value})} />
-                    </div>
-                    <div className="form-group"><label className="form-label">License Number</label>
-                        <input type="text" className="form-input" value={formData.license} onChange={(e) => setFormData({...formData, license: e.target.value})} />
-                    </div>
-                    <div className="form-group"><label className="form-label">Email Address</label>
-                        <input type="email" className="form-input" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-                    </div>
-                    <div className="form-group"><label className="form-label">Clinic Name</label>
-                        <input type="text" className="form-input" value={formData.clinic} onChange={(e) => setFormData({...formData, clinic: e.target.value})} />
-                    </div>
-                    <div className="form-group"><label className="form-label">Practice City</label>
-                        <input type="text" className="form-input" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
-                    </div>
-                </div>
-                <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
-            </div>
-        );
-
-        if (activeTab === 'language') return (
-            <div className="settings-section">
-                <div className="settings-section-title" style={{ fontWeight: '700', marginBottom: '10px' }}>Portal Language</div>
-                <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', marginBottom: '18px' }}>
-                    Choose the interface language for your workspace.
-                </p>
-                <div className="lang-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
-                    {languages.map(l => (
-                        <div
-                            key={l.code}
-                            className={`lang-pill notranslate ${selectedLang === l.code ? 'sel' : ''}`}
-                            onClick={() => handleLanguageChange(l.code)}
-                            style={{
-                                padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', fontSize: '13px',
-                                background: selectedLang === l.code ? 'var(--blue)' : 'var(--gray-100)',
-                                color: selectedLang === l.code ? '#fff' : 'var(--text-secondary)',
-                                border: '1px solid var(--border)',
-                                transition: '0.2s'
-                            }}
-                        >
-                            {l.name}
+        if (activeTab === 'profile') {
+            return (
+                <div className="settings-section">
+                    <div className="settings-section-title" style={{ marginBottom: '20px', fontWeight: '700' }}>Professional Information</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg,var(--blue),var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '22px', fontWeight: '600' }}>
+                            {doctorData.initials}
                         </div>
-                    ))}
+                        <div>
+                            <div style={{ fontWeight: '600', marginBottom: '4px' }}>{doctorData.name}</div>
+                            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{doctorData.role}</div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div className="form-group"><label className="form-label">First Name</label>
+                            <input type="text" className="form-input" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
+                        </div>
+                        <div className="form-group"><label className="form-label">Last Name</label>
+                            <input type="text" className="form-input" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
+                        </div>
+                        <div className="form-group"><label className="form-label">Specialization</label>
+                            <input type="text" className="form-input" value={formData.specialization} onChange={(e) => setFormData({...formData, specialization: e.target.value})} />
+                        </div>
+                        <div className="form-group"><label className="form-label">License Number</label>
+                            <input type="text" className="form-input" value={formData.license} onChange={(e) => setFormData({...formData, license: e.target.value})} />
+                        </div>
+                        <div className="form-group"><label className="form-label">Email Address</label>
+                            <input type="email" className="form-input" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                        </div>
+                        <div className="form-group"><label className="form-label">Clinic Name</label>
+                            <input type="text" className="form-input" value={formData.clinic} onChange={(e) => setFormData({...formData, clinic: e.target.value})} />
+                        </div>
+                        <div className="form-group"><label className="form-label">Practice City</label>
+                            <input type="text" className="form-input" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
+                        </div>
+                    </div>
+                    <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
                 </div>
-                <div style={{ background: 'var(--blue-light)', borderRadius: 'var(--radius-md)', padding: '14px', fontSize: '13px', color: 'var(--blue)' }}>
-                    ✅ Active Language: <strong className="notranslate">{languages.find(l => l.code === selectedLang)?.name}</strong>
+            );
+        }
+
+        if (activeTab === 'language') {
+            return (
+                <div className="settings-section">
+                    <div className="settings-section-title" style={{ fontWeight: '700', marginBottom: '10px' }}>Portal Language</div>
+                    <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', marginBottom: '18px' }}>
+                        Choose the interface language for your workspace.
+                    </p>
+                    <div className="lang-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
+                        {languages.map(l => (
+                            <div
+                                key={l.code}
+                                className={`lang-pill notranslate ${selectedLang === l.code ? 'sel' : ''}`}
+                                onClick={() => handleLanguageChange(l.code)}
+                                style={{
+                                    padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', fontSize: '13px',
+                                    background: selectedLang === l.code ? 'var(--blue)' : 'var(--gray-100)',
+                                    color: selectedLang === l.code ? '#fff' : 'var(--text-secondary)',
+                                    border: '1px solid var(--border)',
+                                    transition: '0.2s'
+                                }}
+                            >
+                                {l.name}
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{ background: 'var(--blue-light)', borderRadius: 'var(--radius-md)', padding: '14px', fontSize: '13px', color: 'var(--blue)' }}>
+                        ✅ Active Language: <strong className="notranslate">{languages.find(l => l.code === selectedLang)?.name}</strong>
+                    </div>
+                    <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={handleSave}>Apply Language Globally</button>
                 </div>
-                <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={handleSave}>Apply Language Globally</button>
-            </div>
-        );
-
-
+            );
+        }
     };
 
     return (
@@ -180,5 +185,6 @@ function Settings({ doctorData, onUpdateDoctor }) {
         </div>
     );
 }
+
 
 export default Settings;
