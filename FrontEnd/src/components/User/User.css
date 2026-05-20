@@ -97,7 +97,10 @@
 
 .user-scope {
     font-family: var(--font-body);
-    overflow-x: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     background: var(--c8);
     color: var(--c0);
     font-size: 15px;

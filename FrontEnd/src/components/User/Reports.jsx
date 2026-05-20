@@ -223,6 +223,16 @@ function Reports({ patient }) {
         );
     }
 
+    if (!patient) {
+        return (
+            <div className="page" style={{ padding: '80px 20px', textAlign: 'center' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+                <h2 style={{ fontSize: '24px', color: 'var(--c1)', marginBottom: '8px', fontWeight: '600' }}>No Patient Selected</h2>
+                <p style={{ color: 'var(--c3)', fontSize: '15px' }}>Please select a patient from the home dashboard to view their clinical reports.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="page" style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
             {/* Header Module Matrix */}
