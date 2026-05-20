@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/feedback",
+  baseURL: import.meta.env.VITE_API_URL + "/api/feedback",
 });
 
 API.interceptors.request.use((req) => {
@@ -18,6 +18,6 @@ export const submitFeedback = async (feedbackData) => {
 };
 
 export const getPublicFeedback = async () => {
-  const response = await axios.get("http://localhost:5000/api/feedback");
+  const response = await axios.get(import.meta.env.VITE_API_URL + "/api/feedback");
   return response.data;
 };

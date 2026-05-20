@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/patients/doctor"
+  baseURL: import.meta.env.VITE_API_URL + "/api/patients/doctor"
 });
 
 API.interceptors.request.use((req) => {
@@ -20,7 +20,7 @@ export const getDoctorDashboard = async () => {
 export const saveClinicalNote = async (patientId, noteData) => {
   const token = localStorage.getItem("token");
   const response = await axios.post(
-    `http://localhost:5000/api/patients/${patientId}/clinical-notes`,
+    `${import.meta.env.VITE_API_URL}/api/patients/${patientId}/clinical-notes`,
     noteData,
     {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
