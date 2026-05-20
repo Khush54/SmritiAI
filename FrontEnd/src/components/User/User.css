@@ -98,6 +98,7 @@
 .user-scope {
     font-family: var(--font-body);
     height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -123,6 +124,8 @@ body:has(.user-scope) {
     top: 0;
     z-index: 200;
     height: var(--nav);
+    min-height: var(--nav);
+    flex: 0 0 var(--nav);
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -130,6 +133,10 @@ body:has(.user-scope) {
     padding: 0 22px;
     gap: 14px;
     box-shadow: var(--sh1)
+}
+
+.user-scope .nav > div:first-child {
+    min-width: 0;
 }
 
 .user-scope .mobile-menu-btn {
@@ -146,12 +153,14 @@ body:has(.user-scope) {
     display: flex;
     align-items: center;
     gap: 10px;
-    cursor: pointer
+    cursor: pointer;
+    min-width: 0
 }
 
 .user-scope .brand-ico {
     width: 38px;
     height: 38px;
+    flex: 0 0 38px;
     border-radius: var(--r10);
     background: linear-gradient(135deg, var(--warm), #FBBF24);
     display: flex;
@@ -165,7 +174,10 @@ body:has(.user-scope) {
     font-family: var(--font-display);
     font-size: 19px;
     font-weight: 600;
-    color: var(--c0)
+    color: var(--c0);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
 }
 
 .user-scope .nav-role {
@@ -183,13 +195,16 @@ body:has(.user-scope) {
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 10px
+    gap: 10px;
+    flex: 0 0 auto
 }
 
 .user-scope .nav-pill {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
+    max-width: min(260px, 42vw);
     padding: 7px 14px;
     border-radius: var(--r-f);
     border: 1.5px solid var(--border);
@@ -198,6 +213,22 @@ body:has(.user-scope) {
     transition: .18s;
     background: var(--surface);
     color: var(--c2)
+}
+
+.user-scope .nav-pill span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-scope .dash-layout {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: calc(100dvh - var(--nav));
+    overflow: hidden;
+    background: var(--c8);
 }
 
 .user-scope .nav-pill:hover {
@@ -250,6 +281,7 @@ body:has(.user-scope) {
 
 .user-scope .sidebar {
     width: var(--side);
+    flex: 0 0 var(--side);
     background: var(--surface);
     border-right: 1px solid var(--border);
     padding: 20px 14px;
@@ -257,10 +289,21 @@ body:has(.user-scope) {
     flex-direction: column;
     gap: 3px;
     overflow-y: auto;
-    flex-shrink: 0;
     position: sticky;
     top: var(--nav);
-    height: calc(100vh - var(--nav))
+    height: calc(100dvh - var(--nav))
+}
+
+.user-scope .main-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px;
+    background: var(--c8);
+    overscroll-behavior: contain;
 }
 
 .user-scope .sb-lbl {

@@ -211,9 +211,6 @@ function Reports({ patient }) {
         }]
     };
 
-    const hasNoScore = patient.score === null || patient.score === undefined;
-    const riskColor = patient.risk === 'High' ? '#EF4444' : (patient.risk === 'Moderate' || patient.risk === 'Medium') ? '#F59E0B' : '#10B981';
-
     if (loading) {
         return (
             <div className="page" style={{ textAlign: 'center', padding: '100px 0' }}>
@@ -232,6 +229,9 @@ function Reports({ patient }) {
             </div>
         );
     }
+
+    const hasNoScore = patient.score === null || patient.score === undefined;
+    const riskColor = patient.risk === 'High' ? '#EF4444' : (patient.risk === 'Moderate' || patient.risk === 'Medium') ? '#F59E0B' : '#10B981';
 
     return (
         <div className="page" style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
