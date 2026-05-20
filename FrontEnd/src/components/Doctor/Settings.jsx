@@ -24,7 +24,7 @@ function Settings({ doctorData, onUpdateDoctor }) {
 
     if (!doctorData) {
         return (
-            <div className="page" style={{ textAlign: 'center', padding: '100px' }}>
+            <div className="page" style={{ textAlign: 'center', padding: 'clamp(48px, 12vw, 100px) 20px' }}>
                 <h2 style={{ color: 'var(--c1)' }}>Loading Profile...</h2>
             </div>
         );

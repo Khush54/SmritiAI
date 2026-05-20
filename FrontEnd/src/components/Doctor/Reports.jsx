@@ -5,11 +5,12 @@ Chart.register(...registerables);
 
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Pending';
 const scoreColor = (score = 0) => score < 50 ? 'var(--rose)' : score < 75 ? 'var(--amber)' : 'var(--emerald)';
+const getId = (item) => item?.id || item?._id;
 
 function Reports({ dashboard, loading, error }) {
     const reports = dashboard?.reports || [];
     const [activeReportId, setActiveReportId] = useState(null);
-    const activeReport = reports.find(report => report.id === activeReportId) || reports[0] || null;
+    const activeReport = reports.find(report => getId(report) === activeReportId) || reports[0] || null;
     const radarRef = useRef(null);
     const chartInstance = useRef(null);
 
@@ -79,9 +80,9 @@ function Reports({ dashboard, loading, error }) {
                             <div className="sh-sub">AI-FLAGGED FOR CLINICAL ACTION</div>
                         </div>
                         {reports.map(report => (
-                            <div key={report.id} onClick={() => setActiveReportId(report.id)} style={{
+                            <div key={getId(report)} onClick={() => setActiveReportId(getId(report))} style={{
                                 display: 'flex', alignItems: 'center', gap: '14px', padding: '14px',
-                                borderRadius: '8px', background: activeReport?.id === report.id ? 'var(--navy-3)' : 'var(--navy-4)',
+                                borderRadius: '8px', background: getId(activeReport) === getId(report) ? 'var(--navy-3)' : 'var(--navy-4)',
                                 marginBottom: '8px', border: `1px solid ${report.flag ? 'rgba(244,63,94,.2)' : 'var(--border)'}`,
                                 cursor: 'pointer'
                             }}>

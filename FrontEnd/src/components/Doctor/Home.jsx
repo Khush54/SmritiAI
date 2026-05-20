@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const initials = (name = '') => name.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase();
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Pending';
 const scoreColor = (score = 0) => score < 50 ? 'var(--rose)' : score < 75 ? 'var(--amber)' : 'var(--emerald)';
+const getId = (item) => item?.id || item?._id;
 
 const Home = ({ dashboard, loading, error, doctor }) => {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ const Home = ({ dashboard, loading, error, doctor }) => {
     const patients = dashboard?.patients || [];
 
     const highPts = patients.filter(p => p.risk === 'High');
-    const selectedPatient = patients.find(p => p.id === selectedId);
+    const selectedPatient = patients.find(p => getId(p) === selectedId);
     const stats = [
         { label: 'Assigned Patients', val: patients.length, color: 'var(--cyan)', icon: 'PT', target: 'patients' },
         { label: 'High Risk', val: highPts.length, color: 'var(--rose)', icon: 'HR', target: 'alerts' },
@@ -81,8 +82,10 @@ const Home = ({ dashboard, loading, error, doctor }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {patients.map(p => (
-                                        <tr key={p.id} style={{ background: selectedId === p.id ? 'var(--navy-2)' : 'transparent' }}>
+                                    {patients.map(p => {
+                                        const patientId = getId(p);
+                                        return (
+                                        <tr key={patientId} style={{ background: selectedId === patientId ? 'var(--navy-2)' : 'transparent' }}>
                                             <td>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <div className="nav-avi" style={{ width: '32px', height: '32px', fontSize: '12px' }}>{initials(p.name)}</div>
@@ -96,12 +99,12 @@ const Home = ({ dashboard, loading, error, doctor }) => {
                                             <td style={{ color: scoreColor(p.score), fontFamily: 'var(--mono)', fontWeight: 600 }}>{p.score ?? 'NA'}</td>
                                             <td style={{ fontSize: '12px', color: 'var(--b2)' }}>{formatDate(p.lastTest)}</td>
                                             <td style={{ textAlign: 'right' }}>
-                                                <button className="btn btn-g btn-sm" onClick={() => setSelectedId(p.id === selectedId ? null : p.id)}>
-                                                    {selectedId === p.id ? 'Close' : 'Quick View'}
+                                                <button className="btn btn-g btn-sm" onClick={() => setSelectedId(patientId === selectedId ? null : patientId)}>
+                                                    {selectedId === patientId ? 'Close' : 'Quick View'}
                                                 </button>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )})}
                                 </tbody>
                             </table>
                         </div>
@@ -116,7 +119,7 @@ const Home = ({ dashboard, loading, error, doctor }) => {
                             <div style={{ textAlign: 'center', padding: '20px 0' }}>
                                 <div className="nav-avi" style={{ width: '64px', height: '64px', fontSize: '24px', margin: '0 auto 12px' }}>{initials(selectedPatient.name)}</div>
                                 <h2 style={{ color: 'var(--b1)' }}>{selectedPatient.name}</h2>
-                                <p style={{ color: 'var(--b3)' }}>Patient ID: {selectedPatient.id}</p>
+                                <p style={{ color: 'var(--b3)' }}>Patient ID: {getId(selectedPatient)}</p>
                             </div>
                             <div className="g2" style={{ gap: '10px' }}>
                                 <div className="card kpi" style={{ padding: '12px' }}>

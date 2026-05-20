@@ -4,6 +4,7 @@ import { getAlerts, markAlertsRead } from '../Services/alertService';
 import AlertModal from '../components/User/AlertModal';
 
 export const AppContext = createContext();
+const getId = (item) => item?.id || item?._id;
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -62,7 +63,7 @@ export const AppProvider = ({ children }) => {
 
     const newAlert = {
       id: Date.now(),
-      patientId: newPatient.id,
+      patientId: getId(newPatient),
       patientName: newPatient.name,
       title: 'Profile Created',
       message: `Successfully added ${newPatient.name} to monitoring.`,
@@ -75,10 +76,10 @@ export const AppProvider = ({ children }) => {
 
   const updatePatient = (updatedData) => {
     setPatients(prev => prev.map(p =>
-      p.id === updatedData.id ? { ...p, ...updatedData } : p
+      getId(p) === getId(updatedData) ? { ...p, ...updatedData } : p
     ));
 
-    if (selectedPatient && selectedPatient.id === updatedData.id) {
+    if (selectedPatient && getId(selectedPatient) === getId(updatedData)) {
       setSelectedPatient({ ...selectedPatient, ...updatedData });
     }
   };

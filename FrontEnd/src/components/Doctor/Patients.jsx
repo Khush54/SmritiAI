@@ -1,12 +1,15 @@
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Doctor.css';
 
 const EMPTY_PATIENTS = [];
 const initials = (name = '') => name.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase();
 const getScoreColor = (score = 0) => score < 50 ? '#F43F5E' : score < 75 ? '#F59E0B' : '#10B981';
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Pending';
+const getId = (item) => item?.id || item?._id;
 
 function Patients({ dashboard, loading, error, searchQuery = '' }) {
+    const navigate = useNavigate();
     const [riskFilter, setRiskFilter] = useState('all');
     const [selectedPatient, setSelectedPatient] = useState(null);
     const patients = dashboard?.patients || EMPTY_PATIENTS;
@@ -73,7 +76,7 @@ function Patients({ dashboard, loading, error, searchQuery = '' }) {
                             </thead>
                             <tbody>
                                 {filtered.map(p => (
-                                    <tr key={p.id}>
+                                    <tr key={getId(p)}>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <div className="avatar-small">{initials(p.name)}</div>
@@ -120,11 +123,10 @@ function Patients({ dashboard, loading, error, searchQuery = '' }) {
                         </div>
                         <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
                             <button className="btn btn-v" style={{ flex: 1 }} onClick={() => {
-                                // Ideally navigate to reports with the selected patient ID
-                                window.location.href = '/doctor/reports';
+                                navigate('/doctor/reports');
                             }}>Full Report</button>
                             <button className="btn btn-g" style={{ flex: 1 }} onClick={() => {
-                                window.location.href = '/doctor/notes';
+                                navigate('/doctor/notes');
                             }}>Add Note</button>
                         </div>
                         <button className="btn btn-c" style={{ width: '100%', marginTop: '12px' }} onClick={() => setSelectedPatient(null)}>Close</button>

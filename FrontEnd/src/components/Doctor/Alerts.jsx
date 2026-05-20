@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 const formatTime = (date) => date ? new Date(date).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Now';
+const getId = (item) => item?.id || item?._id;
 
 const Alerts = ({ dashboard, loading, error }) => {
   const [dismissed, setDismissed] = useState(() => {
@@ -12,7 +13,7 @@ const Alerts = ({ dashboard, loading, error }) => {
     localStorage.setItem('smriti_dismissed_alerts', JSON.stringify(dismissed));
   }, [dismissed]);
 
-  const alerts = (dashboard?.alerts || []).filter(alert => !dismissed.includes(alert.id));
+  const alerts = (dashboard?.alerts || []).filter(alert => !dismissed.includes(getId(alert)));
 
   const counts = {
     critical: alerts.filter(a => a.type === 'critical').length,
@@ -43,7 +44,7 @@ const Alerts = ({ dashboard, loading, error }) => {
             <p>{alerts.length} UNREAD - ASSIGNED PATIENTS ONLY</p>
           </div>
           {alerts.length > 0 && (
-            <button className="btn btn-g btn-sm" onClick={() => setDismissed(alerts.map(alert => alert.id))}>
+            <button className="btn btn-g btn-sm" onClick={() => setDismissed(alerts.map(alert => getId(alert)))}>
               Mark All Read
             </button>
           )}
@@ -59,7 +60,7 @@ const Alerts = ({ dashboard, loading, error }) => {
 
       <div className="card" style={{ padding: '20px' }}>
         {alerts.length > 0 ? alerts.map((alert) => (
-          <div key={alert.id} className="alert-item" style={{
+          <div key={getId(alert)} className="alert-item" style={{
             display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '15px',
             borderRadius: 'var(--r8)', background: 'var(--navy-2)', marginBottom: '10px',
             border: '1px solid var(--border)', borderLeft: `4px solid ${getTypeColor(alert.type)}`
@@ -70,7 +71,7 @@ const Alerts = ({ dashboard, loading, error }) => {
               <div style={{ fontSize: '12.5px', color: 'var(--b2)', lineHeight: '1.5' }}>{alert.text}</div>
               <div style={{ fontSize: '10px', fontFamily: 'var(--mono)', color: 'var(--b4)', marginTop: '5px' }}>{formatTime(alert.time)}</div>
             </div>
-            <button className="btn btn-r btn-sm" style={{ fontSize: '11px', width: '70px' }} onClick={() => setDismissed(prev => [...prev, alert.id])}>
+            <button className="btn btn-r btn-sm" style={{ fontSize: '11px', width: '70px' }} onClick={() => setDismissed(prev => [...prev, getId(alert)])}>
               Dismiss
             </button>
           </div>

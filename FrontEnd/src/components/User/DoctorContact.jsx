@@ -162,7 +162,7 @@ const DoctorContact = ({ patient }) => {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '12px', marginBottom: '24px' }}>
                     <div style={{ background: 'var(--c8)', borderRadius: 'var(--r10)', padding: '14px' }}>
                         <div style={{ fontSize: '11px', color: 'var(--c4)', marginBottom: '4px', textTransform: 'uppercase' }}>Specialty</div>
                         <div style={{ fontWeight: '600', color: 'var(--c1)' }}>{doctor.specialty}</div>

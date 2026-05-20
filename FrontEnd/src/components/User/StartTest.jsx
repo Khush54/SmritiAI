@@ -131,7 +131,8 @@ function StartTest({ completeTest, patient }) {
       }
     };
 
-    if (patient?.id && patient?.lastTestDate !== new Date().toLocaleDateString('en-CA')) {
+    const patientId = patient?.id || patient?._id;
+    if (patientId && patient?.lastTestDate !== new Date().toLocaleDateString('en-CA')) {
       fetchTestData();
     }
 
@@ -146,7 +147,7 @@ function StartTest({ completeTest, patient }) {
     setStepStatus(['pending', 'pending', 'pending', 'pending', 'pending']);
     setAnalysisDone(false);
     setAiReport(null);
-  }, [patient?.id]);
+  }, [patient?.id, patient?._id]);
 
   const testSteps = [
     { id: 'voice', title: 'Speech', icon: '🎙️' },
@@ -290,7 +291,7 @@ function StartTest({ completeTest, patient }) {
     setIsSubmitting(true);
     try {
       const payload = {
-        patientId: patient.id,
+        patientId: patient.id || patient._id,
         patientAge: patient.age || 65,
         speechDuration: answers.speechDurationSec,
         gameScore: answers.gameScore,
@@ -392,7 +393,7 @@ function StartTest({ completeTest, patient }) {
       if (!q) return <p style={{ color: 'var(--c4)', textAlign: 'center', padding: '20px' }}>Question data missing or invalid.</p>;
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <span className="badge bg-purple" style={{ fontSize: '14px', padding: '6px 12px' }}>Self-Check {behaviorIndex + 1} of 5</span>
             <span style={{ color: 'var(--c4)', fontSize: '14px' }}>Self-Awareness Diary</span>
           </div>
@@ -422,7 +423,7 @@ function StartTest({ completeTest, patient }) {
             ))}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', flexWrap: 'wrap', gap: '10px' }}>
             <button className="btn btn-ghost" disabled={behaviorIndex === 0} onClick={() => setBehaviorIndex(behaviorIndex - 1)}>← Previous</button>
             {behaviorIndex < (dynamicData?.behaviorQuestions?.length || 5) - 1 ? (
               <button className="btn btn-purple" disabled={!answers.behaviorAnswers[q?.id]} onClick={() => setBehaviorIndex(behaviorIndex + 1)} style={{ backgroundColor: 'var(--indigo)', color: 'var(--surface)' }}>
@@ -475,7 +476,7 @@ function StartTest({ completeTest, patient }) {
 
   return (
     <div className="page" style={{ maxWidth: '650px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px' }}>
         <h2 style={{ fontSize: '20px', margin: 0, fontWeight: '600', color: 'var(--c0)' }}>Screening Module: {patient?.name}</h2>
         <span className="badge bg" style={{ fontSize: '13px', padding: '5px 10px' }}>Block {currentStep + 1} of 5</span>
       </div>

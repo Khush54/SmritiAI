@@ -6,6 +6,7 @@ const EMPTY_PATIENTS = [];
 const EMPTY_NOTES = [];
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No note yet';
 const scoreColor = (score = 0) => score < 50 ? 'var(--rose)' : score < 75 ? 'var(--amber)' : 'var(--emerald)';
+const getId = (item) => item?.id || item?._id;
 
 function Notes({ dashboard, loading, error, refreshDashboard }) {
     const { showAlert } = useContext(AppContext);
@@ -21,7 +22,7 @@ function Notes({ dashboard, loading, error, refreshDashboard }) {
 
     useEffect(() => {
         if (!formData.patientId && patients.length > 0) {
-            setFormData(prev => ({ ...prev, patientId: patients[0].id }));
+            setFormData(prev => ({ ...prev, patientId: getId(patients[0]) }));
         }
     }, [patients, formData.patientId]);
 
@@ -73,12 +74,12 @@ function Notes({ dashboard, loading, error, refreshDashboard }) {
                 <div>
                     <h3 style={{ fontSize: '12px', color: 'var(--b4)', marginBottom: '12px', textTransform: 'uppercase' }}>Recent History</h3>
                     {(noteHistory.length ? noteHistory : patients).map(p => (
-                        <div key={`${p.patientId || p.id}-${p.id || p.updatedAt}`} className="card" style={{
+                        <div key={`${p.patientId || getId(p)}-${getId(p) || p.updatedAt}`} className="card" style={{
                             marginBottom: '12px',
                             cursor: 'pointer',
                             borderLeft: `2px solid ${scoreColor(p.score)}`,
                             transition: 'transform 0.2s'
-                        }} onClick={() => setFormData(prev => ({ ...prev, patientId: p.patientId || p.id }))}>
+                        }} onClick={() => setFormData(prev => ({ ...prev, patientId: p.patientId || getId(p) }))}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                                 <div className="nav-avi" style={{ width: '30px', height: '30px', fontSize: '11px' }}>{p.name?.[0]}</div>
                                 <div style={{ flex: 1 }}>
@@ -103,7 +104,7 @@ function Notes({ dashboard, loading, error, refreshDashboard }) {
                             <div className="field">
                                 <label className="flabel">Patient</label>
                                 <select className="finput" name="patientId" value={formData.patientId} onChange={handleInputChange}>
-                                    {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                    {patients.map(p => <option key={getId(p)} value={getId(p)}>{p.name}</option>)}
                                 </select>
                             </div>
 

@@ -6,6 +6,8 @@ import { getAlerts } from '../../Services/alertService'
 import { AppContext } from '../../context/AppContext'
 import { useContext } from 'react'
 
+const getId = (item) => item?.id || item?._id;
+
 function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPatient }) {
     const { setAlerts, showAlert } = useContext(AppContext);
     const navigate = useNavigate();
@@ -86,7 +88,7 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
                 <div className="card" style={{ padding: '24px', border: '1px solid var(--c8)' }}>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '16px' }}>
                             <div className="input-group">
                                 <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>FULL NAME</label>
                                 <input
@@ -113,7 +115,7 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '16px' }}>
                             <div className="input-group">
                                 <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--c4)', marginBottom: '8px', display: 'block' }}>AGE</label>
                                 <input
@@ -170,18 +172,18 @@ function Patients({ patients = [], selectedPatient, setSelectedPatient, onAddPat
             {patients.length > 0 ? (
                 patients.map((p) => (
                     <div
-                        key={p.id}
+                        key={getId(p)}
                         className="card card-hover"
                         onClick={() => setSelectedPatient?.(p)}
                         style={{
                             marginBottom: '16px',
                             cursor: 'pointer',
                             position: 'relative',
-                            boxShadow: selectedPatient?.id === p.id ? '0 0 0 2px var(--blue), 0 4px 12px rgba(59, 130, 246, 0.2)' : 'var(--shadow)',
+                            boxShadow: getId(selectedPatient) === getId(p) ? '0 0 0 2px var(--blue), 0 4px 12px rgba(59, 130, 246, 0.2)' : 'var(--shadow)',
                             transition: 'all 0.2s ease'
                         }}
                     >
-                        {selectedPatient?.id === p.id && (
+                        {getId(selectedPatient) === getId(p) && (
                             <div style={{
                                 position: 'absolute',
                                 top: '-10px',

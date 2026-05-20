@@ -28,7 +28,7 @@ function Settings({ patient, onUpdatePatient }) {
 
     if (!patient) {
         return (
-            <div className="page" style={{ textAlign: 'center', padding: '100px' }}>
+            <div className="page" style={{ textAlign: 'center', padding: 'clamp(48px, 12vw, 100px) 20px' }}>
                 <h2 style={{ color: 'var(--c1)' }}>No Patient Selected</h2>
                 <p style={{ color: 'var(--c4)' }}>Please select a family member from the dashboard to edit settings.</p>
             </div>

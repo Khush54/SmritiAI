@@ -2,6 +2,7 @@ import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import './User.css'
+const getId = (item) => item?.id || item?._id;
 const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
   const { markAllAlertsAsRead } = useContext(AppContext);
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
   };
 
   const handleView = (alert) => {
-    const targetPatient = patients.find(p => p.id === String(alert.patientId));
+    const targetPatient = patients.find(p => String(getId(p)) === String(alert.patientId));
     if (targetPatient) {
       setSelectedPatient(targetPatient);
       const title = (alert.title || '').toLowerCase();
@@ -52,12 +53,12 @@ const Alerts = ({ alertsData = [], setSelectedPatient, patients = [] }) => {
             alertsData.map((alert) => {
               const style = getAlertStyle(alert.type);
               return (
-                <div key={alert._id || alert.id} className="act-item" style={{ 
+                <div key={getId(alert)} className="act-item" style={{ 
                   padding: '16px', 
                   marginBottom: '12px', 
                   borderRadius: '12px', 
                   border: '1px solid var(--c8)', 
-                  backgroundColor: '#ffffff', 
+                  backgroundColor: 'var(--surface)', 
                   display: 'flex',
                   alignItems: 'center',
                   gap: '16px',

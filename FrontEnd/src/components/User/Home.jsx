@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './User.css'
 
+const getId = (item) => item?.id || item?._id;
+
 function Home({ patients = [], selectedPatient, setSelectedPatient }) {
   const navigate = useNavigate();
   const today = new Date().toLocaleDateString('en-IN', {
@@ -111,18 +113,18 @@ function Home({ patients = [], selectedPatient, setSelectedPatient }) {
       <div className="g2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
         {patients.map((p) => (
           <div 
-            key={p.id} 
+            key={getId(p)} 
             className="card card-hover" 
             onClick={() => setSelectedPatient(p)}
             style={{ 
               transition: 'all 0.2s', 
               borderLeft: `4px solid ${getRiskColor(p.risk, p.score)}`,
-              boxShadow: selectedPatient?.id === p.id ? '0 0 0 2px var(--blue), 0 4px 12px rgba(59, 130, 246, 0.2)' : 'var(--shadow)',
+              boxShadow: getId(selectedPatient) === getId(p) ? '0 0 0 2px var(--blue), 0 4px 12px rgba(59, 130, 246, 0.2)' : 'var(--shadow)',
               cursor: 'pointer',
               position: 'relative'
             }}
           >
-            {selectedPatient?.id === p.id && (
+            {getId(selectedPatient) === getId(p) && (
               <div style={{
                 position: 'absolute', top: '-10px', right: '-10px',
                 background: 'var(--blue)', color: 'white', borderRadius: '50%',
