@@ -11,7 +11,7 @@ function MemoryQuestion({ q, memoryIndex, setMemoryIndex, answers, setAnswers, d
         setShowOptions(false);
         const timer = setTimeout(() => {
             setShowOptions(true);
-        }, 7000);
+        }, 15000);
         return () => clearTimeout(timer);
     }, [memoryIndex]);
 
@@ -24,7 +24,7 @@ function MemoryQuestion({ q, memoryIndex, setMemoryIndex, answers, setAnswers, d
           
           {!showOptions ? (
             <div style={{ textAlign: 'center', padding: '40px 10px', background: 'var(--sky-l)', borderRadius: '16px', border: '1px solid var(--sky)' }}>
-                <p style={{ fontSize: '1.2rem', color: 'var(--c1)', marginBottom: '15px' }}>⏱️ Memorize this text or read the test for 7 seconds to answer the questions:</p>
+                <p style={{ fontSize: '1.2rem', color: 'var(--c1)', marginBottom: '15px' }}>⏱️ Memorize this text or read the test for 15 seconds to answer the questions:</p>
                 <p style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--c0)', margin: '0' }}>
                     {q?.question}
                 </p>
@@ -109,6 +109,7 @@ function StartTest({ completeTest, patient }) {
   const startTimeRef = useRef(null);
   const visualizerRef = useRef(null);
   const mediaRecorderRef = useRef(null);
+  const mediaStreamRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const animationRef = useRef(null);
@@ -170,9 +171,28 @@ function StartTest({ completeTest, patient }) {
   };
 
   // --- Voice Interface Trackers ---
+  const cleanupRecordingResources = () => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current = null;
+    }
+
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close();
+    }
+    audioContextRef.current = null;
+    analyserRef.current = null;
+  };
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
       mediaRecorderRef.current = new MediaRecorder(stream);
       const chunks = [];
       startTimeRef.current = Date.now();
@@ -190,7 +210,8 @@ function StartTest({ completeTest, patient }) {
         
         setAudioUrl(URL.createObjectURL(blob));
         setAnswers(prev => ({ ...prev, speechDurationSec: duration }));
-        cancelAnimationFrame(animationRef.current);
+        cleanupRecordingResources();
+        setIsRecording(false);
 
         const newStatus = [...stepStatus];
         newStatus[0] = 'completed';
@@ -198,7 +219,9 @@ function StartTest({ completeTest, patient }) {
       };
       mediaRecorderRef.current.start();
       setIsRecording(true);
-    } catch { 
+    } catch {
+      cleanupRecordingResources();
+      setIsRecording(false);
       showAlert("Microphone system access denied.", "error"); 
     }
   };
@@ -207,6 +230,9 @@ function StartTest({ completeTest, patient }) {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      cleanupRecordingResources();
+    } else {
+      cleanupRecordingResources();
     }
   };
 
@@ -235,14 +261,24 @@ function StartTest({ completeTest, patient }) {
   // Cleanup voice recording and animation when changing steps
   useEffect(() => {
     if (currentStep !== 0) {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
+        setIsRecording(false);
+        cleanupRecordingResources();
+      } else {
+        cleanupRecordingResources();
       }
     }
   }, [currentStep]);
+
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+      cleanupRecordingResources();
+    };
+  }, []);
 
   // --- Dynamic Short-Term Spatial Memory Game ---
   useEffect(() => {
